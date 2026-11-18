@@ -1,6 +1,10 @@
-# Architecture Proposal — Pending User Approval
+# Architecture Proposal — Partially Approved
 
-> Source: the initial Claude response supplied by the user. This document records that proposal; it is not an approved architecture.
+> Source: the initial Claude response supplied by the user. This document records that proposal.
+> **D8–D18 were approved by the user on 2026-11-18** (`ADR-008` … `ADR-018`); the ADRs are the
+> records of those approvals. **D1–D7 remain Pending User Approval**, so the layer boundaries,
+> routes, schema, redirect status, code generation, alias rules, and expiry behavior are still
+> proposals.
 
 ## 1. Layered architecture
 
@@ -134,7 +138,7 @@ Proposed status codes:
 - 409: alias conflict
 - 410: expired link
 
-## 5. Proposed technical decisions — all require approval
+## 5. Technical decisions — D8/D9 approved, D1–D7 pending
 
 > These eight items and the checklist's ninth item are consolidated as **D1–D9** in
 > [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md), which is now the canonical
@@ -144,23 +148,23 @@ Proposed status codes:
 2. Use 302 redirects so repeat visits reach the server and can be counted.
 3. Check expiration lazily on redirect; expired rows remain stored.
 4. Alias length 3–32, `[A-Za-z0-9_-]`, case-sensitive; reserve `api` and `health`.
-5. Accept only `http:` and `https:` URLs; proposed maximum length 2048.
+5. Accept only `http:` and `https:` URLs; maximum length 2048 (approved, D18).
 6. Increment click count atomically in the redirect path.
 7. Inject a clock function for deterministic expiration tests.
-8. Consider `supertest` for API integration tests; this is an additional dependency and requires approval.
+8. Use `supertest` for API integration tests — approved 2026-11-18 (D8, [`ADR-008`](decisions/ADR-008.md)).
 
 ## 6. Dependency proposal
 
 > Exact versions were verified on 2026-11-18 and recorded in
 > [`research-findings.md`](research-findings.md) §2. Version pinning, the Node policy, and the
-> lockfile rule are **D10–D14** and are not approved.
+> lockfile rule are **D10–D14** and were approved on 2026-11-18.
 
 Requested runtime dependencies:
 - `express`
 - `better-sqlite3`
 - `zod`
 
-Proposed development dependencies:
+Approved development dependencies (D10–D14):
 - `typescript`
 - `@types/node`
 - `@types/express`
@@ -168,13 +172,16 @@ Proposed development dependencies:
 - `tsx`
 - `vitest`
 
-Additional proposed dependency:
-- `supertest` and `@types/supertest` for integration tests. Decide whether to approve or use built-in `fetch` with an ephemeral server.
+Approved additional dependency (D8, 2026-11-18 — [`ADR-008`](decisions/ADR-008.md)):
+- `supertest@^7.3.2` and `@types/supertest@^7.2.1`, dev-only, for API integration tests. No
+  ephemeral `fetch` harness is needed.
 
-## 7. Verified technical configuration (proposed under D10–D18)
+## 7. Verified technical configuration (approved under D10–D18)
 
 The research pass added decisions this proposal did not originally cover. They are recorded in
-[`research-findings.md`](research-findings.md) and tracked as **D10–D18**; none is approved.
+[`research-findings.md`](research-findings.md), tracked as **D10–D18**, and **approved on
+2026-11-18** (`ADR-010` … `ADR-018`). The bullets below are the approved configuration, not
+proposals.
 
 - **TypeScript 6.0.3**, not 7.0.2: `typescript-eslint@8.73.0` peers
   `typescript >=4.8.4 <6.1.0`. A no-emit `tsconfig.json` plus an emitting `tsconfig.build.json`
@@ -209,8 +216,9 @@ The original estimate was approximately 4h20m plus 40m buffer. Treat this as an 
 
 ## 9. Approval checklist
 
-Every item maps to a decision ID. **No checkbox may be checked on the user's behalf**, and no
-item is approved as of 2026-11-18. Status detail: [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
+Every item maps to a decision ID. **D8–D18 were explicitly approved by the user on 2026-11-18**
+and are checked below. **D1–D7 remain unchecked**; no checkbox may be checked on the user's behalf.
+Status detail: [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
 Architecture and behavior:
 
@@ -221,17 +229,21 @@ Architecture and behavior:
 - [ ] **D5** — Approve random 7-character Base62 codes and the retry strategy.
 - [ ] **D6** — Approve alias rules, case sensitivity, and reserved words.
 - [ ] **D7** — Approve lazy expiration and `410` behavior.
-- [ ] **D8** — Approve `supertest` or choose built-in `fetch`.
-- [ ] **D9** — Decide whether deletion is in the MVP.
+- [x] **D8** — `supertest` — approved 2026-11-18 ([`ADR-008`](decisions/ADR-008.md)).
+- [x] **D9** — Deletion stays out of the MVP — approved 2026-11-18
+      ([`ADR-009`](decisions/ADR-009.md)).
 
-Toolchain and contracts:
+Toolchain and contracts — all approved 2026-11-18:
 
-- [ ] **D10** — Approve TypeScript 6.0.3 and the tsconfig split.
-- [ ] **D11** — Approve ESLint 10 flat config with type-aware linting.
-- [ ] **D12** — Approve `better-sqlite3` 13 and its typings.
-- [ ] **D13** — Approve the Node.js 24 LTS policy.
-- [ ] **D14** — Approve caret ranges and a committed lockfile.
-- [ ] **D15** — Approve canonical UTC timestamps and the expiry boundary.
-- [ ] **D16** — Approve native ESM.
-- [ ] **D17** — Approve the API contracts, `PUBLIC_BASE_URL` policy, and Host-header rule.
-- [ ] **D18** — Approve the URL scheme and length limits.
+- [x] **D10** — TypeScript 6.0.3 and the tsconfig split ([`ADR-010`](decisions/ADR-010.md)).
+- [x] **D11** — ESLint 10 flat config with type-aware linting
+      ([`ADR-011`](decisions/ADR-011.md)).
+- [x] **D12** — `better-sqlite3` 13 and its typings ([`ADR-012`](decisions/ADR-012.md)).
+- [x] **D13** — Node.js 24 LTS policy ([`ADR-013`](decisions/ADR-013.md)).
+- [x] **D14** — Caret ranges and a committed lockfile ([`ADR-014`](decisions/ADR-014.md)).
+- [x] **D15** — Canonical UTC timestamps and the expiry boundary
+      ([`ADR-015`](decisions/ADR-015.md)).
+- [x] **D16** — Native ESM ([`ADR-016`](decisions/ADR-016.md)).
+- [x] **D17** — API contracts, `PUBLIC_BASE_URL` policy, and the Host-header rule
+      ([`ADR-017`](decisions/ADR-017.md)).
+- [x] **D18** — URL scheme and length limits ([`ADR-018`](decisions/ADR-018.md)).

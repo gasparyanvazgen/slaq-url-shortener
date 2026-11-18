@@ -4,9 +4,10 @@
 > An ADR under `docs/decisions/ADR-NNN.md` is created only when the user approves the
 > corresponding `D-NNN`, and reuses the same number.
 
-- **Register updated:** 2026-11-18
+- **Register updated:** 2026-11-18 (approval synchronization)
 - **Decisions:** D1–D18
-- **Approved by the user:** **none**
+- **Approved by the user:** **D8–D18** on 2026-11-18 — recorded as `ADR-008` … `ADR-018`
+- **Pending User Approval:** **D1–D7**
 - **Decision owner:** User (`AGENTS.md` §3)
 
 ## Status vocabulary
@@ -19,8 +20,9 @@
 | **Rejected** | Explicitly declined by the user. Kept for traceability. |
 | **Superseded** | Replaced by a later decision; the replacement is named. |
 
-No entry is **Approved**, **Rejected**, or **Superseded** as of 2026-11-18. An AI recommendation,
-this register, or a "looks good" from anyone other than the user is **not** approval.
+D8–D18 are **Approved** by the user on 2026-11-18 and each has an ADR. D1–D7 remain **Pending User
+Approval**: nothing in this register, and no AI recommendation, approves them. No entry is
+**Rejected** or **Superseded**.
 
 ## Status summary
 
@@ -33,17 +35,17 @@ this register, or a "looks good" from anyone other than the user is **not** appr
 | D5 | Short-code generation (7-char Base62, 5 retries) | Pending User Approval |
 | D6 | Alias rules and reserved names | Pending User Approval |
 | D7 | Expiration behavior (`410`, lazy, rows retained) | Pending User Approval |
-| D8 | Integration-test dependency: `supertest` vs built-in `fetch` | Pending User Approval |
-| D9 | Deletion in the MVP | Pending User Approval |
-| D10 | TypeScript 6.0.3 and tsconfig layout | Pending User Approval |
-| D11 | ESLint 10 flat config with type-aware linting | Pending User Approval |
-| D12 | `better-sqlite3` 13 + `@types/better-sqlite3` 9 typings | Pending User Approval |
-| D13 | Node.js 24 LTS runtime policy | Pending User Approval |
-| D14 | Dependency ranges (caret) plus committed lockfile | Pending User Approval |
-| D15 | Canonical UTC timestamps and expiry boundary | Pending User Approval |
-| D16 | Native ESM module system | Pending User Approval |
-| D17 | API response contracts, `PUBLIC_BASE_URL`, Host-header safety | Pending User Approval |
-| D18 | Destination URL format and length limits | Pending User Approval |
+| D8 | Integration-test dependency: `supertest` vs built-in `fetch` | **Approved** — `ADR-008` |
+| D9 | Deletion in the MVP | **Approved** — `ADR-009` |
+| D10 | TypeScript 6.0.3 and tsconfig layout | **Approved** — `ADR-010` |
+| D11 | ESLint 10 flat config with type-aware linting | **Approved** — `ADR-011` |
+| D12 | `better-sqlite3` 13 + `@types/better-sqlite3` 9 typings | **Approved** — `ADR-012` |
+| D13 | Node.js 24 LTS runtime policy | **Approved** — `ADR-013` |
+| D14 | Dependency ranges (caret) plus committed lockfile | **Approved** — `ADR-014` |
+| D15 | Canonical UTC timestamps and expiry boundary | **Approved** — `ADR-015` |
+| D16 | Native ESM module system | **Approved** — `ADR-016` |
+| D17 | API response contracts, `PUBLIC_BASE_URL`, Host-header safety | **Approved** — `ADR-017` |
+| D18 | Destination URL format and length limits | **Approved** — `ADR-018` |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
 D10–D18 are the toolchain and contract findings verified in `docs/research-findings.md`.
@@ -70,7 +72,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D2 — `links` table schema and schema bootstrap
 
-- **Status:** Pending User Approval
+- **Status:** Pending User Approval — includes the `CHECK` constraint set. The refined set in the
+  final decision clarification report has **not** been approved and is not in force.
 - **Proposed decision:** One table:
 
   ```sql
@@ -191,8 +194,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D8 — Integration-test dependency: `supertest` vs built-in `fetch`
 
-- **Status:** Pending User Approval (single open sub-choice)
-- **Proposed decision:** Use **`supertest@^7.3.2`** with `@types/supertest@^7.2.1` for API tests,
+- **Status:** **Approved** 2026-11-18 — [`ADR-008.md`](ADR-008.md). Selected: `supertest`.
+- **Decision:** Use **`supertest@^7.3.2`** with `@types/supertest@^7.2.1` for API tests,
   driving the Express app in-process without binding a port.
 - **Justification:** `supertest` asserts status, headers, and JSON in one chain and starts an
   ephemeral listener automatically, which keeps redirect and header tests short. It is a
@@ -209,8 +212,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D9 — Deletion in the MVP
 
-- **Status:** Pending User Approval
-- **Proposed decision:** **Out of scope** for the MVP. No `DELETE` endpoint and no `deleted_at`
+- **Status:** **Approved** 2026-11-18 — [`ADR-009.md`](ADR-009.md). Deletion stays out of scope.
+- **Decision:** **Out of scope** for the MVP. No `DELETE` endpoint and no `deleted_at`
   column.
 - **Justification:** Nothing in the ten MVP capabilities requires deletion, and it introduces
   authorization questions (anyone could delete any link) that the project explicitly excludes.
@@ -223,8 +226,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D10 — TypeScript 6.0.3 and tsconfig layout
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `typescript@^6.0.3` (not 7.0.2), with a no-emit `tsconfig.json` for
+- **Status:** **Approved** 2026-11-18 — [`ADR-010.md`](ADR-010.md).
+- **Decision:** `typescript@^6.0.3` (not 7.0.2), with a no-emit `tsconfig.json` for
   typecheck/editor and a `tsconfig.build.json` that emits `dist/`, as specified in
   `docs/research-findings.md` §3.
 - **Justification:** `typescript-eslint@8.73.0` peers `typescript >=4.8.4 <6.1.0`; 7.0.2 also has
@@ -241,8 +244,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D11 — ESLint 10 flat config with type-aware linting
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `eslint@^10.15.0`, `@eslint/js@^10.0.1`, `typescript-eslint@^8.73.0`,
+- **Status:** **Approved** 2026-11-18 — [`ADR-011.md`](ADR-011.md).
+- **Decision:** `eslint@^10.15.0`, `@eslint/js@^10.0.1`, `typescript-eslint@^8.73.0`,
   `globals@^17.14.0`, one `eslint.config.js` using `recommendedTypeChecked` with
   `projectService: true`; script `"lint": "eslint ."`.
 - **Justification:** ESLint 10 requires flat config, and type-aware rules catch the SQL/typing
@@ -256,8 +259,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D12 — `better-sqlite3` 13 with separate typings
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `better-sqlite3@^13.2.0` plus `@types/better-sqlite3@^9.6.0`; a thin
+- **Status:** **Approved** 2026-11-18 — [`ADR-012.md`](ADR-012.md).
+- **Decision:** `better-sqlite3@^13.2.0` plus `@types/better-sqlite3@^9.6.0`; a thin
   typed wrapper for `pragma()` and `lastInsertRowid` instead of `any` or lint suppressions.
 - **Justification:** The package ships prebuilt N-API binaries (`gypfile: false`) and declares
   `engines.node >= 22`, matching D13. It has **no** bundled types, so the DefinitelyTyped package
@@ -274,8 +277,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D13 — Node.js 24 LTS runtime policy
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Target Node.js 24 LTS: `.nvmrc` = `24`,
+- **Status:** **Approved** 2026-11-18 — [`ADR-013.md`](ADR-013.md).
+- **Decision:** Target Node.js 24 LTS: `.nvmrc` = `24`,
   `"engines": { "node": "^24.0.0" }`, committed `package-lock.json`, **no** `engine-strict`.
 - **Justification:** Node 24 is a supported LTS until 2028-04-30, satisfies
   `better-sqlite3`'s `>=22`, and is the conservative choice for a portfolio project. Without
@@ -284,16 +287,16 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   provides, but it shortens the support horizon and is newer than most CI images. Pinning 22
   narrows the window unnecessarily.
 - **Verification:** Node release schedule (24 Maintenance LTS since 2026-10-20, EOL 2028-04-30);
-  `better-sqlite3` engines. **This workspace runs Node 26.13.0**, so the declared target cannot
-  be verified here.
+  `better-sqlite3` engines. The user's machine runs **Node 24.22.1**, which satisfies the target;
+  the earlier mismatch came from a cloud sandbox running Node 26.13.0.
 - **Affected documents:** `PROJECT.md`, `PROJECT_STATE.md` (blocker), `README.md`, `TASKS.md` §1,
   `docs/research-findings.md` §1/§6.
 - **Depends on / constrains:** D12 (`engines.node >= 22`), D10 (`@types/node` 24.x), D14.
 
 ## D14 — Dependency ranges plus a committed lockfile
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Use caret ranges in `package.json` (`"express": "^5.3.0"`) and commit
+- **Status:** **Approved** 2026-11-18 — [`ADR-014.md`](ADR-014.md).
+- **Decision:** Use caret ranges in `package.json` (`"express": "^5.3.0"`) and commit
   `package-lock.json`; install with `npm ci` when a lockfile exists. No `latest` tags, no exact
   pins.
 - **Justification:** Caret ranges express the tested compatibility window while the lockfile
@@ -308,8 +311,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D15 — Canonical UTC timestamps and expiry boundary
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Store `YYYY-MM-DDTHH:mm:ss.sssZ` produced only by `toISOString()` in
+- **Status:** **Approved** 2026-11-18 — [`ADR-015.md`](ADR-015.md).
+- **Decision:** Store `YYYY-MM-DDTHH:mm:ss.sssZ` produced only by `toISOString()` in
   application code, using an injected clock. SQL never calls SQLite date functions. Inputs with
   offsets are normalized to `Z`. A link is expired when `expiresAt <= now`. `expiresAt` must be
   strictly future at creation.
@@ -327,8 +330,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D16 — Native ESM module system
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `"type": "module"`, `module`/`moduleResolution` = `nodenext`, `.js`
+- **Status:** **Approved** 2026-11-18 — [`ADR-016.md`](ADR-016.md).
+- **Decision:** `"type": "module"`, `module`/`moduleResolution` = `nodenext`, `.js`
   extensions on relative imports, `import.meta.dirname`, `tsx` for dev, `node dist/server.js`
   for production.
 - **Justification:** ESM is the modern default, works with the ESM-only direction of the
@@ -346,8 +349,9 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D17 — API response contracts, `PUBLIC_BASE_URL`, Host-header safety
 
-- **Status:** Pending User Approval (three open sub-options)
-- **Proposed decision:** Adopt the create/statistics bodies, error codes, and security rules in
+- **Status:** **Approved** 2026-11-18 — [`ADR-017.md`](ADR-017.md). All three sub-options are
+  resolved below.
+- **Decision:** Adopt the create/statistics bodies, error codes, and security rules in
   `docs/research-findings.md` §9–10 and `docs/api-specification.md`. `shortUrl` is built only
   from validated `PUBLIC_BASE_URL`; the `Host`/`X-Forwarded-Host` header is never used.
   `PUBLIC_BASE_URL` is validated at startup, defaults to `http://localhost:${PORT}` in
@@ -358,20 +362,19 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Alternatives / trade-offs:** Deriving the origin from `Host` needs no configuration but is
   unsafe. Returning a relative `shortUrl` avoids configuration but is less useful. Warning
   instead of failing in production risks serving wrong links silently.
-- **Open sub-options:** (a) stats for an expired link → `200` with `isExpired: true`
-  (recommended) or `410`; (b) expose `isCustom`; (c) production behaviour → fail fast
-  (recommended) or warn.
+- **Resolved sub-options (2026-11-18):** (a) stats for an expired link → `200` with
+  `isExpired: true`; (b) `isCustom` **is** exposed; (c) production behaviour → **fail fast**.
 - **Verification:** `new URL()` normalization, Zod 4 `z.url()`/`z.iso.datetime()` behavior.
   Unproven until implemented and tested with a forged `Host` header.
 - **Affected documents:** `docs/api-specification.md`, `docs/security-guidelines.md`,
   `docs/requirements.md` FR-06, `docs/testing-strategy.md`, `TASKS.md` §7.
-- **Depends on / constrains:** D3 (routes/envelope), D15 (timestamps), D7 (expired stats). D17
-  must be settled before the create-link controller is written.
+- **Depends on / constrains:** D3 (routes/envelope), D15 (timestamps), D7 (expired stats). D17 is
+  settled as of 2026-11-18; the create-link controller is gated only by D1–D7.
 
 ## D18 — Destination URL format and length limits
 
-- **Status:** Pending User Approval (one open sub-option)
-- **Proposed decision:** Accept only absolute `http:`/`https:` URLs, 2048 characters maximum
+- **Status:** **Approved** 2026-11-18 — [`ADR-018.md`](ADR-018.md). Credentials are rejected.
+- **Decision:** Accept only absolute `http:`/`https:` URLs, 2048 characters maximum
   measured after trimming, stored as submitted after trim (no rewriting of path/query, no
   trailing-slash normalization). Reject `javascript:`, `data:`, `file:`, protocol-relative, and
   unparseable values with `400 VALIDATION_ERROR`.
@@ -381,9 +384,9 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Alternatives / trade-offs:** Normalizing (lowercasing host, stripping default ports) makes
   deduplication possible but changes user intent. A larger cap accommodates edge cases at the
   cost of header limits. `z.httpUrl()` additionally requires a registrable domain and would
-  reject `localhost`, so plain `z.url()` plus explicit checks is proposed.
-- **Open sub-option:** whether to reject URLs containing embedded credentials
-  (`https://user:pass@host/`) — recommended **yes**.
+  reject `localhost`, so plain `z.url()` plus explicit checks is used.
+- **Resolved sub-option (2026-11-18):** URLs containing embedded credentials
+  (`https://user:pass@host/`) **are rejected** with `400 VALIDATION_ERROR`.
 - **Verification:** Zod 4 `z.url()` is permissive and does not normalize unless asked; scheme and
   length must be checked explicitly. Not yet implemented.
 - **Affected documents:** `docs/requirements.md` (open question resolved as proposal),
@@ -411,3 +414,20 @@ contradictions. The checklist item "confirm API routes, error contract, aliases,
 expiry, and click counting" spans D3–D7 and introduces no new decision. No decision here changes
 the requested stack (Node.js, TypeScript, Express, SQLite, `better-sqlite3`, Zod, Vitest); D10–D14
 only pin versions and configuration.
+
+## Approval record
+
+| Date | Scope | Result | Records |
+|---|---|---|---|
+| 2026-11-18 | D8–D18 and their sub-options | Approved by the user | `ADR-008.md` … `ADR-018.md` |
+| — | D1–D7 | Still **Pending User Approval** | no ADR yet |
+
+The approval covers each entry as written, including the recommendations in the final decision
+clarification report: `supertest` (D8), deletion out of scope (D9), the explicit TypeScript 6
+configuration (D10), ESLint 10 flat config (D11), `better-sqlite3` with typed helpers (D12),
+Node.js 24 LTS (D13), caret ranges with a committed lockfile (D14), canonical UTC timestamps
+(D15), native ESM (D16), the API/`PUBLIC_BASE_URL` contract with `200` + `isExpired`, exposed
+`isCustom` and production fail-fast (D17), and the scheme/2048/credential rules (D18).
+
+D2's refined `CHECK` constraint set was evaluated in the same clarification report but belongs to
+D2, which is outside the approved range. It remains **Pending User Approval** together with D1–D7.

@@ -1,8 +1,10 @@
 # API Specification — Draft
 
-> **Status:** Draft proposal. The routes come from `docs/architecture-proposal.md`; the bodies,
-> headers, and error codes are proposed under D3, D17, and D18 and are **not approved**.
-> Nothing here may be described as a finalized contract until the register says Approved.
+> **Status:** Partially approved. The bodies, headers, error codes, `PUBLIC_BASE_URL` rule, and URL
+> limits are **approved** under D17/D18 (2026-11-18 — `ADR-017`, `ADR-018`). The route set and the
+> error-envelope shape still come from **D3, which remains Pending User Approval**, as do the
+> redirect status (D4), expiry behavior (D7), alias rules (D6), and the schema (D2). Treat those as
+> proposals.
 
 Base URL: the validated `PUBLIC_BASE_URL` (for example `https://slaq.example`). Short URLs are
 never built from the request `Host` header.
@@ -32,7 +34,7 @@ never built from the request `Host` header.
 | `alias` | no | 3–32 characters, `[A-Za-z0-9_-]`, case-sensitive, not `api` or `health`, not already used. |
 | `expiresAt` | no | ISO 8601 with offset; normalized to UTC `Z`; must be strictly in the future. |
 
-Proposed success response — `201 Created`, `Location: <shortUrl>`:
+Success response — `201 Created`, `Location: <shortUrl>` (approved D17):
 
 ```json
 {
@@ -45,8 +47,8 @@ Proposed success response — `201 Created`, `Location: <shortUrl>`:
 }
 ```
 
-Proposed failures: `400 VALIDATION_ERROR`, `400 RESERVED_ALIAS`, `409 ALIAS_TAKEN`,
-`500 INTERNAL_ERROR`.
+Failures: `400 VALIDATION_ERROR`, `400 RESERVED_ALIAS`, `409 ALIAS_TAKEN`, `500 INTERNAL_ERROR`
+(approved D17).
 
 ## Redirect
 
@@ -67,7 +69,7 @@ Location: https://example.com/very/long
 
 `GET /api/links/:code/stats`
 
-Proposed success response — `200 OK`, `Cache-Control: no-store`:
+Success response — `200 OK`, `Cache-Control: no-store` (approved D17):
 
 ```json
 {
@@ -84,7 +86,8 @@ Proposed success response — `200 OK`, `Cache-Control: no-store`:
 ```
 
 - Unknown code: `404 NOT_FOUND`.
-- Expired code: proposed `200` with `isExpired: true` and the retained count (pending D17).
+- Expired code: `200` with `isExpired: true` and the retained count (approved D17,
+  2026-11-18).
 - `lastClickedAt` is `null` until the first successful redirect.
 
 ## Error response
@@ -119,11 +122,20 @@ Proposed success response — `200 OK`, `Cache-Control: no-store`:
 - `Cache-Control: no-store` on statistics responses, because click counts change.
 - No `Cache-Control` override on the redirect beyond Express defaults.
 
-## API decisions still required
+## Decision status
 
-- Approve the create and statistics bodies (D17), including whether `originalUrl` is echoed.
-- Approve the expired-statistics policy: `200` + `isExpired` or `410`.
-- Approve whether `isCustom` is exposed.
-- Approve the `PUBLIC_BASE_URL` validation and production fail-fast rule.
-- Confirm deletion stays out of scope (D9).
-- Approve the URL length and scheme limits (D18).
+Approved on 2026-11-18 (`ADR-017`, `ADR-018`, `ADR-009`):
+
+- The create and statistics bodies above, including the echoed `originalUrl`.
+- Expired statistics return `200` with `isExpired: true` and the retained count, not `410`.
+- `isCustom` is exposed.
+- `PUBLIC_BASE_URL` validation and production fail-fast; `shortUrl` never comes from `Host`.
+- Deletion stays out of scope, so no delete route exists.
+- URL length, scheme allow-list, and embedded-credential rejection.
+
+Still pending and therefore provisional in this document:
+
+- The route set and the error-envelope shape (D3).
+- Alias rules, case sensitivity, and reserved names (D6).
+- The `302` redirect status (D4) and lazy expiry with `410` (D7).
+- The `links` schema and its `CHECK` constraints (D2).

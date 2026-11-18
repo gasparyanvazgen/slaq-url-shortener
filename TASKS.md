@@ -19,7 +19,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Audit and synchronize project documentation with the findings. — Evidence: `CHANGELOG.md`
       entry of 2026-11-18.
 
-### 0.2 Decisions (blocked on the user)
+### 0.2 Decisions (D8–D18 approved 2026-11-18; D1–D7 pending)
 
 - [ ] Review `docs/architecture-proposal.md` and the register.
 - [ ] Approve or amend D1 — layered architecture and feature-module layout.
@@ -30,21 +30,27 @@ this file as work progresses. Decision IDs refer to
 - [ ] Approve or amend D5 — 7-character Base62 codes with five collision retries.
 - [ ] Approve or amend D6 — alias rules, case sensitivity, reserved names.
 - [ ] Approve or amend D7 — lazy expiration, `410`, rows retained.
-- [ ] Decide D8 — `supertest` (recommended) or built-in `fetch`.
-- [ ] Decide D9 — confirm deletion is out of scope.
-- [ ] Approve or amend D10 — TypeScript 6.0.3 and tsconfig split.
-- [ ] Approve or amend D11 — ESLint 10 flat config, type-aware.
-- [ ] Approve or amend D12 — `better-sqlite3` 13 + `@types/better-sqlite3` 9.
-- [ ] Approve or amend D13 — Node.js 24 LTS policy (workspace runs Node 26).
-- [ ] Approve or amend D14 — caret ranges + committed lockfile.
-- [ ] Approve or amend D15 — canonical UTC timestamps and `expiresAt <= now` boundary.
-- [ ] Approve or amend D16 — native ESM.
-- [ ] Approve or amend D17 — API contracts, `PUBLIC_BASE_URL`, Host-header safety (including the
-      expired-stats, `isCustom`, and fail-fast sub-options).
-- [ ] Approve or amend D18 — URL scheme and 2048-character limit (including the credentials
-      sub-option).
-- [ ] Record approved decisions as `ADR-001` … `ADR-018` under `docs/decisions/`.
-- [ ] Confirm the `.gitignore` change: `.env.*` is now ignored, with `.env.example`
+- [x] **D8 approved 2026-11-18** — `supertest` + `@types/supertest`, dev-only. Evidence:
+      `docs/decisions/ADR-008.md`.
+- [x] **D9 approved 2026-11-18** — deletion stays out of scope. Evidence: `ADR-009.md`.
+- [x] **D10 approved 2026-11-18** — TypeScript 6.0.3 and the tsconfig split. Evidence:
+      `ADR-010.md`.
+- [x] **D11 approved 2026-11-18** — ESLint 10 flat config, type-aware. Evidence: `ADR-011.md`.
+- [x] **D12 approved 2026-11-18** — `better-sqlite3` 13 + `@types/better-sqlite3` 9. Evidence:
+      `ADR-012.md`.
+- [x] **D13 approved 2026-11-18** — Node.js 24 LTS policy. Evidence: `ADR-013.md`.
+- [x] **D14 approved 2026-11-18** — caret ranges + committed lockfile. Evidence: `ADR-014.md`.
+- [x] **D15 approved 2026-11-18** — canonical UTC timestamps and the `expiresAt <= now`
+      boundary. Evidence: `ADR-015.md`.
+- [x] **D16 approved 2026-11-18** — native ESM. Evidence: `ADR-016.md`.
+- [x] **D17 approved 2026-11-18** — API contracts, `PUBLIC_BASE_URL`, Host-header safety;
+      sub-options resolved to `200` + `isExpired`, `isCustom` exposed, fail-fast. Evidence:
+      `ADR-017.md`.
+- [x] **D18 approved 2026-11-18** — scheme allow-list, 2048-character cap, credentials rejected.
+      Evidence: `ADR-018.md`.
+- [x] Record the approved decisions as ADRs — `docs/decisions/ADR-008.md` … `ADR-018.md`.
+- [ ] Record any future D1–D7 approval as `ADR-001` … `ADR-007`.
+- [ ] Confirm the `.gitignore` change: `.env.*` is ignored, with `.env.example`
       exempted, so a future example file stays trackable.
 - [ ] Confirm requirements and acceptance criteria (Prompt 02).
 
@@ -63,8 +69,8 @@ this file as work progresses. Decision IDs refer to
 - [ ] Initialize the npm project with `"type": "module"`.
 - [ ] Add `.nvmrc` (`24`) and `"engines": { "node": "^24.0.0" }`.
 - [ ] Add runtime deps (`express`, `better-sqlite3`, `zod`) at approved versions.
-- [ ] Add dev deps (TypeScript, ESLint set, `@types/*`, `tsx`, `vitest`, and `supertest` if D8
-      approves it).
+- [ ] Add dev deps (TypeScript, ESLint set, `@types/*`, `tsx`, `vitest`, `supertest` — approved
+      D8).
 - [ ] Configure `tsconfig.json` (no emit) and `tsconfig.build.json` (emit to `dist/`).
 - [ ] Configure ESLint flat config with type-aware rules.
 - [ ] Configure Vitest.

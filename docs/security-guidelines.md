@@ -1,14 +1,15 @@
 # Security Guidelines
 
 This is a minimum checklist for a URL shortener, not a claim of production-grade security.
-Items marked with a D-ID are proposals awaiting approval.
+Items marked with a D-ID cite their decision: **D17 and D18 are approved** (2026-11-18). Items
+resting on **D2 or D6** are still proposals.
 
 ## Input and redirect safety
 
 - Accept only absolute `http:` and `https:` destination URLs. Reject `javascript:`, `data:`,
   `file:`, protocol-relative values, and anything unparseable. (D18)
 - Reject URLs longer than 2048 characters after trimming. (D18)
-- Reject embedded credentials (`https://user:pass@host/`). (D18, pending)
+- Reject embedded credentials (`https://user:pass@host/`). (D18, approved 2026-11-18)
 - Never execute or fetch the destination URL while creating or redirecting. The service stores and
   returns a string; it does not make outbound requests. SSRF guidance does not apply to that
   behavior — do not claim SSRF protection.
@@ -18,7 +19,8 @@ Items marked with a D-ID are proposals awaiting approval.
 
 ## Base URL and Host-header safety
 
-- `PUBLIC_BASE_URL` is the only source of the origin used to build `shortUrl`. (D17)
+- `PUBLIC_BASE_URL` is the only source of the origin used to build `shortUrl`. (D17, approved
+  2026-11-18)
 - **Never** derive the short URL from `Host`, `X-Forwarded-Host`, or forwarded-protocol headers.
   A header-controlled origin lets an attacker mint links pointing at their own host and enables
   cache poisoning.
@@ -34,7 +36,8 @@ Items marked with a D-ID are proposals awaiting approval.
 - Enforce unique short codes with `UNIQUE(code)` in SQLite, not only with a pre-check.
 - Do not use SQLite date functions for application timestamps; they are second-precision and
   bypass the injected clock.
-- Keep `click_count` non-negative with a `CHECK` constraint if D2 approves it.
+- Keep `click_count` non-negative with a `CHECK` constraint once D2 is approved; D2 is still
+  pending.
 
 ## Errors and logging
 

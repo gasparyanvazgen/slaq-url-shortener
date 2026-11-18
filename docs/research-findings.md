@@ -20,7 +20,7 @@
 | Node.js | **v26.13.0** |
 | npm | **11.20.0** |
 | Module ABI | 147 (Node 26) |
-| Project target runtime (proposed) | **Node.js 24 LTS** |
+| Project target runtime (approved, D13) | **Node.js 24 LTS** |
 | Git branch | `dev` (created from `master`) |
 | Git baseline | `b01087c` — `docs: establish execution framework baseline and sync project state` |
 | Git remote | none configured in this workspace |
@@ -32,7 +32,7 @@ the decision register (D13).
 
 ## 2. Registry versions (verified 2026-11-18)
 
-| Package | `latest` | Proposed range | Note |
+| Package | `latest` | Range (approved under D14) | Note |
 |---|---|---|---|
 | `typescript` | 7.0.2 | `^6.0.3` | 6.x latest is 6.0.3; see §3 |
 | `eslint` | 10.15.0 | `^10.15.0` | 9.x latest is 9.39.5 |
@@ -43,8 +43,8 @@ the decision register (D13).
 | `zod` | 4.6.7 | `^4.6.7` | Zod 4 API |
 | `vitest` | 5.1.1 | `^5.1.1` | |
 | `tsx` | 4.23.15 | `^4.23.15` | dev runner |
-| `supertest` | 7.3.2 | `^7.3.2` | only if D8 selects it |
-| `@types/supertest` | 7.2.1 | `^7.2.1` | only if D8 selects it |
+| `supertest` | 7.3.2 | `^7.3.2` | dev-only, approved (D8) |
+| `@types/supertest` | 7.2.1 | `^7.2.1` | dev-only, approved (D8) |
 | `better-sqlite3` | 13.2.0 | `^13.2.0` | engines `>=22`, no bundled types |
 | `@types/better-sqlite3` | 9.6.0 | `^9.6.0` | separate package required |
 | `@types/express` | 5.0.6 | `^5.0.6` | for Express 5 |
@@ -75,7 +75,7 @@ TypeScript 6.0 changed defaults and removals that affect an explicit config:
   resolution, `outFile`, `asserts`, `downlevelIteration`, `module: amd|umd|systemjs|none`.
 - Running `tsc file.ts` while a `tsconfig.json` exists is now an error; always pass `-p`.
 
-Proposed configuration (D10) makes every relevant option explicit instead of relying on defaults:
+Approved configuration (D10) makes every relevant option explicit instead of relying on defaults:
 
 ```jsonc
 // tsconfig.json — typecheck + editor, no emit
@@ -120,7 +120,7 @@ Proposed configuration (D10) makes every relevant option explicit instead of rel
 - Type-aware linting needs `parserOptions.projectService: true` (or an explicit `project`).
 - `@eslint/js@10.0.1` ships `js.configs.recommended`; `globals@17.14.0` supplies `globals.node`.
 
-Proposed `eslint.config.js` (D11):
+Approved `eslint.config.js` (D11):
 
 ```js
 import js from '@eslint/js';
@@ -167,7 +167,7 @@ Typing characteristics of `@types/better-sqlite3@9.6.0`:
 
 ## 6. Node.js policy
 
-Proposed (D13): `.nvmrc` containing `24`, `"engines": { "node": "^24.0.0" }`, a committed
+Approved (D13): `.nvmrc` containing `24`, `"engines": { "node": "^24.0.0" }`, a committed
 `package-lock.json`, and **no** `engine-strict`. Rationale: Node 24 is a supported LTS until
 2028-04-30 with a predictable ABI, and `better-sqlite3` requires `>=22`. Without
 `engine-strict`, a newer local Node (such as this sandbox's 26.13.0) can still run the project,
@@ -176,7 +176,7 @@ advisory mismatch into a hard `npm install` failure without improving correctnes
 
 ## 7. Native ESM
 
-Proposed (D16), matching `module: nodenext`:
+Approved (D16), matching `module: nodenext`:
 
 - `"type": "module"` in `package.json`.
 - Relative imports must carry the `.js` extension even in `.ts` sources
@@ -188,7 +188,7 @@ Proposed (D16), matching `module: nodenext`:
 
 ## 8. Canonical timestamps and expiration boundary
 
-Proposed (D15):
+Approved (D15):
 
 - One stored format: `YYYY-MM-DDTHH:mm:ss.sssZ`, produced only by `Date.prototype.toISOString()`.
 - Timestamps are generated **only in application code** through an injected clock. SQL must
@@ -204,7 +204,7 @@ Eleven boundary cases to test are enumerated in `docs/testing-strategy.md`.
 
 ## 9. PUBLIC_BASE_URL and Host-header security
 
-Proposed (D17):
+Approved (D17):
 
 - `PUBLIC_BASE_URL` is the only source of the public origin used to build `shortUrl`.
 - **Never** derive the short URL from the request `Host` or `X-Forwarded-Host` header; a
@@ -215,9 +215,10 @@ Proposed (D17):
 - Production: fail fast at startup when unset or invalid; do not silently fall back to a
   guessed host.
 
-## 10. Proposed API contracts
+## 10. Approved API contracts
 
-Shapes below are proposals pending D17, not an approved contract.
+Shapes below are the **approved contract** under D17 (2026-11-18, `ADR-017`). The route set and
+error-envelope shape still come from D3 and remain pending.
 
 Create `POST /api/links` → `201` with `Location: <shortUrl>`:
 
@@ -281,11 +282,11 @@ is exposed at all.
 These cannot be proven without a package manifest and installed dependencies; none may be
 reported as verified before then:
 
-1. That the proposed `tsconfig.json` compiles the proposed source layout with TS 6.0.3.
+1. That the approved `tsconfig.json` compiles the agreed source layout with TS 6.0.3.
 2. That `@types/better-sqlite3@9.6.0` covers every call the implementation makes without a
    cast or suppression.
 3. That the first `npm install` resolves with no peer-dependency conflict.
-4. That `eslint .` passes with the proposed flat config and type-aware rules.
+4. That `eslint .` passes with the approved flat config and type-aware rules.
 5. That `vitest run` starts and passes, and that `tsc -p tsconfig.build.json` emits a runnable
    `dist/server.js`.
 6. That the `better-sqlite3` prebuilt binary loads under the Node version actually used.

@@ -13,10 +13,10 @@ Slaq is a backend-focused URL shortening service built with Node.js and TypeScri
 
 ## Requested stack
 
-Versions were verified against the npm registry on 2026-11-18. They are **proposals awaiting
-approval** (D10–D14), not an approved installation plan.
+Versions were verified against the npm registry and **approved on 2026-11-18** (D10–D14,
+`ADR-010` … `ADR-014`). Install these ranges with the committed lockfile.
 
-| Area | Technology | Proposed version / policy |
+| Area | Technology | Approved version / policy |
 |---|---|---|
 | Runtime | Node.js | 24 LTS — `.nvmrc`, `engines: ^24.0.0` (D13) |
 | Language | TypeScript | `^6.0.3`, strict (D10) |
@@ -28,13 +28,12 @@ approval** (D10–D14), not an approved installation plan.
 | Linting | ESLint + typescript-eslint | `^10.15.0` / `^8.73.0`, flat config (D11) |
 | Module system | ESM | `"type": "module"`, `nodenext` (D16) |
 
-TypeScript 6.0.3 is proposed rather than the latest 7.0.2 because `typescript-eslint@8.73.0`
+TypeScript 6.0.3 is used rather than the latest 7.0.2 because `typescript-eslint@8.73.0`
 peers `typescript >=4.8.4 <6.1.0`; 7.x would force dropping type-aware linting.
 
-Do not add a dependency without explaining its purpose and asking for approval. The architecture
-proposal suggests `supertest` plus `@types/supertest` for API integration tests; this remains a
-dependency decision requiring approval (D8). Dependency ranges use carets with a committed
-`package-lock.json` (D14). Every decision and its status is in
+Do not add a dependency without explaining its purpose and asking for approval. `supertest` plus
+`@types/supertest` are approved as dev-only test dependencies (D8). Dependency ranges use carets
+with a committed `package-lock.json` (D14). Every decision and its status is in
 [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
 
 ## MVP capabilities

@@ -1,7 +1,8 @@
 # Testing Strategy
 
-> **Status:** Draft. Target behaviors follow the proposed decisions and will change if the user
-> amends them. Test tooling depends on D8.
+> **Status:** Draft. The test harness and the toolchain-facing cases follow the decisions approved
+> on 2026-11-18 (D8–D18). Cases that depend on D1–D7 are labeled as proposals and may change if the
+> user amends them.
 
 ## Test layers
 
@@ -13,8 +14,9 @@
 ## Tooling
 
 - Vitest for all layers; `vitest run` in CI and in the `AGENTS.md` §8.2 gate (never watch mode).
-- API tests use `supertest` with `createApp(deps)` in-process if D8 approves it; otherwise
-  Node's built-in `fetch` against `app.listen(0)` with explicit teardown.
+- API tests use `supertest` (approved 2026-11-18, D8 —
+  [`decisions/ADR-008.md`](decisions/ADR-008.md)) with `createApp(deps)` in-process. No port is
+  bound and no server is started by the test suite.
 - Tests inject a fixed clock and an isolated `:memory:` database; no test may depend on the real
   current time or on another test's rows.
 
@@ -31,7 +33,7 @@
 - Valid URL returns `201`, a code, and an absolute `shortUrl`.
 - Invalid URL, unsupported protocol (`javascript:`, `ftp:`), and protocol-relative URL are `400`.
 - Empty, whitespace-only, and 2049-character URLs are `400`; a 2048-character URL is accepted.
-- URL with embedded credentials is rejected (pending D18).
+- URL with embedded credentials is rejected (approved D18).
 - Custom alias success; alias conflict `409`; invalid charset/length `400`; reserved `api`/
   `health` `400 RESERVED_ALIAS`.
 - `expiresAt` in the past or exactly `now` is `400`; a future value is accepted and normalized to
@@ -48,7 +50,7 @@
 ### Statistics
 - Correct metadata and count for an active link.
 - Unknown code returns `404`.
-- Expired link behavior per the approved contract (proposed `200` with `isExpired: true`).
+- Expired link behavior per the approved contract: `200` with `isExpired: true` (approved D17).
 - Response carries `Cache-Control: no-store`.
 
 ### Configuration and security regressions
@@ -63,7 +65,8 @@
 ### Database
 - Schema creation is idempotent (running it twice does not throw).
 - `UNIQUE(code)` rejects a duplicate insert.
-- Approved `CHECK` constraints reject negative counts and non-boolean `is_custom`.
+- Once D2 is approved, its `CHECK` constraints must reject negative counts and non-boolean
+  `is_custom` (D2 is still Pending User Approval).
 - Pragma test asserts `foreign_keys = 1` and `busy_timeout = 5000`; it must not assert WAL on
   `:memory:`.
 - Typed-pragma helper returns a value without `any` or a lint suppression.

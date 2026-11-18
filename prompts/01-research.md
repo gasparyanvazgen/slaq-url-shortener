@@ -1,7 +1,9 @@
 # Prompt 01 — Product Framing and Technical Research
 
-**Status:** Completed 2026-11-18 — findings recorded in `docs/research-findings.md`, decisions in
-`docs/decisions/DECISION-REGISTER.md`. Re-run only if the stack, versions, or scope change.
+**Status:** Completed 2026-11-18. Findings are recorded in `docs/research-findings.md`; decisions
+are in `docs/decisions/DECISION-REGISTER.md`. The user approved **D8–D18** on 2026-11-18, recorded
+as `docs/decisions/ADR-008.md` … `ADR-018.md`; D1–D7 remain pending. Re-run only if the stack,
+versions, or scope change.
 
 Follow `agents/project-manager.md` for framing and `agents/backend-architect.md` for technical
 questions.

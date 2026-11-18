@@ -1,7 +1,8 @@
 # Requirements
 
-> **Status:** Draft. Requirements are confirmed only where they restate `PROJECT.md`.
-> Anything derived from an unapproved decision is marked with its D-ID and remains a proposal.
+> **Status:** Draft. Requirements are confirmed only where they restate `PROJECT.md` or depend on
+> an approved decision. **D8–D18 were approved on 2026-11-18**; requirements that still depend on
+> **D1–D7** are marked with their D-ID and remain proposals.
 > Decision statuses: [`docs/decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
 ## Functional requirements
@@ -16,7 +17,7 @@
 | FR-06 | Statistics | `GET /api/links/:code/stats` returns metadata, `isExpired`, and `clickCount` with `Cache-Control: no-store`. Expired links remain queryable with `200` (proposed). | D3, D7, D17 |
 | FR-07 | Validation | Malformed JSON, missing `url`, unparseable URL, non-HTTP(S) scheme, over-long URL, invalid alias, reserved alias, or non-future `expiresAt` returns `400` with the documented error code. | D3, D6, D17, D18 |
 | FR-08 | Consistent errors | Every error response uses `{ "error": { "code", "message", "details"? } }`; `500` responses leak no stack traces or paths. | D3, D17 |
-| FR-09 | Delete | **Not in the initial scope** unless the user explicitly adds it. The proposal contains no delete endpoint. | D9 (pending) |
+| FR-09 | Delete | **Not in the initial scope.** Confirmed: no `DELETE` endpoint and no `deleted_at` column. | D9 (approved 2026-11-18) |
 | FR-10 | API documentation | Endpoints, payloads, headers, status codes, and error cases are documented in `docs/api-specification.md` before implementation is called complete. | — |
 
 ## Non-functional requirements
@@ -35,22 +36,23 @@
 - No secrets are committed; `.env*` files are never staged.
 - Full destination URLs are not logged by default.
 
-These non-functional items restate `PROJECT.md` plus D10–D18 and are subject to the same pending
-approval.
+These non-functional items restate `PROJECT.md` plus D10–D18, all of which are approved as of
+2026-11-18.
 
 ## Open questions
 
-All previously open questions now have a **proposal**; none is approved.
+Every question has an answer. Answers backed by D8–D18 are **approved**; answers that depend on
+D5/D6 remain proposals.
 
-| Question | Proposed answer | Status |
+| Question | Answer | Status |
 |---|---|---|
-| Is deletion in the MVP? | No — out of scope, no `DELETE` route, no soft-delete column. | Pending D9 |
-| Are statistics available for expired links? | Yes — `200` with `isExpired: true` and the retained click count. | Pending D17 |
+| Is deletion in the MVP? | No — out of scope, no `DELETE` route, no soft-delete column. | **Approved** 2026-11-18 (D9) |
+| Are statistics available for expired links? | Yes — `200` with `isExpired: true` and the retained click count. | **Approved** 2026-11-18 (D17) |
 | Are custom aliases case-sensitive? | Yes — matches the case-sensitive `UNIQUE` index. | Pending D6 |
 | Exact short-code alphabet and length? | Base62, 7 characters, `crypto.randomInt`, 5 collision retries. | Pending D5 |
-| Exact maximum destination URL length? | 2048 characters after trimming. | Pending D18 |
-| Are URLs with embedded credentials accepted? | No. | Pending D18 |
-| Production behaviour when `PUBLIC_BASE_URL` is unset? | Fail fast at startup. | Pending D17 |
-| Is `isCustom` exposed in responses? | Proposed yes; low sensitivity. | Pending D17 |
-| Node 24 LTS or Node 26 (the sandbox version)? | Node 24 LTS. | Pending D13 |
-| `supertest` or built-in `fetch` for API tests? | `supertest` + `@types/supertest`, dev-only. | Pending D8 |
+| Exact maximum destination URL length? | 2048 characters after trimming. | **Approved** 2026-11-18 (D18) |
+| Are URLs with embedded credentials accepted? | No — rejected with `400 VALIDATION_ERROR`. | **Approved** 2026-11-18 (D18) |
+| Production behaviour when `PUBLIC_BASE_URL` is unset? | Fail fast at startup; development defaults to `http://localhost:${PORT}`. | **Approved** 2026-11-18 (D17) |
+| Is `isCustom` exposed in responses? | Yes, in create and statistics responses. | **Approved** 2026-11-18 (D17) |
+| Node 24 LTS or Node 26? | Node 24 LTS. | **Approved** 2026-11-18 (D13) |
+| `supertest` or built-in `fetch` for API tests? | `supertest` + `@types/supertest`, dev-only. | **Approved** 2026-11-18 (D8) |

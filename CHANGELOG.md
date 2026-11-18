@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### 2026-11-18 — Decisions D8–D18 approved; documentation synchronized
+
+- The user approved **D8–D18** and their sub-options. Wrote one ADR per approved decision,
+  reusing the D-numbers: `docs/decisions/ADR-008.md` … `ADR-018.md`.
+- **D1–D7 remain Pending User Approval** and have no ADR; nothing unapproved was marked approved.
+- Register: D8–D18 marked Approved with ADR links, an approval-record table added, and the
+  sub-options resolved — expired-link statistics return `200` with `isExpired: true`, `isCustom`
+  is exposed, production `PUBLIC_BASE_URL` problems fail fast, and URLs with embedded credentials
+  are rejected.
+- `docs/architecture-proposal.md` is now labeled **Partially Approved**; §9 checks D8–D18 and
+  leaves D1–D7 unchecked.
+- `docs/requirements.md`: FR-09 confirms deletion is out of scope; the open-questions table marks
+  the D8/D9/D13/D17/D18 answers approved and keeps D5/D6 as proposals.
+- `docs/api-specification.md`: bodies, headers, error codes, `PUBLIC_BASE_URL`, and URL limits are
+  approved (D17/D18); routes/envelope (D3), aliases (D6), redirect status (D4), and expiry (D7)
+  are labeled provisional.
+- `docs/database-design.md`: D12/D15 recorded as approved; the table, `CHECK` constraints, and
+  pragma list stay under the pending D2, including the refined constraint proposal.
+- `docs/testing-strategy.md`: `supertest` is the approved API harness; the D17/D18 cases are
+  approved; the D2 constraint case is explicitly conditional.
+- `docs/security-guidelines.md`: D17/D18 rules marked approved; D2/D6 items remain proposals.
+- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `PROJECT.md`, and
+  `prompts/01-research.md` synchronized to the same status: 11 of 18 approved, ADRs written,
+  D1–D7 pending.
+- Corrected stale environment facts: this machine runs **Node 24.22.1** (the Node 26.13.0 figure
+  came from a cloud sandbox), 46 tracked files, `origin` configured, and `dev`/`master` in sync
+  with `origin/master` at `c804101`.
+- No application code, dependencies, installs, commits, or pushes were made.
+
 ### 2026-11-18 — Documentation audit and synchronization (no code)
 
 - Completed the Prompt 00 repository review and corrected `PROJECT_STATE.md`: the branch has a

@@ -19,6 +19,9 @@ prevents duplicate decision records.
 
 ## Current state (2026-11-18)
 
-- Register: D1–D18, all **Pending User Approval**.
-- ADRs written: **none**.
-- The nine-item approval checklist in `docs/architecture-proposal.md` maps onto D1–D9.
+- Register: D1–D18. **D8–D18 are Approved** by the user on 2026-11-18; **D1–D7 remain Pending
+  User Approval**.
+- ADRs written: `ADR-008.md` … `ADR-018.md`, one per approved decision with matching numbers.
+- The nine-item approval checklist in `docs/architecture-proposal.md` maps onto D1–D9: D8 and D9
+  are approved, D1–D7 are not.
+- No ADR may be written for D1–D7 until the user approves them.

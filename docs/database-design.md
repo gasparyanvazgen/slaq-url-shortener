@@ -1,8 +1,8 @@
 # Database Design — Draft
 
-> **Status:** Draft proposal. The table comes from `docs/architecture-proposal.md` §3; the
-> pragmas, checks, and timestamp rules are proposed under D2, D12, and D15 and are **not
-> approved**.
+> **Status:** Draft proposal. The table comes from `docs/architecture-proposal.md` §3. The driver
+> (D12) and the timestamp rules (D15) are **approved** on 2026-11-18; the table itself, its
+> `CHECK` constraints, and the pragma list belong to **D2, which remains Pending User Approval**.
 
 SQLite through `better-sqlite3` (synchronous, N-API prebuilds, `engines.node >= 22`).
 
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS links (
 );
 ```
 
-Recommended optional constraints (pending D2):
+Recommended optional constraints — **still pending under D2**, not in force:
 
 ```sql
   CHECK (is_custom IN (0, 1)),
@@ -36,6 +36,9 @@ Recommended optional constraints (pending D2):
   framework is proposed for the first version; that becomes necessary only once a schema is
   deployed and changed.
 - `expires_at` is **not** indexed: expiry is evaluated lazily per row and there is no range query.
+- The final decision clarification report proposed a refined set for the still-pending D2 decision:
+  `CHECK (length(original_url) BETWEEN 1 AND 2048)` in place of `original_url <> ''`, plus
+  `CHECK (expires_at IS NULL OR expires_at > created_at)`. Neither is approved.
 
 ## Pragmas
 
@@ -54,6 +57,8 @@ should assert `foreign_keys` and `busy_timeout`. `PRAGMA` results come back unty
 than `any`.
 
 ## Timestamps
+
+Approved 2026-11-18 under D15 ([`decisions/ADR-015.md`](decisions/ADR-015.md)).
 
 - One format only: `YYYY-MM-DDTHH:mm:ss.sssZ` (UTC, milliseconds, `Z` suffix).
 - Produced exclusively by `Date.prototype.toISOString()` in application code, through an injected

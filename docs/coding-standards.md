@@ -1,11 +1,12 @@
 # Coding Standards
 
-> Conventions marked with a D-ID are proposals awaiting approval; see
+> Conventions marked with a D-ID cite their decision. **D10–D16 are approved** (2026-11-18); any
+> convention resting on D1–D7 is still a proposal. See
 > [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
 ## Language and toolchain
 
-- Enable TypeScript `strict`. Also enable `noUncheckedIndexedAccess`; both are proposed in D10.
+- Enable TypeScript `strict`. Also enable `noUncheckedIndexedAccess`; both are approved in D10.
 - Target **TypeScript 6.0.3**, not 7.x: type-aware ESLint requires `typescript <6.1.0`. (D10)
 - Target **Node.js 24 LTS**, declared in `.nvmrc` and `engines`. (D13)
 - Use **native ESM**: `"type": "module"`, `module`/`moduleResolution: nodenext`, and `.js`
