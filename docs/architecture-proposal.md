@@ -1,0 +1,189 @@
+# Architecture Proposal — Pending User Approval
+
+> Source: the initial Claude response supplied by the user. This document records that proposal; it is not an approved architecture.
+
+## 1. Layered architecture
+
+```text
+HTTP request
+   |
+   v
+Routes       -> map URL + method to controller; attach validation
+   |
+   v
+Controllers  -> parse/validate input, call service, shape HTTP response
+   |
+   v
+Services     -> business rules (code generation, expiry, alias conflicts)
+   |
+   v
+Repository   -> SQL only; returns plain typed objects
+   |
+   v
+SQLite (better-sqlite3)
+```
+
+### Proposed rules
+
+- Controllers do not execute SQL.
+- Services do not depend on Express `req` or `res`.
+- Services throw typed application errors.
+- A centralized error middleware maps errors to HTTP responses.
+- Dependencies are passed through factory functions, e.g. `createLinkService(repo)`.
+- `createApp(db)` builds the Express app and accepts a database instance.
+- Tests use an in-memory database.
+
+## 2. Proposed folder structure
+
+```text
+slaq/
+├── src/
+│   ├── server.ts
+│   ├── app.ts
+│   ├── config.ts
+│   ├── db/
+│   │   ├── connection.ts
+│   │   └── schema.ts
+│   ├── modules/
+│   │   └── links/
+│   │       ├── links.routes.ts
+│   │       ├── links.controller.ts
+│   │       ├── links.service.ts
+│   │       ├── links.repository.ts
+│   │       ├── links.schemas.ts
+│   │       └── links.types.ts
+│   ├── middleware/
+│   │   ├── error-handler.ts
+│   │   └── not-found.ts
+│   └── lib/
+│       ├── errors.ts
+│       └── code-generator.ts
+├── tests/
+│   ├── helpers/test-app.ts
+│   ├── code-generator.test.ts
+│   ├── links.service.test.ts
+│   └── links.api.test.ts
+├── docs/API.md
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+└── README.md
+```
+
+The proposal prefers a feature module (`modules/links`) over global top-level controller/service folders.
+
+## 3. Proposed database schema
+
+```sql
+CREATE TABLE IF NOT EXISTS links (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  code            TEXT    NOT NULL UNIQUE,
+  original_url    TEXT    NOT NULL,
+  is_custom       INTEGER NOT NULL DEFAULT 0,
+  click_count     INTEGER NOT NULL DEFAULT 0,
+  created_at      TEXT    NOT NULL,
+  expires_at      TEXT,
+  last_clicked_at TEXT
+);
+```
+
+Proposed rationale:
+- `UNIQUE(code)` protects code uniqueness at the database layer.
+- Generated codes and custom aliases share the same namespace.
+- Timestamps are ISO 8601 UTC text.
+- `click_count` is incremented atomically.
+- A per-click history table is deferred.
+
+## 4. Proposed API
+
+| Method | Path | Purpose | Success |
+|---|---|---|---|
+| POST | `/api/links` | Create short URL | 201 |
+| GET | `/api/links/:code/stats` | Get statistics | 200 |
+| GET | `/:code` | Redirect | 302 |
+| GET | `/health` | Health check | 200 |
+
+Proposed create body:
+
+```json
+{
+  "url": "https://example.com/very/long",
+  "alias": "my-link",
+  "expiresAt": "2026-12-31T00:00:00Z"
+}
+```
+
+`alias` and `expiresAt` are optional.
+
+Proposed error body:
+
+```json
+{
+  "error": {
+    "code": "ALIAS_TAKEN",
+    "message": "Alias is already in use"
+  }
+}
+```
+
+Validation errors may add a `details` array.
+
+Proposed status codes:
+- 400: validation error
+- 404: unknown code
+- 409: alias conflict
+- 410: expired link
+
+## 5. Proposed technical decisions — all require approval
+
+1. Random 7-character Base62 codes using `crypto.randomInt`; retry collisions up to five times.
+2. Use 302 redirects so repeat visits reach the server and can be counted.
+3. Check expiration lazily on redirect; expired rows remain stored.
+4. Alias length 3–32, `[A-Za-z0-9_-]`, case-sensitive; reserve `api` and `health`.
+5. Accept only `http:` and `https:` URLs; proposed maximum length 2048.
+6. Increment click count atomically in the redirect path.
+7. Inject a clock function for deterministic expiration tests.
+8. Consider `supertest` for API integration tests; this is an additional dependency and requires approval.
+
+## 6. Dependency proposal
+
+Requested runtime dependencies:
+- `express`
+- `better-sqlite3`
+- `zod`
+
+Proposed development dependencies:
+- `typescript`
+- `@types/node`
+- `@types/express`
+- `@types/better-sqlite3`
+- `tsx`
+- `vitest`
+
+Additional proposed dependency:
+- `supertest` and `@types/supertest` for integration tests. Decide whether to approve or use built-in `fetch` with an ephemeral server.
+
+## 7. Proposed implementation sequence
+
+1. Scaffold, strict TypeScript, Vitest, health endpoint.
+2. Config, database, schema, errors, middleware.
+3. Create short URL.
+4. Redirect and click tracking.
+5. Custom aliases.
+6. Expiration.
+7. Statistics.
+8. API docs, README, full verification.
+
+The original estimate was approximately 4h20m plus 40m buffer. Treat this as an estimate, not a guarantee.
+
+## Approval checklist
+
+- [ ] Approve layered architecture and feature-module layout.
+- [ ] Approve database schema.
+- [ ] Approve API routes and payload naming.
+- [ ] Approve 302 redirects.
+- [ ] Approve random 7-character Base62 codes and retry strategy.
+- [ ] Approve alias rules and reserved words.
+- [ ] Approve lazy expiration and 410 behavior.
+- [ ] Approve `supertest` or choose built-in `fetch`.
+- [ ] Resolve whether deletion is in MVP.
