@@ -136,6 +136,10 @@ Proposed status codes:
 
 ## 5. Proposed technical decisions — all require approval
 
+> These eight items and the checklist's ninth item are consolidated as **D1–D9** in
+> [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md), which is now the canonical
+> record of status. The numbering below is the proposal's own and is kept for traceability.
+
 1. Random 7-character Base62 codes using `crypto.randomInt`; retry collisions up to five times.
 2. Use 302 redirects so repeat visits reach the server and can be counted.
 3. Check expiration lazily on redirect; expired rows remain stored.
@@ -146,6 +150,10 @@ Proposed status codes:
 8. Consider `supertest` for API integration tests; this is an additional dependency and requires approval.
 
 ## 6. Dependency proposal
+
+> Exact versions were verified on 2026-11-18 and recorded in
+> [`research-findings.md`](research-findings.md) §2. Version pinning, the Node policy, and the
+> lockfile rule are **D10–D14** and are not approved.
 
 Requested runtime dependencies:
 - `express`
@@ -163,7 +171,30 @@ Proposed development dependencies:
 Additional proposed dependency:
 - `supertest` and `@types/supertest` for integration tests. Decide whether to approve or use built-in `fetch` with an ephemeral server.
 
-## 7. Proposed implementation sequence
+## 7. Verified technical configuration (proposed under D10–D18)
+
+The research pass added decisions this proposal did not originally cover. They are recorded in
+[`research-findings.md`](research-findings.md) and tracked as **D10–D18**; none is approved.
+
+- **TypeScript 6.0.3**, not 7.0.2: `typescript-eslint@8.73.0` peers
+  `typescript >=4.8.4 <6.1.0`. A no-emit `tsconfig.json` plus an emitting `tsconfig.build.json`
+  keeps tests out of `dist/`. (D10)
+- **ESLint 10 flat config** with type-aware `typescript-eslint`; `lint` is `eslint .`. (D11)
+- **`better-sqlite3` 13.2.0** with separate `@types/better-sqlite3@9.6.0`; a typed wrapper covers
+  `pragma()` and `lastInsertRowid` rather than using `any`. (D12)
+- **Node.js 24 LTS** policy: `.nvmrc`, `engines.node ^24.0.0`, committed lockfile, no
+  `engine-strict`. (D13)
+- **Caret ranges plus a committed `package-lock.json`**; no exact pins, no `latest`. (D14)
+- **Native ESM**: `"type": "module"`, `nodenext`, `.js` relative import extensions,
+  `import.meta.dirname`. (D16)
+- **Canonical UTC timestamps** `YYYY-MM-DDTHH:mm:ss.sssZ`, generated only in application code via
+  an injected clock, with `expiresAt <= now` as the expiry boundary. (D15)
+- **`PUBLIC_BASE_URL`** validated at startup; short URLs are never derived from the `Host`
+  header. (D17)
+- **Complete create/statistics bodies** and a fixed error-code table. (D17)
+- **Destination URL limits**: `http`/`https` only, 2048 characters maximum. (D18)
+
+## 8. Proposed implementation sequence
 
 1. Scaffold, strict TypeScript, Vitest, health endpoint.
 2. Config, database, schema, errors, middleware.
@@ -176,14 +207,31 @@ Additional proposed dependency:
 
 The original estimate was approximately 4h20m plus 40m buffer. Treat this as an estimate, not a guarantee.
 
-## Approval checklist
+## 9. Approval checklist
 
-- [ ] Approve layered architecture and feature-module layout.
-- [ ] Approve database schema.
-- [ ] Approve API routes and payload naming.
-- [ ] Approve 302 redirects.
-- [ ] Approve random 7-character Base62 codes and retry strategy.
-- [ ] Approve alias rules and reserved words.
-- [ ] Approve lazy expiration and 410 behavior.
-- [ ] Approve `supertest` or choose built-in `fetch`.
-- [ ] Resolve whether deletion is in MVP.
+Every item maps to a decision ID. **No checkbox may be checked on the user's behalf**, and no
+item is approved as of 2026-11-18. Status detail: [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
+
+Architecture and behavior:
+
+- [ ] **D1** — Approve layered architecture and feature-module layout.
+- [ ] **D2** — Approve the database schema (and decide the optional `CHECK` constraints).
+- [ ] **D3** — Approve API routes and the error envelope.
+- [ ] **D4** — Approve `302` redirects.
+- [ ] **D5** — Approve random 7-character Base62 codes and the retry strategy.
+- [ ] **D6** — Approve alias rules, case sensitivity, and reserved words.
+- [ ] **D7** — Approve lazy expiration and `410` behavior.
+- [ ] **D8** — Approve `supertest` or choose built-in `fetch`.
+- [ ] **D9** — Decide whether deletion is in the MVP.
+
+Toolchain and contracts:
+
+- [ ] **D10** — Approve TypeScript 6.0.3 and the tsconfig split.
+- [ ] **D11** — Approve ESLint 10 flat config with type-aware linting.
+- [ ] **D12** — Approve `better-sqlite3` 13 and its typings.
+- [ ] **D13** — Approve the Node.js 24 LTS policy.
+- [ ] **D14** — Approve caret ranges and a committed lockfile.
+- [ ] **D15** — Approve canonical UTC timestamps and the expiry boundary.
+- [ ] **D16** — Approve native ESM.
+- [ ] **D17** — Approve the API contracts, `PUBLIC_BASE_URL` policy, and Host-header rule.
+- [ ] **D18** — Approve the URL scheme and length limits.

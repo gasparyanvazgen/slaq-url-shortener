@@ -6,6 +6,8 @@ dist/
 
 # Environment configuration (never commit secrets)
 .env
+.env.*
+!.env.example
 
 # SQLite databases and their sidecar files
 *.db
@@ -20,3 +22,8 @@ dist/
 *.sqlite3-journal
 *.sqlite3-wal
 *.sqlite3-shm
+
+# Test and tooling caches
+coverage/
+.vitest/
+*.tsbuildinfo

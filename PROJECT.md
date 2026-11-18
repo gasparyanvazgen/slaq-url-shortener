@@ -13,17 +13,29 @@ Slaq is a backend-focused URL shortening service built with Node.js and TypeScri
 
 ## Requested stack
 
-| Area | Technology |
-|---|---|
-| Runtime | Node.js |
-| Language | TypeScript |
-| HTTP framework | Express.js |
-| Database | SQLite |
-| SQLite driver | better-sqlite3 |
-| Validation | Zod |
-| Tests | Vitest |
+Versions were verified against the npm registry on 2026-11-18. They are **proposals awaiting
+approval** (D10–D14), not an approved installation plan.
 
-Do not add a dependency without explaining its purpose and asking for approval. The architecture proposal suggests `supertest` for API integration tests; this remains a dependency decision requiring approval.
+| Area | Technology | Proposed version / policy |
+|---|---|---|
+| Runtime | Node.js | 24 LTS — `.nvmrc`, `engines: ^24.0.0` (D13) |
+| Language | TypeScript | `^6.0.3`, strict (D10) |
+| HTTP framework | Express.js | `^5.3.0` |
+| Database | SQLite | file/in-memory via the driver below |
+| SQLite driver | better-sqlite3 | `^13.2.0` + `@types/better-sqlite3 ^9.6.0` (D12) |
+| Validation | Zod | `^4.6.7` |
+| Tests | Vitest | `^5.1.1` |
+| Linting | ESLint + typescript-eslint | `^10.15.0` / `^8.73.0`, flat config (D11) |
+| Module system | ESM | `"type": "module"`, `nodenext` (D16) |
+
+TypeScript 6.0.3 is proposed rather than the latest 7.0.2 because `typescript-eslint@8.73.0`
+peers `typescript >=4.8.4 <6.1.0`; 7.x would force dropping type-aware linting.
+
+Do not add a dependency without explaining its purpose and asking for approval. The architecture
+proposal suggests `supertest` plus `@types/supertest` for API integration tests; this remains a
+dependency decision requiring approval (D8). Dependency ranges use carets with a committed
+`package-lock.json` (D14). Every decision and its status is in
+[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
 
 ## MVP capabilities
 

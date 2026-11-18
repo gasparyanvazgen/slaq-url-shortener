@@ -9,8 +9,15 @@ This package contains project context, agent role instructions, staged prompts, 
 - Project: Slaq — URL Shortener
 - Stack requested: Node.js, TypeScript, Express.js, SQLite, better-sqlite3, Zod, Vitest
 - Initial timebox: approximately five hours
-- Architecture: Claude's proposal is captured as a **proposal pending your approval**, not an approved decision.
+- Phase: research complete, decision approval pending (Phase 3)
+- Architecture: Claude's proposal is captured as a **proposal pending your approval**, not an
+  approved decision.
+- Decisions: 18 recorded (D1–D18) in [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md);
+  **none approved**.
+- Research evidence: [`docs/research-findings.md`](docs/research-findings.md) (versions verified
+  2026-11-18; configuration, timestamps, API contracts, URL limits).
 - Implementation: not started by this framework.
+- Verification: no `npm` project exists, so no typecheck, lint, test, or build has been run.
 
 ## Start here
 
@@ -24,7 +31,8 @@ This package contains project context, agent role instructions, staged prompts, 
    - `docs/architecture-proposal.md`
    - `ROADMAP.md`
 5. Run the prompt in `prompts/00-start-session.md`.
-6. Review the architecture proposal and explicitly approve or amend it before implementation.
+6. Review the architecture proposal and the decision register, then explicitly approve or amend
+   D1–D18 before implementation. An AI recommendation is not approval.
 7. Work through `TASKS.md` one task at a time. Ask Freebuff to inspect the repository before changing anything.
 8. At the end of each session, use `prompts/10-session-handoff.md` and update `PROJECT_STATE.md` and `TASKS.md`.
 
@@ -55,7 +63,8 @@ You can use one role at a time in separate prompts. Do not assume multiple agent
 - `PROJECT.md`: stable project brief.
 - `PROJECT_STATE.md`: current, changing state; update every session.
 - `ROADMAP.md`, `TASKS.md`: staged delivery plan and task checklist.
-- `docs/`: requirements, proposal, data/API design, security, testing, decisions.
+- `docs/`: requirements, proposal, data/API design, security, testing, research findings,
+  and decisions (`DECISION-REGISTER.md`, ADRs).
 - `agents/`: role cards to load selectively.
 - `prompts/`: ready-to-use task prompts.
 - `workflows/`: repeatable procedures.
