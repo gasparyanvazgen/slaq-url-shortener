@@ -21,24 +21,20 @@
   gate cannot run
 - **Current timebox:** approximately five hours for the MVP, not started
 
-## Repository and Git status (verified 2026-11-18 on the user's machine)
+## Repository and Git status (verified 2026-11-19 on the user's machine)
 
 - Branch: **`dev`** (checked out), created from `master`; both track `origin/master`.
-- Commits: `HEAD` = `dev` = **`43efa1a`** (`docs: record D8-D18 approvals and synchronize decision
-  status`), parent `c804101` (`docs: synchronize research findings and consolidate decisions
-  D1-D18`). `master` = `origin/master` = **`c804101`**, so **`dev` is one commit ahead of
-  `master`** and nothing has been pushed.
+- Commits: `HEAD` = `dev` = **`24a83b0`** (`docs: resolve requirement gaps as D19`), which contains
+  the Prompt 02 finalization, D19, and the D1–D7 approval work. Its parent is `43efa1a`
+  (`docs: record D8-D18 approvals and synchronize decision status`). `origin/master` =
+  **`43efa1a`**, and the local `master` branch is **`c804101`**, one commit behind `origin/master`.
+  `dev` is therefore **one commit ahead of `origin/master`** and two ahead of local `master`; the
+  Prompt 02 finalization commit has not been pushed.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`**.
-- `git ls-files` reports **57 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-019.md`
-  on disk; the eight records written on 2026-11-19 (`ADR-001` … `ADR-007` and `ADR-019`) are not yet
-  tracked.
-- Working tree: the Prompt 02, D19, and D1–D7 work is **uncommitted** — 18 modified files
-  (`docs/requirements.md`, `docs/api-specification.md`, `docs/testing-strategy.md`,
-  `docs/database-design.md`, `docs/architecture-proposal.md`, `docs/coding-standards.md`,
-  `docs/security-guidelines.md`, `docs/research-findings.md`, `docs/decisions/ADR-009.md`,
-  `docs/decisions/DECISION-REGISTER.md`, `docs/decisions/README.md`, `CHANGELOG.md`, `README.md`,
-  `ROADMAP.md`, `TASKS.md`, `PROJECT_STATE.md`, `prompts/01-research.md`, and
-  `prompts/02-requirements.md`) plus eight untracked ADR files; nothing is staged.
+- `git ls-files` reports **65 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-019.md`,
+  and all nineteen records are tracked.
+- Working tree: **clean** — the Prompt 02, D19, and D1–D7 work is committed in `24a83b0`; nothing is
+  modified, untracked, or staged.
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
   deleted on 2026-11-18 at the user's request; `freebuff-base` held only an orphan commit with an
   empty tree.
@@ -175,6 +171,17 @@ git status --porcelain              # -> 18 modified, 8 untracked ADRs, 0 staged
 grep -c 'Partly confirmed' docs/requirements.md   # -> 0
 grep -c '^## FR-' docs/requirements.md           # -> 12
 grep -c '^### NFR-' docs/requirements.md         # -> 9
+```
+
+Commands run on 2026-11-19 after committing the D1–D7 work:
+
+```bash
+git log --oneline -4               # -> 24a83b0 docs: resolve requirement gaps as D19
+                                   #    43efa1a docs: record D8-D18 approvals ...
+git status -sb                     # -> ## dev...origin/master [ahead 1]; clean tree
+git ls-files | wc -l               # -> 65
+ls docs/decisions/ADR-*.md | wc -l # -> 19, all tracked
+node /tmp/slaq-linkcheck.mjs       # -> markdown links checked: 87 broken: 0
 ```
 
 The Markdown-link check covers every `.md` file in the repository and reported **0 broken links**.

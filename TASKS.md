@@ -61,7 +61,8 @@ this file as work progresses. Decision IDs refer to
 - [ ] Confirm the `.gitignore` change: `.env.*` is ignored, with `.env.example`
       exempted, so a future example file stays trackable.
 - [x] Draft requirements and acceptance criteria (Prompt 02). — Evidence:
-      `docs/requirements.md`, 2026-11-18; every requirement labeled confirmed or proposal.
+      `docs/requirements.md`, 2026-11-18, finalized 2026-11-19; every requirement is now
+      **Confirmed** or **Out of scope**, and no requirement is provisional.
 - [x] Resolve the four requirements gaps Q-2 … Q-5 — D19 approved 2026-11-19, folded into
       `docs/requirements.md` FR-01, FR-07, FR-08, and FR-10 and their new acceptance criteria.
 - [x] Confirm the drafted acceptance criteria. — Every criterion is confirmed: D19 closed the
@@ -70,8 +71,8 @@ this file as work progresses. Decision IDs refer to
 ## Gate 1 — Requirements and specifications
 
 - [x] Turn approved decisions into confirmed functional and non-functional requirements. —
-      Evidence: `docs/requirements.md` FR-01 … FR-12 and NFR-01 … NFR-09, with approved items
-      separated from proposals.
+      Evidence: `docs/requirements.md` FR-01 … FR-12 and NFR-01 … NFR-09, every one **Confirmed**
+      or **Out of scope** after the D1–D7 approval.
 - [x] Confirm acceptance criteria for every MVP capability — AC-01.1 … AC-12.3, all confirmed
       after D19 and the D1–D7 approval. Evidence: `docs/requirements.md`, 2026-11-19.
 - [x] Finalize the API specification (bodies, status codes, error codes). — Evidence:
