@@ -1,8 +1,10 @@
 # Testing Strategy
 
-> **Status:** Draft. The test harness and the toolchain-facing cases follow the decisions approved
-> on 2026-11-18 (D8–D18). Cases that depend on D1–D7 are labeled as proposals and may change if the
-> user amends them.
+> **Status:** Approved. Every case follows an approved decision: the harness and toolchain cases by
+> D8–D18 (2026-11-18), the architecture, schema, route, redirect, generation, alias, and expiry
+> cases by D1–D7 (2026-11-19 — `ADR-001` … `ADR-007`), and the unknown-field,
+> duplicate-destination, oversized-body, and health cases by D19 (`ADR-019`). No case is labeled as
+> a proposal.
 
 ## Test layers
 
@@ -38,7 +40,10 @@
   `health` `400 RESERVED_ALIAS`.
 - `expiresAt` in the past or exactly `now` is `400`; a future value is accepted and normalized to
   `Z`.
-- Unknown body fields are ignored or rejected per the approved schema (must be stated once).
+- Unknown body fields are ignored and not stored (approved D19).
+- The same destination created twice yields two distinct codes and two rows; no `409` (D19).
+- A malformed JSON body and a payload above the body-parser limit return `400 VALIDATION_ERROR`,
+  not `413` (D19).
 
 ### Redirect
 - Existing active code returns `302` with the exact destination in `Location`.
@@ -53,6 +58,10 @@
 - Expired link behavior per the approved contract: `200` with `isExpired: true` (approved D17).
 - Response carries `Cache-Control: no-store`.
 
+### Health
+- `GET /health` returns `200` with `{ "status": "ok" }` and a JSON content type.
+- It still answers `200` with the database closed (liveness only, approved D19).
+
 ### Configuration and security regressions
 - `PUBLIC_BASE_URL` missing in production throws at startup (fail fast).
 - Invalid scheme, embedded credentials, path/query/fragment, or over-long value is rejected.
@@ -65,8 +74,8 @@
 ### Database
 - Schema creation is idempotent (running it twice does not throw).
 - `UNIQUE(code)` rejects a duplicate insert.
-- Once D2 is approved, its `CHECK` constraints must reject negative counts and non-boolean
-  `is_custom` (D2 is still Pending User Approval).
+- The two approved `CHECK` constraints (D2) reject a negative `click_count` and an `is_custom`
+  value outside `(0, 1)`, both at the database level.
 - Pragma test asserts `foreign_keys = 1` and `busy_timeout = 5000`; it must not assert WAL on
   `:memory:`.
 - Typed-pragma helper returns a value without `any` or a lint suppression.

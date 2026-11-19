@@ -9,13 +9,15 @@ This package contains project context, agent role instructions, staged prompts, 
 - Project: Slaq — URL Shortener
 - Stack requested: Node.js, TypeScript, Express.js, SQLite, better-sqlite3, Zod, Vitest
 - Initial timebox: approximately five hours
-- Phase: architecture approval in progress (Phase 3) — 11 of 18 decisions approved
-- Architecture: Claude's proposal is still a proposal for the layer boundaries, routes, schema,
-  redirect, code generation, aliases, and expiry (D1–D7); the toolchain and contract decisions
-  (D8–D18) are approved.
-- Decisions: 18 recorded (D1–D18) in [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md);
-  **D8–D18 approved 2026-11-18**, recorded as [`docs/decisions/ADR-008.md`](docs/decisions/ADR-008.md)
-  … `ADR-018.md`; **D1–D7 pending**.
+- Phase: requirements and architecture approved — implementation is the next step (Phase 5)
+- Architecture: approved — layer boundaries and the `createApp({ db, clock, config })` deps object,
+  routes, schema, `302` redirect, code generation, aliases, and expiry (D1–D7), plus the toolchain
+  and contract decisions (D8–D19).
+- Decisions: 19 recorded (D1–D19) in [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md);
+  **all approved** — D8–D18 on 2026-11-18, D1–D7 and D19 on 2026-11-19 — and recorded as
+  [`docs/decisions/ADR-001.md`](docs/decisions/ADR-001.md) … `ADR-019.md`. None is pending.
+- Requirements: [`docs/requirements.md`](docs/requirements.md) — FR-01 … FR-12 and NFR-01 … NFR-09,
+  every requirement confirmed or explicitly out of scope.
 - Research evidence: [`docs/research-findings.md`](docs/research-findings.md) (versions verified
   2026-11-18; configuration, timestamps, API contracts, URL limits).
 - Implementation: not started by this framework.
@@ -33,8 +35,8 @@ This package contains project context, agent role instructions, staged prompts, 
    - `docs/architecture-proposal.md`
    - `ROADMAP.md`
 5. Run the prompt in `prompts/00-start-session.md`.
-6. Review the architecture proposal and the decision register, then explicitly approve or amend
-   the remaining **D1–D7** before implementation. An AI recommendation is not approval.
+6. Review the approved architecture and the decision register. All decisions **D1–D19** are
+   approved; changing any of them requires a new decision and a new ADR before implementation.
 7. Work through `TASKS.md` one task at a time. Ask Freebuff to inspect the repository before changing anything.
 8. At the end of each session, use `prompts/10-session-handoff.md` and update `PROJECT_STATE.md` and `TASKS.md`.
 

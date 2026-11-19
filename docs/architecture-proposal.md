@@ -1,10 +1,9 @@
-# Architecture Proposal — Partially Approved
+# Architecture Proposal — Approved
 
-> Source: the initial Claude response supplied by the user. This document records that proposal.
-> **D8–D18 were approved by the user on 2026-11-18** (`ADR-008` … `ADR-018`); the ADRs are the
-> records of those approvals. **D1–D7 remain Pending User Approval**, so the layer boundaries,
-> routes, schema, redirect status, code generation, alias rules, and expiry behavior are still
-> proposals.
+> Source: the initial Claude response supplied by the user. This document records that proposal and
+> the design derived from it. **Every decision it contains is approved:** D8–D18 on 2026-11-18
+> (`ADR-008` … `ADR-018`), and D1–D7 plus D19 on 2026-11-19 (`ADR-001` … `ADR-007`, `ADR-019`).
+> The ADRs are the records of those approvals; nothing below is provisional.
 
 ## 1. Layered architecture
 
@@ -33,9 +32,11 @@ SQLite (better-sqlite3)
 - Services do not depend on Express `req` or `res`.
 - Services throw typed application errors.
 - A centralized error middleware maps errors to HTTP responses.
-- Dependencies are passed through factory functions, e.g. `createLinkService(repo)`.
-- `createApp(db)` builds the Express app and accepts a database instance.
-- Tests use an in-memory database.
+- Dependencies are passed through factory functions that take a deps object, e.g.
+  `createLinkService({ repo, clock, config })`.
+- `createApp({ db, clock, config })` builds the Express app from an injected database, clock, and
+  validated configuration.
+- Tests use an in-memory database and a fixed clock through the same deps object.
 
 ## 2. Proposed folder structure
 
@@ -76,38 +77,42 @@ slaq/
 
 The proposal prefers a feature module (`modules/links`) over global top-level controller/service folders.
 
-## 3. Proposed database schema
+## 3. Database schema
 
 ```sql
 CREATE TABLE IF NOT EXISTS links (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   code            TEXT    NOT NULL UNIQUE,
   original_url    TEXT    NOT NULL,
-  is_custom       INTEGER NOT NULL DEFAULT 0,
-  click_count     INTEGER NOT NULL DEFAULT 0,
+  is_custom       INTEGER NOT NULL DEFAULT 0
+                          CHECK (is_custom IN (0, 1)),
+  click_count     INTEGER NOT NULL DEFAULT 0
+                          CHECK (click_count >= 0),
   created_at      TEXT    NOT NULL,
   expires_at      TEXT,
   last_clicked_at TEXT
 );
 ```
 
-Proposed rationale:
+Rationale (approved as D2, [`ADR-002`](decisions/ADR-002.md)):
 - `UNIQUE(code)` protects code uniqueness at the database layer.
 - Generated codes and custom aliases share the same namespace.
-- Timestamps are ISO 8601 UTC text.
+- Timestamps are ISO 8601 UTC text (D15).
 - `click_count` is incremented atomically.
+- The `CHECK` set is limited to `click_count >= 0` and `is_custom IN (0,1)`; length, URL, and
+  expiry-ordering checks are declined and enforced in validation instead.
 - A per-click history table is deferred.
 
-## 4. Proposed API
+## 4. API
 
 | Method | Path | Purpose | Success |
 |---|---|---|---|
 | POST | `/api/links` | Create short URL | 201 |
 | GET | `/api/links/:code/stats` | Get statistics | 200 |
 | GET | `/:code` | Redirect | 302 |
-| GET | `/health` | Health check | 200 |
+| GET | `/health` | Liveness check | 200 |
 
-Proposed create body:
+Create body:
 
 ```json
 {
@@ -119,7 +124,7 @@ Proposed create body:
 
 `alias` and `expiresAt` are optional.
 
-Proposed error body:
+Error body:
 
 ```json
 {
@@ -132,28 +137,30 @@ Proposed error body:
 
 Validation errors may add a `details` array.
 
-Proposed status codes:
+Status codes (approved D3, [`ADR-003`](decisions/ADR-003.md)):
 - 400: validation error
 - 404: unknown code
 - 409: alias conflict
 - 410: expired link
 
-## 5. Technical decisions — D8/D9 approved, D1–D7 pending
+## 5. Technical decisions — all approved
 
 > These eight items and the checklist's ninth item are consolidated as **D1–D9** in
-> [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md), which is now the canonical
-> record of status. The numbering below is the proposal's own and is kept for traceability.
+> [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md), which is the canonical record
+> of status. The numbering below is the proposal's own and is kept for traceability.
 
-1. Random 7-character Base62 codes using `crypto.randomInt`; retry collisions up to five times.
-2. Use 302 redirects so repeat visits reach the server and can be counted.
-3. Check expiration lazily on redirect; expired rows remain stored.
-4. Alias length 3–32, `[A-Za-z0-9_-]`, case-sensitive; reserve `api` and `health`.
+1. Random 7-character Base62 codes using `crypto.randomInt`; collisions retried for at most five
+   generation attempts in total (D5, [`ADR-005`](decisions/ADR-005.md)).
+2. Use 302 redirects so repeat visits reach the server and can be counted (D4).
+3. Check expiration lazily on redirect; expired rows remain stored (D7).
+4. Alias length 3–32, `[A-Za-z0-9_-]`, case-sensitive; reserve `api` and `health`, matched
+   case-insensitively (D6).
 5. Accept only `http:` and `https:` URLs; maximum length 2048 (approved, D18).
 6. Increment click count atomically in the redirect path.
 7. Inject a clock function for deterministic expiration tests.
 8. Use `supertest` for API integration tests — approved 2026-11-18 (D8, [`ADR-008`](decisions/ADR-008.md)).
 
-## 6. Dependency proposal
+## 6. Dependencies
 
 > Exact versions were verified on 2026-11-18 and recorded in
 > [`research-findings.md`](research-findings.md) §2. Version pinning, the Node policy, and the
@@ -201,7 +208,7 @@ proposals.
 - **Complete create/statistics bodies** and a fixed error-code table. (D17)
 - **Destination URL limits**: `http`/`https` only, 2048 characters maximum. (D18)
 
-## 8. Proposed implementation sequence
+## 8. Implementation sequence
 
 1. Scaffold, strict TypeScript, Vitest, health endpoint.
 2. Config, database, schema, errors, middleware.
@@ -216,19 +223,24 @@ The original estimate was approximately 4h20m plus 40m buffer. Treat this as an 
 
 ## 9. Approval checklist
 
-Every item maps to a decision ID. **D8–D18 were explicitly approved by the user on 2026-11-18**
-and are checked below. **D1–D7 remain unchecked**; no checkbox may be checked on the user's behalf.
-Status detail: [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
+Every item maps to a decision ID and is checked below. **D8–D18 were explicitly approved by the
+user on 2026-11-18**, and **D1–D7 were approved on 2026-11-19** as recommended, with the deps-object
+signature (D1) and five generation attempts in total (D5). Status detail:
+[`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
-Architecture and behavior:
+Architecture and behavior — all approved 2026-11-19:
 
-- [ ] **D1** — Approve layered architecture and feature-module layout.
-- [ ] **D2** — Approve the database schema (and decide the optional `CHECK` constraints).
-- [ ] **D3** — Approve API routes and the error envelope.
-- [ ] **D4** — Approve `302` redirects.
-- [ ] **D5** — Approve random 7-character Base62 codes and the retry strategy.
-- [ ] **D6** — Approve alias rules, case sensitivity, and reserved words.
-- [ ] **D7** — Approve lazy expiration and `410` behavior.
+- [x] **D1** — Layered architecture and feature-module layout, with
+      `createApp({ db, clock, config })` ([`ADR-001`](decisions/ADR-001.md)).
+- [x] **D2** — The database schema; `CHECK` set fixed to `click_count >= 0` and
+      `is_custom IN (0,1)` ([`ADR-002`](decisions/ADR-002.md)).
+- [x] **D3** — API routes and the error envelope ([`ADR-003`](decisions/ADR-003.md)).
+- [x] **D4** — `302` redirects ([`ADR-004`](decisions/ADR-004.md)).
+- [x] **D5** — 7-character Base62 codes, five generation attempts total
+      ([`ADR-005`](decisions/ADR-005.md)).
+- [x] **D6** — Alias rules, case sensitivity, and reserved names
+      ([`ADR-006`](decisions/ADR-006.md)).
+- [x] **D7** — Lazy expiration, `410`, and retained rows ([`ADR-007`](decisions/ADR-007.md)).
 - [x] **D8** — `supertest` — approved 2026-11-18 ([`ADR-008`](decisions/ADR-008.md)).
 - [x] **D9** — Deletion stays out of the MVP — approved 2026-11-18
       ([`ADR-009`](decisions/ADR-009.md)).

@@ -4,10 +4,11 @@
 > An ADR under `docs/decisions/ADR-NNN.md` is created only when the user approves the
 > corresponding `D-NNN`, and reuses the same number.
 
-- **Register updated:** 2026-11-18 (approval synchronization)
-- **Decisions:** D1–D18
-- **Approved by the user:** **D8–D18** on 2026-11-18 — recorded as `ADR-008` … `ADR-018`
-- **Pending User Approval:** **D1–D7**
+- **Register updated:** 2026-11-19 (D1–D7 approved)
+- **Decisions:** D1–D19
+- **Approved by the user:** **D8–D18** on 2026-11-18, **D1–D7** and **D19** on 2026-11-19 —
+  every decision is recorded as `ADR-001` … `ADR-019`
+- **Pending User Approval:** none — **D1–D19 are all Approved**
 - **Decision owner:** User (`AGENTS.md` §3)
 
 ## Status vocabulary
@@ -20,21 +21,22 @@
 | **Rejected** | Explicitly declined by the user. Kept for traceability. |
 | **Superseded** | Replaced by a later decision; the replacement is named. |
 
-D8–D18 are **Approved** by the user on 2026-11-18 and each has an ADR. D1–D7 remain **Pending User
-Approval**: nothing in this register, and no AI recommendation, approves them. No entry is
-**Rejected** or **Superseded**.
+All nineteen decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18, and
+D1–D7 plus D19 on 2026-11-19. D1–D7 were approved as recommended with two recorded clarifications —
+the `createApp({ db, clock, config })` deps object (D1) and **five generation attempts in total**
+(D5). No entry is **Rejected** or **Superseded**.
 
 ## Status summary
 
 | ID | Decision | Status |
 |---|---|---|
-| D1 | Layered architecture and feature-module layout | Pending User Approval |
-| D2 | `links` table schema and schema bootstrap | Pending User Approval |
-| D3 | API routes and error envelope | Pending User Approval |
-| D4 | Redirect status `302` | Pending User Approval |
-| D5 | Short-code generation (7-char Base62, 5 retries) | Pending User Approval |
-| D6 | Alias rules and reserved names | Pending User Approval |
-| D7 | Expiration behavior (`410`, lazy, rows retained) | Pending User Approval |
+| D1 | Layered architecture and feature-module layout | **Approved** — `ADR-001` |
+| D2 | `links` table schema and schema bootstrap | **Approved** — `ADR-002` |
+| D3 | API routes and error envelope | **Approved** — `ADR-003` |
+| D4 | Redirect status `302` | **Approved** — `ADR-004` |
+| D5 | Short-code generation (7-char Base62, 5 attempts) | **Approved** — `ADR-005` |
+| D6 | Alias rules and reserved names | **Approved** — `ADR-006` |
+| D7 | Expiration behavior (`410`, lazy, rows retained) | **Approved** — `ADR-007` |
 | D8 | Integration-test dependency: `supertest` vs built-in `fetch` | **Approved** — `ADR-008` |
 | D9 | Deletion in the MVP | **Approved** — `ADR-009` |
 | D10 | TypeScript 6.0.3 and tsconfig layout | **Approved** — `ADR-010` |
@@ -46,6 +48,7 @@ Approval**: nothing in this register, and no AI recommendation, approves them. N
 | D16 | Native ESM module system | **Approved** — `ADR-016` |
 | D17 | API response contracts, `PUBLIC_BASE_URL`, Host-header safety | **Approved** — `ADR-017` |
 | D18 | Destination URL format and length limits | **Approved** — `ADR-018` |
+| D19 | Requirement-gap resolutions (unknown fields, duplicate destinations, `/health`, body-parser errors) | **Approved** — `ADR-019` |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
 D10–D18 are the toolchain and contract findings verified in `docs/research-findings.md`.
@@ -54,11 +57,13 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D1 — Layered architecture and feature-module layout
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Adopt routes → controllers → services → repository inside a single
-  feature module `src/modules/links/`, with `createApp(deps)` and `createLinkService(repo)`
-  factories. Controllers never run SQL; services never touch `req`/`res`; SQL lives only in
-  repositories.
+- **Status:** **Approved** 2026-11-19 — [`ADR-001.md`](ADR-001.md). Includes the deps-object
+  clarification.
+- **Decision:** Adopt routes → controllers → services → repository inside a single feature module
+  `src/modules/links/`, with factories that take a **deps object**: `createApp({ db, clock, config })`
+  builds the repository and the link service, and `createLinkService({ repo, clock, config })` is
+  testable without a port. Controllers never run SQL; services never touch `req`/`res`; SQL lives
+  only in repositories.
 - **Justification:** Four small layers are enough to separate HTTP, rules, and persistence while
   remaining readable in a five-hour MVP. Factories make the service testable without a port.
 - **Alternatives / trade-offs:** A single `app.ts` with inline handlers is faster to write but
@@ -72,17 +77,18 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D2 — `links` table schema and schema bootstrap
 
-- **Status:** Pending User Approval — includes the `CHECK` constraint set. The refined set in the
-  final decision clarification report has **not** been approved and is not in force.
-- **Proposed decision:** One table:
+- **Status:** **Approved** 2026-11-19 — [`ADR-002.md`](ADR-002.md). The `CHECK` set is settled.
+- **Decision:** One table:
 
   ```sql
   CREATE TABLE IF NOT EXISTS links (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     code            TEXT    NOT NULL UNIQUE,
     original_url    TEXT    NOT NULL,
-    is_custom       INTEGER NOT NULL DEFAULT 0,
-    click_count     INTEGER NOT NULL DEFAULT 0,
+    is_custom       INTEGER NOT NULL DEFAULT 0
+                            CHECK (is_custom IN (0, 1)),
+    click_count     INTEGER NOT NULL DEFAULT 0
+                            CHECK (click_count >= 0),
     created_at      TEXT    NOT NULL,
     expires_at      TEXT,
     last_clicked_at TEXT
@@ -90,9 +96,11 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   ```
 
   Generated codes and custom aliases share one namespace through `UNIQUE(code)`. Schema is
-  created idempotently at startup; **no** migration framework in the MVP. Recommended addition:
-  `CHECK (click_count >= 0)` and `CHECK (is_custom IN (0,1))`. `expires_at` is **not** indexed
-  (lazy expiry, no range queries).
+  created idempotently at startup; **no** migration framework in the MVP. The approved `CHECK` set
+  is **only** `click_count >= 0` and `is_custom IN (0,1)`; the length, non-empty-URL, and
+  `expires_at > created_at` checks are **not** adopted, because those rules are enforced where the
+  input arrives (D18) and SQLite cannot add a `CHECK` later without rebuilding the table.
+  `expires_at` is **not** indexed (lazy expiry, no range queries).
 - **Justification:** `UNIQUE(code)` is the only integrity rule that must survive concurrency;
   the rest are cheap guards. A migration framework is unjustified for an unshipped schema.
 - **Alternatives / trade-offs:** Separate alias/code columns would double the lookup logic.
@@ -108,10 +116,10 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D3 — API routes and error envelope
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `POST /api/links`, `GET /api/links/:code/stats`, `GET /:code`,
-  `GET /health`. Body fields `url`, `alias`, `expiresAt`. Errors are always
-  `{ "error": { "code", "message", "details"? } }`.
+- **Status:** **Approved** 2026-11-19 — [`ADR-003.md`](ADR-003.md).
+- **Decision:** `POST /api/links`, `GET /api/links/:code/stats`, `GET /:code`, `GET /health`,
+  with the static routes registered before `/:code`. Body fields `url`, `alias`, `expiresAt`.
+  Errors are always `{ "error": { "code", "message", "details"? } }`.
 - **Justification:** A namespaced API avoids colliding with the `/:code` redirect namespace, and
   one error envelope keeps clients simple. `details` is optional so it never appears on 404/410.
 - **Alternatives / trade-offs:** `POST /links` risks shadowing codes; RFC 9457
@@ -126,8 +134,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D4 — Redirect status `302`
 
-- **Status:** Pending User Approval
-- **Proposed decision:** `GET /:code` answers `302` with a `Location` header.
+- **Status:** **Approved** 2026-11-19 — [`ADR-004.md`](ADR-004.md).
+- **Decision:** `GET /:code` answers `302 Found` with a `Location` header and no body.
 - **Justification:** A temporary redirect keeps repeat visits hitting the server so clicks stay
   countable. A permanent `301` would be cached by browsers and silently stop counting.
 - **Alternatives / trade-offs:** `307` preserves the method, which is wrong for a browser
@@ -141,10 +149,12 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D5 — Short-code generation
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Random 7-character Base62 codes from a 62-symbol alphabet, generated
-  with `crypto.randomInt` (never `Math.random`), retrying on collision up to five times, then
-  failing with `INTERNAL_ERROR`.
+- **Status:** **Approved** 2026-11-19 — [`ADR-005.md`](ADR-005.md). Includes the
+  five-attempts-total clarification.
+- **Decision:** Random 7-character Base62 codes from a 62-symbol alphabet, generated with
+  `crypto.randomInt` (never `Math.random`), retrying on collision for at most **five generation
+  attempts in total** — the first attempt plus four retries — then failing with `INTERNAL_ERROR`.
+  Uniqueness is enforced by `UNIQUE(code)`, not by a pre-check.
 - **Justification:** 62⁷ ≈ 3.5 × 10¹² codes makes collisions negligible at MVP scale, and
   `randomInt` is unbiased and cryptographically strong. Five retries absorbs the residual case
   without a loop that can spin forever.
@@ -159,11 +169,12 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D6 — Alias rules and reserved names
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Aliases are 3–32 characters, `[A-Za-z0-9_-]`, **case-sensitive**, and
-  must not equal a reserved name. Reserved: `api`, `health`. Alias length/charset failures return
-  `400 VALIDATION_ERROR`; a reserved name returns `400 RESERVED_ALIAS`; an existing alias returns
-  `409 ALIAS_TAKEN`.
+- **Status:** **Approved** 2026-11-19 — [`ADR-006.md`](ADR-006.md). Includes the
+  case-insensitive reserved-name check.
+- **Decision:** Aliases are 3–32 characters, `[A-Za-z0-9_-]`, **case-sensitive**, and must not
+  equal a reserved name. Reserved, matched case-insensitively: `api`, `health`. Alias
+  length/charset failures return `400 VALIDATION_ERROR`; a reserved name returns
+  `400 RESERVED_ALIAS`; an existing alias returns `409 ALIAS_TAKEN`.
 - **Justification:** The charset is URL-safe without encoding, and case sensitivity matches the
   case-sensitive `UNIQUE` index, avoiding a mismatch between validation and storage. Reserving
   `api`/`health` prevents alias shadowing of real routes.
@@ -177,8 +188,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D7 — Expiration behavior
 
-- **Status:** Pending User Approval
-- **Proposed decision:** Expiration is evaluated lazily on redirect and on stats. An expired code
+- **Status:** **Approved** 2026-11-19 — [`ADR-007.md`](ADR-007.md).
+- **Decision:** Expiration is evaluated lazily on redirect and on stats. An expired code
   returns `410 LINK_EXPIRED` on redirect and does **not** increment the click count. Expired rows
   are retained so statistics remain available. `expiresAt` must be in the future at creation.
 - **Justification:** Lazy evaluation needs no scheduler, background job, or extra dependency, and
@@ -212,7 +223,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 
 ## D9 — Deletion in the MVP
 
-- **Status:** **Approved** 2026-11-18 — [`ADR-009.md`](ADR-009.md). Deletion stays out of scope.
+- **Status:** **Approved** 2026-11-18, reconfirmed 2026-11-19 — [`ADR-009.md`](ADR-009.md).
+  Deletion stays out of scope.
 - **Decision:** **Out of scope** for the MVP. No `DELETE` endpoint and no `deleted_at`
   column.
 - **Justification:** Nothing in the ten MVP capabilities requires deletion, and it introduces
@@ -393,6 +405,32 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   `docs/security-guidelines.md`, `docs/api-specification.md`, `TASKS.md` §3.
 - **Depends on / constrains:** D3 (validation errors), D17 (error codes).
 
+## D19 — Requirement-gap resolutions for the MVP contract
+
+- **Status:** **Approved** 2026-11-19 — [`ADR-019.md`](ADR-019.md).
+- **Decision:** The user adopted the proposed default for all four requirements gaps:
+  - Unknown body fields are **ignored** (stripped), never rejected; only `url`, `alias`, and
+    `expiresAt` are read.
+  - Duplicate destinations are **not deduplicated**: every successful create produces a new link
+    and code.
+  - `GET /health` is **liveness only**: no database probe, no readiness state, no `503`.
+  - Body-parser failures (malformed JSON, payload above the default limit) map to
+    `400 VALIDATION_ERROR`; the default body limit is kept and no `413` is added.
+  - Deletion stays out of the MVP, reconfirming D9.
+- **Justification:** Each gap kept acceptance criteria from being settled. The adopted defaults add
+  no dependency, route, column, or error code, and keep one error shape and one create path.
+- **Alternatives / trade-offs:** Strict rejection of unknown fields, destination deduplication, a
+  readiness probe, and `413` were each considered and declined as contract surface a five-hour MVP
+  does not need ([`ADR-019.md`](ADR-019.md)).
+- **Verification:** Documentation review only; no code exists. The Express `express.json()` default
+  limit and `body-parser` failure types must be confirmed when the middleware is written.
+- **Affected documents:** `docs/requirements.md` (FR-01, FR-07, FR-08, FR-10 and the gaps section),
+  `docs/api-specification.md`, `docs/testing-strategy.md`, `TASKS.md`, `PROJECT_STATE.md`,
+  `ROADMAP.md`, `CHANGELOG.md`.
+- **Depends on / constrains:** D3 (the `/health` route and the validation envelope are still
+  pending), D17 (error codes), D18 (create validation). D7 governs whether expired rows are
+  retained.
+
 ---
 
 ## Cross-decision sequencing constraints
@@ -420,7 +458,8 @@ only pin versions and configuration.
 | Date | Scope | Result | Records |
 |---|---|---|---|
 | 2026-11-18 | D8–D18 and their sub-options | Approved by the user | `ADR-008.md` … `ADR-018.md` |
-| — | D1–D7 | Still **Pending User Approval** | no ADR yet |
+| 2026-11-19 | D19: the four requirement gaps; D9 reconfirmed | Approved by the user | `ADR-019.md`; reconfirmation in `ADR-009.md` |
+| 2026-11-19 | D1–D7 as recommended, with the `createApp({ db, clock, config })` deps object and five generation attempts in total | Approved by the user | `ADR-001.md` … `ADR-007.md` |
 
 The approval covers each entry as written, including the recommendations in the final decision
 clarification report: `supertest` (D8), deletion out of scope (D9), the explicit TypeScript 6
@@ -429,5 +468,7 @@ Node.js 24 LTS (D13), caret ranges with a committed lockfile (D14), canonical UT
 (D15), native ESM (D16), the API/`PUBLIC_BASE_URL` contract with `200` + `isExpired`, exposed
 `isCustom` and production fail-fast (D17), and the scheme/2048/credential rules (D18).
 
-D2's refined `CHECK` constraint set was evaluated in the same clarification report but belongs to
-D2, which is outside the approved range. It remains **Pending User Approval** together with D1–D7.
+D2's `CHECK` constraint set is resolved in that decision itself: only `click_count >= 0` and
+`is_custom IN (0,1)` are adopted, and the extra length/URL/expiry checks are declined
+([`ADR-002.md`](ADR-002.md)). D1's deps-object signature and D5's five-attempts-total count were
+approved as clarifications on 2026-11-19 and are recorded in `ADR-001.md` and `ADR-005.md`.

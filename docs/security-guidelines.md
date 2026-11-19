@@ -1,8 +1,8 @@
 # Security Guidelines
 
 This is a minimum checklist for a URL shortener, not a claim of production-grade security.
-Items marked with a D-ID cite their decision: **D17 and D18 are approved** (2026-11-18). Items
-resting on **D2 or D6** are still proposals.
+Items marked with a D-ID cite their decision: **D17 and D18** were approved on 2026-11-18, and
+**D2 and D6** on 2026-11-19. Every item below rests on an approved decision.
 
 ## Input and redirect safety
 
@@ -36,8 +36,7 @@ resting on **D2 or D6** are still proposals.
 - Enforce unique short codes with `UNIQUE(code)` in SQLite, not only with a pre-check.
 - Do not use SQLite date functions for application timestamps; they are second-precision and
   bypass the injected clock.
-- Keep `click_count` non-negative with a `CHECK` constraint once D2 is approved; D2 is still
-  pending.
+- Keep `click_count` non-negative with the approved `CHECK (click_count >= 0)` constraint (D2).
 
 ## Errors and logging
 

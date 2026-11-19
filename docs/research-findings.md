@@ -217,8 +217,8 @@ Approved (D17):
 
 ## 10. Approved API contracts
 
-Shapes below are the **approved contract** under D17 (2026-11-18, `ADR-017`). The route set and
-error-envelope shape still come from D3 and remain pending.
+Shapes below are the **approved contract** under D17 (2026-11-18, `ADR-017`), and the route set and
+error-envelope shape were approved as D3 on 2026-11-19 (`ADR-003`).
 
 Create `POST /api/links` → `201` with `Location: <shortUrl>`:
 

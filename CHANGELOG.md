@@ -2,6 +2,60 @@
 
 ## Unreleased
 
+### 2026-11-19 — D1–D7 approved; architecture, requirements, and design finalized
+
+- The user approved **D1–D7** as recommended, with two clarifications: `createApp` takes a deps
+  object `{ db, clock, config }` (D1), and collisions are retried for at most **five generation
+  attempts in total** (D5). Recorded as `docs/decisions/ADR-001.md` … `ADR-007.md`.
+- D2's `CHECK` set is fixed to `click_count >= 0` and `is_custom IN (0,1)`. The length,
+  non-empty-URL, and `expires_at > created_at` checks are declined, with the reason recorded in
+  `ADR-002`.
+- Decision status is now **19 of 19 approved** and no entry is pending. The nine-item checklist in
+  `docs/architecture-proposal.md` §9 is fully checked.
+- `docs/requirements.md` finalized: every requirement is **Confirmed** or **Out of scope**, and the
+  "Partly confirmed"/"Proposal" labels and pending notes are gone.
+- `docs/api-specification.md` and `docs/database-design.md` finalized: the drafts are removed and
+  the approved routes, envelope, `302`, alias rules, lazy expiry, and schema are stated as settled.
+- `TASKS.md`, `ROADMAP.md`, `PROJECT_STATE.md`, `README.md`, `docs/testing-strategy.md`,
+  `docs/security-guidelines.md`, `docs/coding-standards.md`, and `docs/research-findings.md`
+  synchronized to the approved state.
+- No application code, dependencies, installs, commits, or pushes were made.
+
+### 2026-11-19 — Requirement gaps resolved; acceptance criteria no longer provisional
+
+- The user adopted the proposed default for all four requirements gaps, recorded as **D19**
+  (`docs/decisions/ADR-019.md`): unknown body fields are ignored, duplicate destinations are not
+  deduplicated, `GET /health` is liveness only, and body-parser failures map to
+  `400 VALIDATION_ERROR` with no `413`.
+- Reconfirmed that link deletion stays out of the MVP; `ADR-009` records the reconfirmation.
+- `docs/requirements.md`: FR-01, FR-07, FR-08, and FR-10 now cite D19; added AC-01.9, AC-01.10,
+  AC-07.7, and AC-08.6; the gaps table records resolved answers instead of proposals.
+- `docs/api-specification.md`: create field handling, `/health` scope, and the `400` error row
+  reflect D19; the gap paragraph is replaced by the resolutions.
+- `docs/testing-strategy.md`: unknown-field, duplicate-destination, oversized-body, and
+  health-without-database cases added.
+- Register, ADR index, `TASKS.md`, `ROADMAP.md`, `PROJECT_STATE.md`, and
+  `prompts/02-requirements.md` synchronized: 12 of 19 decisions approved at that point, with D1–D7
+  still pending until the next entry.
+- No application code, dependencies, installs, commits, or pushes were made.
+
+### 2026-11-18 — Requirements and acceptance criteria drafted (Prompt 02)
+
+- Rewrote `docs/requirements.md` as testable requirements: FR-01 … FR-12 and NFR-01 … NFR-09, each
+  with inputs, success behavior, validation rules, error cases and status codes, data changes,
+  acceptance criteria, and the tests needed.
+- Labeled every requirement **Confirmed**, **Partly confirmed**, **Proposal**, or **Out of scope**.
+  Only `PROJECT.md` and D8–D18 back confirmed items; anything resting on D1–D7 is a proposal.
+- Recorded deletion as out of scope from the user's approved D9 (`ADR-009`) instead of re-deciding
+  it; FR-09 has no endpoint and no deletion column.
+- Added FR-10 (health) and FR-11 (startup `PUBLIC_BASE_URL` configuration, confirmed by D17).
+- Logged four unresolved gaps as proposals: unknown body fields (Q-2), duplicate destinations
+  (Q-3), `/health` scope (Q-4), and body-parser error mapping (Q-5).
+- Corrected `TASKS.md` (deletion moved out of "if time remains"), `ROADMAP.md`, and the
+  unknown-field note in `docs/testing-strategy.md`; linked the gaps from
+  `docs/api-specification.md`.
+- No application code, dependencies, installs, commits, or pushes were made.
+
 ### 2026-11-18 — Decisions D8–D18 approved; documentation synchronized
 
 - The user approved **D8–D18** and their sub-options. Wrote one ADR per approved decision,

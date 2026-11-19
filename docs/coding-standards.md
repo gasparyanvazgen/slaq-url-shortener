@@ -1,7 +1,7 @@
 # Coding Standards
 
-> Conventions marked with a D-ID cite their decision. **D10–D16 are approved** (2026-11-18); any
-> convention resting on D1–D7 is still a proposal. See
+> Conventions marked with a D-ID cite their decision. **D10–D16** were approved on 2026-11-18 and
+> **D1–D7** on 2026-11-19, so every convention here rests on an approved decision. See
 > [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
 ## Language and toolchain

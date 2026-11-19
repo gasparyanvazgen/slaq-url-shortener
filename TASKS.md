@@ -19,17 +19,21 @@ this file as work progresses. Decision IDs refer to
 - [x] Audit and synchronize project documentation with the findings. — Evidence: `CHANGELOG.md`
       entry of 2026-11-18.
 
-### 0.2 Decisions (D8–D18 approved 2026-11-18; D1–D7 pending)
+### 0.2 Decisions (D1–D19 all approved)
 
-- [ ] Review `docs/architecture-proposal.md` and the register.
-- [ ] Approve or amend D1 — layered architecture and feature-module layout.
-- [ ] Approve or amend D2 — `links` schema and schema bootstrap (including the optional `CHECK`
-      constraints).
-- [ ] Approve or amend D3 — API routes and error envelope.
-- [ ] Approve or amend D4 — `302` redirect.
-- [ ] Approve or amend D5 — 7-character Base62 codes with five collision retries.
-- [ ] Approve or amend D6 — alias rules, case sensitivity, reserved names.
-- [ ] Approve or amend D7 — lazy expiration, `410`, rows retained.
+- [x] Review `docs/architecture-proposal.md` and the register. — Reviewed before the D1–D7
+      walkthrough on 2026-11-19.
+- [x] **D1 approved 2026-11-19** — layered architecture and feature-module layout, with
+      `createApp({ db, clock, config })`. Evidence: `docs/decisions/ADR-001.md`.
+- [x] **D2 approved 2026-11-19** — `links` schema and idempotent bootstrap; `CHECK` set limited to
+      `click_count >= 0` and `is_custom IN (0,1)`. Evidence: `ADR-002.md`.
+- [x] **D3 approved 2026-11-19** — API routes and error envelope. Evidence: `ADR-003.md`.
+- [x] **D4 approved 2026-11-19** — `302` redirect. Evidence: `ADR-004.md`.
+- [x] **D5 approved 2026-11-19** — 7-character Base62 codes, five generation attempts in total.
+      Evidence: `ADR-005.md`.
+- [x] **D6 approved 2026-11-19** — alias rules, case-sensitive matching, case-insensitive reserved
+      names. Evidence: `ADR-006.md`.
+- [x] **D7 approved 2026-11-19** — lazy expiration, `410`, rows retained. Evidence: `ADR-007.md`.
 - [x] **D8 approved 2026-11-18** — `supertest` + `@types/supertest`, dev-only. Evidence:
       `docs/decisions/ADR-008.md`.
 - [x] **D9 approved 2026-11-18** — deletion stays out of scope. Evidence: `ADR-009.md`.
@@ -48,20 +52,35 @@ this file as work progresses. Decision IDs refer to
       `ADR-017.md`.
 - [x] **D18 approved 2026-11-18** — scheme allow-list, 2048-character cap, credentials rejected.
       Evidence: `ADR-018.md`.
-- [x] Record the approved decisions as ADRs — `docs/decisions/ADR-008.md` … `ADR-018.md`.
-- [ ] Record any future D1–D7 approval as `ADR-001` … `ADR-007`.
+- [x] **D19 approved 2026-11-19** — adopted the defaults for Q-2 … Q-5 (unknown fields ignored,
+      no duplicate-destination deduplication, `/health` liveness only, body-parser failures →
+      `400 VALIDATION_ERROR`) and reconfirmed D9. Evidence: `docs/decisions/ADR-019.md`.
+- [x] Record the approved decisions as ADRs — `docs/decisions/ADR-008.md` … `ADR-019.md`.
+- [x] Record the D1–D7 approval as `ADR-001` … `ADR-007`. — Evidence:
+      `docs/decisions/ADR-001.md` … `ADR-007.md`, 2026-11-19.
 - [ ] Confirm the `.gitignore` change: `.env.*` is ignored, with `.env.example`
       exempted, so a future example file stays trackable.
-- [ ] Confirm requirements and acceptance criteria (Prompt 02).
+- [x] Draft requirements and acceptance criteria (Prompt 02). — Evidence:
+      `docs/requirements.md`, 2026-11-18; every requirement labeled confirmed or proposal.
+- [x] Resolve the four requirements gaps Q-2 … Q-5 — D19 approved 2026-11-19, folded into
+      `docs/requirements.md` FR-01, FR-07, FR-08, and FR-10 and their new acceptance criteria.
+- [x] Confirm the drafted acceptance criteria. — Every criterion is confirmed: D19 closed the
+      gaps and D1–D7 were approved on 2026-11-19; no decision is pending.
 
 ## Gate 1 — Requirements and specifications
 
-- [ ] Turn approved decisions into confirmed functional and non-functional requirements.
-- [ ] Confirm acceptance criteria for every MVP capability.
-- [ ] Finalize the API specification (bodies, status codes, error codes).
-- [ ] Finalize the database design and pragma rationale.
-- [ ] Finalize the testing strategy, including the eleven expiration-boundary cases and the
-      Host-injection regression test.
+- [x] Turn approved decisions into confirmed functional and non-functional requirements. —
+      Evidence: `docs/requirements.md` FR-01 … FR-12 and NFR-01 … NFR-09, with approved items
+      separated from proposals.
+- [x] Confirm acceptance criteria for every MVP capability — AC-01.1 … AC-12.3, all confirmed
+      after D19 and the D1–D7 approval. Evidence: `docs/requirements.md`, 2026-11-19.
+- [x] Finalize the API specification (bodies, status codes, error codes). — Evidence:
+      `docs/api-specification.md`, status Approved; routes D3, `302` D4, aliases D6, expiry D7.
+- [x] Finalize the database design and pragma rationale. — Evidence: `docs/database-design.md`,
+      status Approved; D2 schema with the two approved `CHECK` constraints.
+- [x] Finalize the testing strategy, including the eleven expiration-boundary cases and the
+      Host-injection regression test. — Evidence: `docs/testing-strategy.md`, status Approved. No
+      test has been executed; there is no npm project yet.
 
 ## MVP implementation
 
@@ -141,4 +160,8 @@ this file as work progresses. Decision IDs refer to
 - [ ] Authentication.
 - [ ] Per-click analytics history.
 - [ ] Frontend dashboard.
-- [ ] Link deletion (see D9).
+
+## Post-MVP (excluded by an approved decision)
+
+- [ ] Link deletion — excluded from the MVP by D9 (`docs/decisions/ADR-009.md`), reconfirmed
+      2026-11-19; revisit only through a new decision that supersedes it.
