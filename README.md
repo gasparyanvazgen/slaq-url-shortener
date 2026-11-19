@@ -7,8 +7,6 @@
 [![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003B57?logo=sqlite&logoColor=white)](https://github.com/WiseLibs/better-sqlite3)
 
-<!-- **Live:** [INSERT_LIVE_URL_HERE](INSERT_LIVE_URL_HERE) · **Health check:** [INSERT_LIVE_URL_HERE/health](INSERT_LIVE_URL_HERE/health) · **API docs:** [`docs/api-specification.md`](docs/api-specification.md) -->
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -24,8 +22,6 @@
 Long URLs are awkward to share, and most people also want to know whether anyone clicked them. Slaq turns a long `http`/`https` URL into a short link, redirects visitors to the original destination, and keeps a simple click count for every link.
 
 It is a single-process service with a small JSON API. Links can use a generated code or a custom alias, and they can optionally expire. Data is stored in a local SQLite file. There is no frontend.
-
-**Live demo:** [INSERT_LIVE_DEMO_URL_OR_REMOVE_THIS_LINE]
 
 ## Key Features
 
