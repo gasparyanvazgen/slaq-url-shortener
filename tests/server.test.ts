@@ -3,6 +3,7 @@ import { Server } from 'node:http';
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { startServer } from '../src/server.js';
+import { openDatabase, type DatabaseHandle } from '../src/db/connection.js';
 
 const BASE_URL = 'http://localhost:3000';
 const NODE_ENVS = ['development', 'production'] as const;
@@ -20,6 +21,13 @@ const REJECTED_PORTS = [
 
 describe('startup', () => {
   let listen: Mock<typeof Server.prototype.listen>;
+  const databases: DatabaseHandle[] = [];
+
+  function startWithMemory(env: Readonly<Record<string, string | undefined>>): number {
+    const db = openDatabase(':memory:');
+    databases.push(db);
+    return startServer(env, db);
+  }
 
   beforeEach(() => {
     listen = vi.spyOn(Server.prototype, 'listen').mockImplementation(function (
@@ -30,6 +38,9 @@ describe('startup', () => {
   });
 
   afterEach(() => {
+    for (const db of databases.splice(0)) {
+      db.close();
+    }
     listen.mockRestore();
     vi.restoreAllMocks();
   });
@@ -37,7 +48,7 @@ describe('startup', () => {
   it.each(NODE_ENVS)(
     'listens on 3000 when PORT is unset under NODE_ENV=%s',
     (nodeEnv) => {
-      const status = startServer({ NODE_ENV: nodeEnv, PUBLIC_BASE_URL: BASE_URL });
+      const status = startWithMemory({ NODE_ENV: nodeEnv, PUBLIC_BASE_URL: BASE_URL });
 
       expect(status).toBe(0);
       expect(listen).toHaveBeenCalledOnce();
@@ -51,7 +62,7 @@ describe('startup', () => {
     ['00001', 1],
     [' 8080 ', 8080],
   ] as const)('passes the resolved port %s to listen', (rawPort, expected) => {
-    const status = startServer({
+    const status = startWithMemory({
       NODE_ENV: 'development',
       PORT: rawPort,
       PUBLIC_BASE_URL: BASE_URL,
@@ -62,10 +73,21 @@ describe('startup', () => {
   });
 
   it('listens on the development default when PUBLIC_BASE_URL is unset', () => {
-    const status = startServer({ NODE_ENV: 'development' });
+    const status = startWithMemory({ NODE_ENV: 'development' });
 
     expect(status).toBe(0);
     expect(listen.mock.calls[0]?.[0]).toBe(3000);
+  });
+
+  it('creates the links table before listening', () => {
+    startWithMemory({ NODE_ENV: 'test', PUBLIC_BASE_URL: BASE_URL });
+    const db = databases[0];
+    expect(db).toBeDefined();
+
+    const table = db
+      ?.prepare<[], { name: string }>("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'links'")
+      .get();
+    expect(table?.name).toBe('links');
   });
 
   it('does not listen when production has no PUBLIC_BASE_URL', () => {
@@ -74,7 +96,7 @@ describe('startup', () => {
       errors.push(String(message));
     });
 
-    const status = startServer({ NODE_ENV: 'production' });
+    const status = startWithMemory({ NODE_ENV: 'production' });
 
     spy.mockRestore();
     expect(status).toBe(1);
@@ -89,7 +111,7 @@ describe('startup', () => {
         errors.push(String(message));
       });
 
-      const status = startServer({
+      const status = startWithMemory({
         NODE_ENV: nodeEnv,
         PORT: rawPort,
         PUBLIC_BASE_URL: BASE_URL,

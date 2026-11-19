@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+### 2026-11-19 — §3 create short links implemented and verified
+
+- Added `src/lib/code-generator.ts`: a 7-character Base62 generator using `crypto.randomInt` over an
+  exported 62-character alphabet (D5). A factory accepts an injected random source for deterministic
+  collision tests; `Math.random` is never used.
+- Added `src/modules/links/links.types.ts` and `links.repository.ts`. The repository prepares bound
+  `INSERT` and `SELECT` statements once, maps the snake_case driver row to the camelCase `Link`
+  domain object, normalizes `lastInsertRowid`, and translates only `SQLITE_CONSTRAINT_UNIQUE` into
+  `UniqueCodeError` (D2, D12). No existence pre-check and no transaction.
+- Added `links.service.ts`: trims nothing itself, uses the injected clock for `createdAt`, inserts
+  `expires_at = NULL`, retries at most five generation attempts in total, and maps exhaustion to a
+  generic `InternalError`/`500 INTERNAL_ERROR` (D5, D15).
+- Added `links.schemas.ts`, `links.controller.ts`, and `links.routes.ts`. The controller validates
+  `url` at the HTTP boundary: trimmed, absolute `http:`/`https:` only, 2048-character cap, embedded
+  credentials rejected, unknown fields stripped (D18, D19). Alias and expiry validation remain
+  assigned to §§5–6.
+- `src/app.ts` now builds the repository, service, and controller from the injected deps and serves
+  `POST /api/links` with `201`, the approved JSON body, and `Location` built only from the validated
+  `PUBLIC_BASE_URL` (D17). Host and forwarded-host headers are ignored.
+- The user resolved the open database-filename question to a fixed `slaq.db` in the process working
+  directory. `src/server.ts` now opens that file, runs the idempotent schema bootstrap, and then
+  calls `listen`; config errors still abort before any database handle exists. `*.db` files are
+  ignored by Git.
+- Added 37 tests across `tests/code-generator.test.ts`, `tests/links-repository.test.ts`,
+  `tests/links-service.test.ts`, and `tests/create-link.test.ts`, covering AC-01.1 … AC-01.10 where
+  in scope: exact body/Location, injected clock, 2048/2049 boundary, rejected schemes and
+  credentials, repository round-trip, Host-header regression, unknown-field stripping, no
+  destination deduplication, collision retry, and five-attempt exhaustion with no extra row.
+  AC-01.5 is verified through the repository because the statistics endpoint belongs to §7.
+- The tests were written first: the red run failed with four "Cannot find module" errors for the new
+  modules. Two tests covering alias/expiry field types were removed before the final run because
+  those validations belong to §§5–6.
+- Verification: `npm run typecheck && npm run lint && npm test && npm run build` — all four pass;
+  9 test files, 146 tests, 776 ms. No dependency changed; no commit or push was made.
+
 ### 2026-11-19 — §2 database and shared infrastructure implemented and verified
 
 - Added `src/db/connection.ts` (`openDatabase(filename)`): opens `better-sqlite3`, applies
@@ -29,8 +64,8 @@
   5 test files, 109 tests, 688 ms. One initial lint error on the deliberately unused fourth Express
   error-middleware argument was resolved with `void _next;`. No dependency changed; no commit or push
   was made.
-- The database filename remains undecided, so `src/server.ts` still passes the `db: null`
-  placeholder and `createSchema(db)` is exercised in tests rather than at startup.
+- At this point the database filename was still undecided, so `src/server.ts` passed a `db: null`
+  placeholder. The user resolved it in §3 to a fixed `slaq.db`, which that section wires into startup.
 
 ### 2026-11-19 — §1 scaffold implemented and verified
 

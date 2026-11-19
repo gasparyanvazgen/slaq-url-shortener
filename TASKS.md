@@ -155,13 +155,27 @@ this file as work progresses. Decision IDs refer to
 - [x] Test database initialization and the error response shape. — 18 new tests in
       `tests/database.test.ts` and `tests/errors.test.ts`; full gate passes with 109 tests total.
 
-### 3. Create short links
-- [ ] Add URL and optional-field validation (scheme allow-list, 2048 cap).
-- [ ] Implement the short-code generator.
-- [ ] Implement repository insert and lookup.
-- [ ] Implement the create-link service with collision retries.
-- [ ] Implement `POST /api/links` returning the approved body and `Location`.
-- [ ] Test valid creation, invalid URL, over-long URL, unsupported scheme, and collisions.
+### 3. Create short links (complete; §4 pending)
+- [x] Add URL and optional-field validation (scheme allow-list, 2048 cap). —
+      `src/modules/links/links.schemas.ts` trims then validates `url` with Zod plus explicit
+      `http:`/`https:`, credential, and 2048-character checks (D18); unknown body fields are stripped
+      (D19). Alias validation remains in §5 and expiry validation in §6.
+- [x] Implement the short-code generator. — `src/lib/code-generator.ts` uses `crypto.randomInt` over
+      the 62-character alphabet for 7 characters (D5); tests inject a deterministic random source and
+      prove `Math.random` is unused.
+- [x] Implement repository insert and lookup. — `src/modules/links/links.repository.ts` prepares both
+      statements once, binds all values, maps `LinkRow` to `Link`, and translates only
+      `SQLITE_CONSTRAINT_UNIQUE` to `UniqueCodeError` (D2, D12).
+- [x] Implement the create-link service with collision retries. — `src/modules/links/links.service.ts`
+      makes at most five generation attempts in total and throws a generic `InternalError` on
+      exhaustion (D5); injected-generator tests cover retry and exhaustion with no extra row.
+- [x] Implement `POST /api/links` returning the approved body and `Location`. — routes/controller/
+      service layers under `src/modules/links/`; `shortUrl` uses only `PUBLIC_BASE_URL` (D17). The
+      user approved a fixed `slaq.db` in the process working directory, so `src/server.ts` now opens
+      and bootstraps it before `listen`.
+- [x] Test valid creation, invalid URL, over-long URL, unsupported scheme, and collisions. — 37 new
+      tests across generator, repository, service, and API suites; full gate passes with 146 tests in
+      9 files. AC-01.5 is verified through the repository because the statistics endpoint is §7.
 
 ### 4. Redirect and click tracking
 - [ ] Implement lookup and the guarded click increment as two statements with no explicit

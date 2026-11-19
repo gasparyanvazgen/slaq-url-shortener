@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS links (
 ### Bootstrap
 
 - `CREATE TABLE IF NOT EXISTS` runs at startup from `src/db/schema.ts`. It is idempotent and safe to
-  run on every boot.
+  run on every boot. The user approved a fixed `slaq.db` filename in the process working directory;
+  `src/server.ts` opens it and calls `createSchema(db)` before `listen`.
 - No migration framework in the MVP; no seed data, views, or triggers. The first deployed schema
   change is the point at which a real migration mechanism becomes necessary.
 
@@ -123,8 +124,9 @@ process, one connection, and a synchronous driver, no statement can interleave b
 ## Repository contract
 
 SQL lives behind one factory and never leaves it (D1; `AGENTS.md` §4). The module set is fixed by
-`ADR-002` and `ADR-020`. As of 2026-11-19 the `connection`, `pragma`, `id`, and `schema` modules are
-implemented and tested; `links.types.ts` and `links.repository.ts` remain for `TASKS.md` §3.
+`ADR-002` and `ADR-020`. As of 2026-11-19 the `connection`, `pragma`, `id`, `schema`, `links.types`,
+and `links.repository` modules are implemented and tested. `insert` and `findByCode` exist;
+`incrementClick` remains for `TASKS.md` §4.
 
 | File | Responsibility |
 |---|---|

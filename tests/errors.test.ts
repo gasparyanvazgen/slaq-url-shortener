@@ -3,8 +3,10 @@ import express, { type Express } from 'express';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createApp, type AppDependencies } from '../src/app.js';
+import { createApp } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
+import { openDatabase } from '../src/db/connection.js';
+import { createSchema } from '../src/db/schema.js';
 import {
   AliasTakenError,
   LinkExpiredError,
@@ -23,12 +25,20 @@ interface ErrorBody {
   };
 }
 
-function appDeps(): AppDependencies {
-  return {
-    db: null,
+/**
+ * Build an app with a real handle, then close it. Statement preparation happens
+ * in `createApp`; the routes under test execute no SQL.
+ */
+function createClosedApp(): Express {
+  const db = openDatabase(':memory:');
+  createSchema(db);
+  const app = createApp({
+    db,
     clock: { now: () => new Date('2026-11-19T12:00:00.000Z') },
     config: loadConfig({ NODE_ENV: 'test', PUBLIC_BASE_URL: 'http://localhost:3000' }),
-  };
+  });
+  db.close();
+  return app;
 }
 
 /** A minimal app that routes a request into the real error middleware. */
@@ -77,7 +87,7 @@ describe('error middleware', () => {
   });
 
   it('returns the 404 envelope for an unmatched route', async () => {
-    const response = await request(createApp(appDeps())).get('/not-a-route');
+    const response = await request(createClosedApp()).get('/not-a-route');
     const body = response.body as ErrorBody;
 
     expect(response.status).toBe(404);
@@ -134,7 +144,7 @@ describe('error middleware', () => {
   });
 
   it('maps malformed JSON to 400 VALIDATION_ERROR', async () => {
-    const response = await request(createApp(appDeps()))
+    const response = await request(createClosedApp())
       .post('/anything')
       .set('Content-Type', 'application/json')
       .send('{"url":');
@@ -147,7 +157,7 @@ describe('error middleware', () => {
   });
 
   it('maps an oversized JSON body to 400 VALIDATION_ERROR without a 413', async () => {
-    const response = await request(createApp(appDeps()))
+    const response = await request(createClosedApp())
       .post('/anything')
       .set('Content-Type', 'application/json')
       .send(JSON.stringify({ url: 'x'.repeat(101 * 1024) }));

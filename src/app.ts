@@ -1,15 +1,17 @@
 import express, { type Express } from 'express';
 
 import type { AppConfig } from './config.js';
+import type { DatabaseHandle } from './db/connection.js';
 import type { Clock } from './lib/clock.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
+import { createLinksController } from './modules/links/links.controller.js';
+import { createLinkRepository } from './modules/links/links.repository.js';
+import { createLinksRouter } from './modules/links/links.routes.js';
+import { createLinkService } from './modules/links/links.service.js';
 
-/**
- * Placeholder for the SQLite connection. §2 replaces it with the typed
- * `better-sqlite3` database; `unknown` keeps the factory honest until then (D12).
- */
-export type AppDatabase = unknown;
+/** The typed SQLite handle injected into every app instance (D1, D12). */
+export type AppDatabase = DatabaseHandle;
 
 /** Everything `createApp` receives; the signature is final (D1). */
 export interface AppDependencies {
@@ -36,17 +38,21 @@ export function createApp(deps: AppDependencies): Express {
   // default HTML error page (D19).
   app.use(express.json());
 
-  // §2 exposes health only. The deps object stays in the signature (D1); later
-  // sections are what read the database, clock, and config.
-  void deps;
+  const repo = createLinkRepository(deps.db);
+  const service = createLinkService({
+    repo,
+    clock: deps.clock,
+    config: deps.config,
+  });
+  const controller = createLinksController({ service, config: deps.config });
 
-  // Liveness only: no database probe, no readiness state, no 503 (D19).
+  // Static routes precede the catch-all redirect route (added in §4) and the
+  // not-found handler; the single error writer comes last (D3).
   app.get('/health', (_req, res) => {
     res.status(200).json(HEALTH_BODY);
   });
+  app.use('/api', createLinksRouter(controller));
 
-  // Static routes precede the not-found handler, which precedes the single
-  // error writer (D3).
   app.use(notFoundHandler);
   app.use(errorHandler);
 
