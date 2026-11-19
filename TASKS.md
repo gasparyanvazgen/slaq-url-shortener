@@ -19,7 +19,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Audit and synchronize project documentation with the findings. — Evidence: `CHANGELOG.md`
       entry of 2026-11-18.
 
-### 0.2 Decisions (D1–D19 all approved)
+### 0.2 Decisions (D1–D19 approved; D20–D21 proposed)
 
 - [x] Review `docs/architecture-proposal.md` and the register. — Reviewed before the D1–D7
       walkthrough on 2026-11-19.
@@ -66,7 +66,8 @@ this file as work progresses. Decision IDs refer to
 - [x] Resolve the four requirements gaps Q-2 … Q-5 — D19 approved 2026-11-19, folded into
       `docs/requirements.md` FR-01, FR-07, FR-08, and FR-10 and their new acceptance criteria.
 - [x] Confirm the drafted acceptance criteria. — Every criterion is confirmed: D19 closed the
-      gaps and D1–D7 were approved on 2026-11-19; no decision is pending.
+      gaps and D1–D7 were approved on 2026-11-19; no requirement is provisional. (D20 and D21 are
+      later implementation proposals, covered by the Prompt 03 review item below.)
 
 ## Gate 1 — Requirements and specifications
 
@@ -82,6 +83,10 @@ this file as work progresses. Decision IDs refer to
 - [x] Finalize the testing strategy, including the eleven expiration-boundary cases and the
       Host-injection regression test. — Evidence: `docs/testing-strategy.md`, status Approved. No
       test has been executed; there is no npm project yet.
+- [ ] Review the approved architecture for MVP fit (Prompt 03). — Review complete 2026-11-19 in
+      `docs/architecture-review.md`: the layers, module, factory, schema, routes, and dependencies
+      are recommended unchanged. Awaiting the user's decision on corrections C-1 … C-3 and
+      proposals **D20**/`D21`; nothing is accepted and no ADR exists for either.
 
 ## MVP implementation
 
@@ -119,7 +124,8 @@ this file as work progresses. Decision IDs refer to
 - [ ] Test valid creation, invalid URL, over-long URL, unsupported scheme, and collisions.
 
 ### 4. Redirect and click tracking
-- [ ] Implement lookup and atomic click increment in one transaction.
+- [ ] Implement lookup and atomic click increment — **pending D20**: the proposed write path keeps
+      the guarded `UPDATE` and drops the explicit transaction.
 - [ ] Implement `GET /:code`.
 - [ ] Test the `302` status and exact `Location` header.
 - [ ] Test unknown code.

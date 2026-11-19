@@ -1,5 +1,10 @@
 # Prompt 03 — Architecture Review
 
+**Status:** Review complete 2026-11-19 in `docs/architecture-review.md`. The approved architecture is
+recommended as-is; corrections **C-1 … C-3** and proposals **D20**, **D21** await the user's explicit
+decision. No decision was accepted by the review, no ADR was written for a proposal, and no code was
+implemented.
+
 Follow `agents/backend-architect.md`.
 
 Inspect the repository and review `docs/architecture-proposal.md`. Evaluate whether the proposed layered architecture, feature module, app factory, repository boundary, SQLite schema, API paths, and dependency list are appropriate for the five-hour MVP.

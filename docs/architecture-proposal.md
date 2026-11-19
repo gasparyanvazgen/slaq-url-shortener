@@ -259,3 +259,13 @@ Toolchain and contracts — all approved 2026-11-18:
 - [x] **D17** — API contracts, `PUBLIC_BASE_URL` policy, and the Host-header rule
       ([`ADR-017`](decisions/ADR-017.md)).
 - [x] **D18** — URL scheme and length limits ([`ADR-018`](decisions/ADR-018.md)).
+
+### Prompt 03 review
+
+The architecture review in [`architecture-review.md`](architecture-review.md) recommends this design
+unchanged and raised two proposals, **D20** (redirect write path: guarded increment without an
+explicit transaction, and no increment on `HEAD`) and **D21** (`SQLITE_BUSY` → `500
+INTERNAL_ERROR`, no retry). Both are **Pending User Approval** in the register and have no ADR;
+nothing in this document changes until you decide them. The review also records three wording
+corrections (C-1 validation ownership, C-2 the dev-dependency list in §6, C-3 the `supertest`
+port description) that await confirmation.

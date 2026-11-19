@@ -5,16 +5,20 @@
 
 ## Current status
 
-- **Overall:** Design approved — **19 of 19 decisions approved**; no decision is pending
+- **Overall:** Design approved — **19 decisions approved**; the Prompt 03 architecture review
+  recommends the design as-is and has **two proposals pending** (D20, D21)
 - **Current phase:** Phase 5 entry — requirements, architecture, API contract, schema, and testing
-  strategy are final; the implementation scaffold is the next step
+  strategy are final, and the Prompt 03 architecture review is complete; settling its pending items
+  and the implementation scaffold are the next steps
 - **Implementation started:** No — no `package.json`, `src/`, `tests/`, `tsconfig.json`, lockfile,
   or `node_modules` exists
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18), **D1–D7** and **D19** (2026-11-19), recorded as
   `docs/decisions/ADR-001.md` … `ADR-019.md`
-- **Pending decisions:** none
+- **Pending decisions:** **D20** (redirect write path) and **D21** (`SQLITE_BUSY` policy), proposed
+  2026-11-19 in `docs/architecture-review.md`; neither has an ADR and neither may be implemented
+  before approval
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 72 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09)
 - **Last verified test run:** None — no npm project or test script exists, so the `AGENTS.md` §8.2
@@ -50,6 +54,9 @@
   and every npm script remain unproven.
 
 ## Approved decisions — D1–D19
+
+**D20 and D21 are not in this table:** they are *proposals* raised by the architecture review, not
+approved decisions, and have no ADR. See `docs/architecture-review.md` §2 and §6.
 
 | ID | Decision | ADR |
 |---|---|---|
@@ -184,6 +191,20 @@ ls docs/decisions/ADR-*.md | wc -l # -> 19, all tracked
 node /tmp/slaq-linkcheck.mjs       # -> markdown links checked: 87 broken: 0
 ```
 
+Commands run on 2026-11-19 for the Prompt 03 architecture review:
+
+```bash
+node /tmp/slaq-linkcheck.mjs              # -> 98 links checked, 0 broken
+git diff --check                          # -> clean
+grep -cE '^\| D[0-9]+ ' docs/decisions/DECISION-REGISTER.md   # -> 21 entries, 2 Pending
+ls docs/decisions/ADR-*.md | wc -l        # -> 19 (proposals intentionally have no ADR)
+git status --porcelain                    # -> docs only; no code, no dependency changes
+```
+
+The review added no code and installed nothing. `docs/architecture-review.md` is the deliverable;
+D20 and D21 are registered as **Pending User Approval** and C-1 … C-3 are corrections awaiting
+confirmation.
+
 The Markdown-link check covers every `.md` file in the repository and reported **0 broken links**.
 
 Dependency versions were verified earlier against the registry (not installed):
@@ -196,8 +217,13 @@ No `npm install`, typecheck, lint, test, build, commit, or push was performed.
 
 ## Next recommended action
 
-Start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin the
-approved dependency set, configure TypeScript/ESLint/Vitest, and add `GET /health` through
+Settle the Prompt 03 checklist before scaffolding: approve, amend, or decline **C-1 … C-3** and the
+**D20**/**D21** proposals in `docs/architecture-review.md` §6. Approval means writing `ADR-020` and
+`ADR-021` and applying the corrections; declining means recording the rejection and keeping the
+approved documents as they stand.
+
+Then start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin
+the approved dependency set, configure TypeScript/ESLint/Vitest, and add `GET /health` through
 `createApp({ db, clock, config })`. The design gate is closed — do not reopen an approved decision
 without a new ADR. Then work through `TASKS.md` §2–§8 and run the `AGENTS.md` §8.2 gate
 (`npm run typecheck && npm run lint && npm test && npm run build`).

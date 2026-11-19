@@ -2,9 +2,10 @@
 
 > **Status:** Approved — Prompt 02 output, finalized 2026-11-19. Every requirement is now
 > **Confirmed** or **Out of scope**: D1–D7 were approved on 2026-11-19 (`ADR-001` … `ADR-007`), so
-> nothing here depends on a pending decision. Each requirement still states the decisions it cites.
+> nothing here depends on an unapproved decision. Each requirement still states the decisions it
+> cites.
 >
-> **No gap remains open and no decision is pending.** On 2026-11-19 the user approved D1–D7 as
+> **No requirements gap remains open and no requirement is provisional.** On 2026-11-19 the user approved D1–D7 as
 > recommended — with the `createApp({ db, clock, config })` deps object (D1) and five generation
 > attempts in total (D5) — after adopting the proposed defaults for **Q-2** … **Q-5** (**D19**,
 > [`decisions/ADR-019.md`](decisions/ADR-019.md)) and reconfirming that deletion stays out of the
@@ -889,7 +890,7 @@ MVP. Each answer is now a confirmed requirement, recorded as **D19**
 | Q-4 | `/health` scope | Liveness only: no database probe, no readiness state. | FR-10 (AC-10.3) |
 | Q-5 | Body-parser failures (malformed JSON and oversized payloads) | Map every body-parser failure to `400 VALIDATION_ERROR`; keep Express's default body limit; add no `413` and no new code. | FR-07, FR-08 (AC-07.7, AC-08.6) |
 
-No gap remains open and no decision is pending. With D1–D7 approved on 2026-11-19, every
+No requirements gap remains open and no requirement is provisional. With D1–D7 approved on 2026-11-19, every
 acceptance criterion below is backed by `PROJECT.md` or an approved decision; none is provisional.
 
 ## Confirmed scope summary

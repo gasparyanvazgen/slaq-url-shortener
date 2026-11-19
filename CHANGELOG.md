@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### 2026-11-19 — Prompt 03 architecture review; two proposals pending
+
+- Added `docs/architecture-review.md`: the approved architecture (layers, feature module, app
+  factory, repository boundary, schema, routes, dependencies) is **recommended as-is** for the
+  five-hour MVP, with concrete trade-offs and a testability review.
+- Raised **D20** (redirect write path: guarded increment without an explicit transaction; `HEAD`
+  does not count) and **D21** (`SQLITE_BUSY` → `500 INTERNAL_ERROR`, no retry). Both are
+  **Pending User Approval** in the register; **no ADR was written and no decision was accepted**.
+- Recorded three corrections awaiting confirmation: C-1 validation ownership (routes versus
+  controllers), C-2 the incomplete dev-dependency list in `docs/architecture-proposal.md` §6, and
+  C-3 the inaccurate "no port is bound" description of `supertest`.
+- `docs/decisions/DECISION-REGISTER.md` now lists D1–D21 with D20/D21 pending, and `TASKS.md`,
+  `PROJECT_STATE.md`, `ROADMAP.md`, and `prompts/03-architecture.md` reflect the review.
+- No application code, dependencies, installs, tests, commits, or pushes were made.
+
 ### 2026-11-19 — D1–D7 approved; architecture, requirements, and design finalized
 
 - The user approved **D1–D7** as recommended, with two clarifications: `createApp` takes a deps

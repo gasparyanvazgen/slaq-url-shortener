@@ -4,11 +4,12 @@
 > An ADR under `docs/decisions/ADR-NNN.md` is created only when the user approves the
 > corresponding `D-NNN`, and reuses the same number.
 
-- **Register updated:** 2026-11-19 (D1–D7 approved)
-- **Decisions:** D1–D19
+- **Register updated:** 2026-11-19 (Prompt 03 architecture review — D20, D21 proposed)
+- **Decisions:** D1–D21
 - **Approved by the user:** **D8–D18** on 2026-11-18, **D1–D7** and **D19** on 2026-11-19 —
-  every decision is recorded as `ADR-001` … `ADR-019`
-- **Pending User Approval:** none — **D1–D19 are all Approved**
+  every approved decision is recorded as `ADR-001` … `ADR-019`
+- **Pending User Approval:** **D20 and D21**, proposed 2026-11-19 in
+  [`../architecture-review.md`](../architecture-review.md); neither has an ADR
 - **Decision owner:** User (`AGENTS.md` §3)
 
 ## Status vocabulary
@@ -21,10 +22,12 @@
 | **Rejected** | Explicitly declined by the user. Kept for traceability. |
 | **Superseded** | Replaced by a later decision; the replacement is named. |
 
-All nineteen decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18, and
-D1–D7 plus D19 on 2026-11-19. D1–D7 were approved as recommended with two recorded clarifications —
-the `createApp({ db, clock, config })` deps object (D1) and **five generation attempts in total**
-(D5). No entry is **Rejected** or **Superseded**.
+Nineteen decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18, and D1–D7
+plus D19 on 2026-11-19. D1–D7 were approved as recommended with two recorded clarifications — the
+`createApp({ db, clock, config })` deps object (D1) and **five generation attempts in total** (D5).
+Two entries, **D20** and **D21**, are **Pending User Approval**; they were raised by the Prompt 03
+architecture review, have no ADR, and may be implemented only after an explicit yes. No entry is
+**Rejected** or **Superseded**.
 
 ## Status summary
 
@@ -49,6 +52,8 @@ the `createApp({ db, clock, config })` deps object (D1) and **five generation at
 | D17 | API response contracts, `PUBLIC_BASE_URL`, Host-header safety | **Approved** — `ADR-017` |
 | D18 | Destination URL format and length limits | **Approved** — `ADR-018` |
 | D19 | Requirement-gap resolutions (unknown fields, duplicate destinations, `/health`, body-parser errors) | **Approved** — `ADR-019` |
+| D20 | Redirect write path: guarded increment, no explicit transaction, `HEAD` does not count | **Pending User Approval** — no ADR |
+| D21 | `SQLITE_BUSY` maps to `500 INTERNAL_ERROR`, no retry | **Pending User Approval** — no ADR |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
 D10–D18 are the toolchain and contract findings verified in `docs/research-findings.md`.
@@ -427,9 +432,56 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Affected documents:** `docs/requirements.md` (FR-01, FR-07, FR-08, FR-10 and the gaps section),
   `docs/api-specification.md`, `docs/testing-strategy.md`, `TASKS.md`, `PROJECT_STATE.md`,
   `ROADMAP.md`, `CHANGELOG.md`.
-- **Depends on / constrains:** D3 (the `/health` route and the validation envelope are still
-  pending), D17 (error codes), D18 (create validation). D7 governs whether expired rows are
-  retained.
+- **Depends on / constrains:** D3 (the `/health` route and the validation envelope), D17 (error
+  codes), D18 (create validation). D7 governs whether expired rows are retained.
+
+## D20 — Redirect write path and click-count semantics
+
+- **Status:** **Pending User Approval** — proposed 2026-11-19 by the Prompt 03 architecture review
+  ([`../architecture-review.md`](../architecture-review.md) §2). **No ADR exists and nothing may be
+  implemented from this entry yet.**
+- **Proposed decision:** the redirect path loads the row to distinguish `404` from `410`, then runs
+  the single guarded update
+  `UPDATE links SET click_count = click_count + 1, last_clicked_at = @now WHERE code = @code AND
+  (expires_at IS NULL OR expires_at > @now)` **without** an explicit `BEGIN`/`COMMIT` transaction,
+  treating `changes === 0` as `410`. `HEAD /:code` answers like `GET` but does **not** increment.
+- **Justification:** the expiry guard is inside the statement, so the increment is atomic on its
+own; with one process and one synchronous `better-sqlite3` connection there is no interleaving to
+  guard, and a transaction adds a `BEGIN`/`COMMIT` pair to the hottest path for no correctness gain.
+  Express routes `HEAD` to the `GET` handler, so without an explicit rule a monitoring probe would
+  add a click.
+- **Alternatives / trade-offs:** keep the explicit transaction (harmless, but implies a correctness
+  dependency that does not exist and complicates the repository surface); increment on `HEAD`
+  (simplest, but makes click counts depend on probe behavior); use one `UPDATE ... RETURNING`
+  statement (atomic and single-statement, but cannot distinguish `404` from `410` without a second
+  read).
+- **Verification:** must be proven by a repository test for the `changes === 0` path and an API test
+  asserting a `HEAD` request leaves `click_count` unchanged. Nothing is implemented.
+- **Affected documents on approval:** `docs/database-design.md` (query pattern), `ADR-007`
+  (implementation note), `TASKS.md` §4, `docs/testing-strategy.md` (HEAD case).
+- **Depends on / constrains:** D7 (expiry boundary and `410`), D2 (schema), D3 (status codes).
+
+## D21 — `SQLITE_BUSY` handling
+
+- **Status:** **Pending User Approval** — proposed 2026-11-19 by the Prompt 03 architecture review
+  ([`../architecture-review.md`](../architecture-review.md) §2). **No ADR exists and nothing may be
+  implemented from this entry yet.**
+- **Proposed decision:** do not retry. After `busy_timeout = 5000` elapses, the driver's
+  `SQLITE_BUSY` error is handled by the centralized error middleware as `500 INTERNAL_ERROR` with a
+  generic message; the detail is logged server-side only.
+- **Justification:** in a single-process, single-connection MVP the only source of `SQLITE_BUSY` is
+  an external writer holding the lock. A retry loop adds a second failure path and can hold a
+  request for about ten seconds to rescue a condition that should not occur; `500` is already in the
+  contract and is the honest answer.
+- **Alternatives / trade-offs:** retry once (absorbs a transient external lock, doubles worst-case
+  latency and code); retry with backoff (more surface than the MVP needs); drop `busy_timeout` to
+  fail fast (turns brief external locks into user-visible errors).
+- **Verification:** not unit-testable in-process without a second connection; verify by code review
+  of the error mapping and, if cheap, by a test that injects a repository throwing a `SQLITE_BUSY`
+  error and asserts the `500` envelope shape. Nothing is implemented.
+- **Affected documents on approval:** `docs/database-design.md` (open questions), `TASKS.md` §2,
+  `docs/testing-strategy.md`.
+- **Depends on / constrains:** D2 (connection setup), D3 (error envelope), D12 (driver).
 
 ---
 
@@ -460,6 +512,11 @@ only pin versions and configuration.
 | 2026-11-18 | D8–D18 and their sub-options | Approved by the user | `ADR-008.md` … `ADR-018.md` |
 | 2026-11-19 | D19: the four requirement gaps; D9 reconfirmed | Approved by the user | `ADR-019.md`; reconfirmation in `ADR-009.md` |
 | 2026-11-19 | D1–D7 as recommended, with the `createApp({ db, clock, config })` deps object and five generation attempts in total | Approved by the user | `ADR-001.md` … `ADR-007.md` |
+
+On 2026-11-19 the Prompt 03 architecture review (`docs/architecture-review.md`) recorded **D20** and
+**D21** as **Proposed** and raised corrections C-1 … C-3. That review approved nothing: the two
+proposals remain **Pending User Approval**, have no ADR, and the register contains no accepted entry
+dated after D1–D7.
 
 The approval covers each entry as written, including the recommendations in the final decision
 clarification report: `supertest` (D8), deletion out of scope (D9), the explicit TypeScript 6
