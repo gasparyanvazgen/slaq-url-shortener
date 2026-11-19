@@ -1,20 +1,19 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (§1–§2 committed; §3 create-link behavior implemented and verified,
-> awaiting the user's commit; §4 is the next step).
+> **Last rewritten:** 2026-11-19 (§§1–3 committed; §§4–7 implemented and verified, awaiting the
+> user's commit; TASKS.md §8 docs work is the next step).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation. `TASKS.md` §1–§3 are complete and verified; §4
-  (redirect and click tracking) is the next step and is explicitly out of scope for this pass.
-- **Implementation started:** Yes — §1 is committed as `acb51ec` and §2 as `93dd0f8`. §3 adds
-  `src/lib/code-generator.ts`, `src/modules/links/*`, and four test files as untracked paths, plus
-  modifications to the app, server, and existing test helpers. The create route and repository
-  `insert`/`findByCode` exist; click increment, redirect routes, aliases, expiry, and statistics do
-  not.
+- **Current phase:** Phase 5 — implementation. `TASKS.md` §1–§7 are complete and verified; only the
+  documentation items in §8 (README, API docs, known limitations) remain.
+- **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, and §3 as
+  `26dc26e`. This session adds `src/lib/expiry.ts`, five new test files, and modifications to the
+  link modules, app, and two existing tests. The create, redirect, stats, alias, and expiry paths are
+  implemented; the guarded click increment exists and no table, index, or decision changed.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -23,27 +22,28 @@
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
   proposal
-- **Last verified test run:** 2026-11-19 (§3) — `npm run typecheck && npm run lint && npm test &&
-  npm run build`: all four pass; 9 test files, 146 tests, 776 ms
-- **Current timebox:** approximately five hours for the MVP; create-link route done, redirect,
-  aliases, expiry, statistics, and final docs still pending
+- **Last verified test run:** 2026-11-19 (final §8 run, after §§4–7) — `npm run typecheck && npm run
+  lint && npm test && npm run build`: all four pass; 14 test files, 204 tests, 867 ms
+- **Current timebox:** approximately five hours for the MVP; all core routes done, README/API docs
+  and final limitations still pending
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`dev`** (checked out) — **9 commits ahead of `origin/master`**, none pushed; local
+- Branch: **`dev`** (checked out) — **10 commits ahead of `origin/master`**, none pushed; local
   `master` sits one commit behind `origin/master`.
-- `HEAD` = `dev` = **`93dd0f8`** (`feat: add database bootstrap, typed errors, and error middleware`).
-  The user committed §2 after the previous session; `origin/master` is `43efa1a`.
+- `HEAD` = `dev` = **`26dc26e`** (`feat: implement create-link API with SQLite persistence`). The
+  user committed §3 after the previous session; `origin/master` is `43efa1a`.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
-- `git ls-files` reports **93 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
+- `git ls-files` reports **105 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
   one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — `src/app.ts`, `src/server.ts`, `tests/errors.test.ts`,
-  `tests/health.test.ts`, and `tests/server.test.ts` are modified; the §3 code and test paths are
-  untracked. Nothing is staged and `git diff --check` reports no whitespace errors. `dist/`,
-  `node_modules/`, and `*.db` files are ignored.
+- Working tree: **not clean** — `CHANGELOG.md`, `ROADMAP.md`, `TASKS.md`, `PROJECT_STATE.md`,
+  `docs/database-design.md`, `src/app.ts`, six `src/modules/links/*` files, and two test files are
+  modified; `src/lib/expiry.ts` and five test files are untracked. Nothing is staged and
+  `git diff --check` reports no whitespace errors. `dist/`, `node_modules/`, and `*.db` files are
+  ignored.
 - The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
-  in §3. All §3 files are ready for the user's commit; no commit or push was made in this session.
+  in §§4–7. All files are ready for the user's commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
@@ -55,11 +55,11 @@
 
   ```bash
   git rev-parse --abbrev-ref HEAD             # -> dev
-  git rev-parse HEAD                          # -> 93dd0f837cbef45b8a4a0fe5c1b680f0a44e96ef
+  git rev-parse HEAD                          # -> 26dc26e5474b98f73b74e9a3c23ec616a1c1dd4d
   git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
-  git rev-list --count origin/master..HEAD    # -> 9
-  git ls-files | wc -l                        # -> 93
-  git status --porcelain                       # -> 5 modified, 8 untracked §3 paths
+  git rev-list --count origin/master..HEAD    # -> 10
+  git ls-files | wc -l                        # -> 105
+  git status --porcelain                       # -> 14 modified, 6 untracked §§4–7 paths
   git diff --check                            # -> clean (exit 0)
   ls docs/decisions/ADR-*.md | wc -l          # -> 22
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
@@ -188,24 +188,50 @@ one requires a new decision and a new ADR.
       retries five total attempts; and the routes/controller layers serve `POST /api/links` with the
       approved body and `Location` from `PUBLIC_BASE_URL`. The user approved a fixed `slaq.db`, so
       `startServer` opens and bootstraps it before `listen`. 37 new tests; full gate passes with 146
-      tests across 9 files. Alias (§5), expiry (§6), statistics (§7), and redirect (§4) remain pending.
-- [ ] Redirect, alias, expiration, and statistics behavior implemented.
-- [ ] Tests, API documentation, and README usage section completed.
+      tests across 9 files.
+- [x] **§§4–7 implemented and verified (2026-11-19)** — §4 adds the guarded `incrementClick` (no
+      transaction, D20), explicit `GET`/`HEAD /:code`, and exact `Location`/`302` behavior; §5 adds
+      alias validation, case-insensitive reserved names, and `409 ALIAS_TAKEN`; §6 adds canonical
+      future-only `expiresAt`, `410 LINK_EXPIRED` with no write, retained rows, and all eleven
+      `docs/testing-strategy.md` boundary cases; §7 adds the full `GET /api/links/:code/stats` body
+      with `Cache-Control: no-store` and `404` for unknown codes. Each section passed its own full
+      gate (174, 162, 195, and 204 tests respectively); the final §8 run has 204 tests in 14 files.
+- [ ] Tests, API documentation, and README usage section completed — tests are complete; README and
+      API documentation remain.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the §3 files and documentation updates are untracked or
-   modified, not committed. The exact `git add … && git commit` command is in the session report;
-   the user must run it. This is a handoff step, not a technical failure.
-2. **Scope stop after §3** — per the user's instruction, §4 (redirect and click tracking) was not
-   started in this pass. The repository's guarded `incrementClick` operation and `GET`/`HEAD /:code`
-   routes are still pending.
+1. **Commit is pending user action** — the §§4–7 files and status updates are untracked or modified,
+   not committed. The exact `git add … && git commit` command is in the session report; the user must
+   run it. This is a handoff step, not a technical failure.
+2. **Documentation items remain** — `TASKS.md` §8 still lists a setup/usage README, an API
+   documentation/OpenAPI description, and known limitations as unchecked. The user did not request
+   those in this pass.
 
-No technical blocker is open for §3: the database filename was resolved by the user to a fixed
-`slaq.db`, the `AGENTS.md` §8.2 gate passes, all 22 decisions are approved, and `better-sqlite3`
-loads on this machine.
+No technical blocker is open for §§4–7: the §4 dependency was resolved by the user (implement §4
+first), the stale AC-02.3 alias line was resolved by the user (case-insensitive reserved names), the
+expiry/stats split was resolved by the user (minimal stats in §6), the `AGENTS.md` §8.2 gate passes,
+all 22 decisions are approved, and `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+Commands run on 2026-11-19 for `TASKS.md` §§4–7 and the final §8 review, from the project root:
+
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+# -> typecheck: tsc -p tsconfig.json                 (exit 0)
+# -> lint:      eslint .                              (exit 0)
+# -> test:      vitest run — 14 test files passed, 204 tests passed, 867 ms
+# -> build:     tsc -p tsconfig.build.json            (exit 0)
+```
+
+Each section also passed the same gate on its own: §4 174 tests / 11 files, §5 162 tests / 10 files,
+§6 195 tests / 13 files, and §7 204 tests / 14 files. Every section's tests were written first and
+observed failing before implementation: §4 failed on `repo.incrementClick is not a function` and
+missing redirect routes; §5 failed because aliases were ignored; §6 failed on missing expiry
+validation and stats; §7 failed only on the absent `Cache-Control: no-store` header.
+
+Earlier evidence from the §3 session follows.
 
 Commands run on 2026-11-19 for `TASKS.md` §3 (create short links), from the project root:
 
@@ -374,12 +400,9 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §3 files and status updates (do not
-push until the user chooses). Then implement `TASKS.md` §4 using the already-approved repository
-contract: add `incrementClick(code, nowIso)` to `src/modules/links/links.repository.ts` (the guarded
-`UPDATE` with `expires_at IS NULL OR expires_at > @now`, returning `changes`, prepared once, no
-explicit transaction), then `GET /:code` and a non-counting `HEAD /:code` through the service and
-controller. Register the catch-all redirect route after `/health` and `/api` so it cannot shadow
-them. The design gate is closed — do not reopen an approved decision without a new ADR. After §4,
-work through `TASKS.md` §5–§8 and rerun the `AGENTS.md` §8.2 gate
-(`npm run typecheck && npm run lint && npm test && npm run build`).
+Run the prepared `git add … && git commit …` command to land the §§4–7 files and status updates (do
+not push until the user chooses). Then complete the remaining `TASKS.md` §8 documentation items if
+requested: a setup/usage README, an API documentation/OpenAPI description, and a known-limitations
+section. Re-run the `AGENTS.md` §8.2 gate after any further code change
+(`npm run typecheck && npm run lint && npm test && npm run build`). The design gate is closed — do
+not reopen an approved decision without a new ADR.

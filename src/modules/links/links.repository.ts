@@ -18,6 +18,11 @@ interface CodeParameter {
   readonly code: string;
 }
 
+interface IncrementParameter {
+  readonly code: string;
+  readonly now: string;
+}
+
 const INSERT_SQL = `
 INSERT INTO links (code, original_url, is_custom, created_at, expires_at)
 VALUES (@code, @originalUrl, @isCustom, @createdAt, @expiresAt)
@@ -27,6 +32,15 @@ const SELECT_SQL = `
 SELECT id, code, original_url, is_custom, click_count, created_at, expires_at, last_clicked_at
   FROM links
  WHERE code = @code
+`;
+
+/** One guarded statement, no transaction; the WHERE clause is the guard (D20). */
+const INCREMENT_SQL = `
+UPDATE links
+   SET click_count = click_count + 1,
+       last_clicked_at = @now
+ WHERE code = @code
+   AND (expires_at IS NULL OR expires_at > @now)
 `;
 
 /** A `UNIQUE(code)` conflict: a generator collision or an alias conflict (D2). */
@@ -61,12 +75,14 @@ function toLink(row: LinkRow): Link {
 export interface LinkRepository {
   insert(input: NewLink): Link;
   findByCode(code: string): Link | undefined;
+  incrementClick(code: string, nowIso: string): number;
 }
 
 /** SQL boundary: statements are prepared once and every value is bound (D1, D12). */
 export function createLinkRepository(db: DatabaseHandle): LinkRepository {
   const insertStatement = db.prepare<[NewLink]>(INSERT_SQL);
   const findStatement = db.prepare<[CodeParameter], LinkRow>(SELECT_SQL);
+  const incrementStatement = db.prepare<[IncrementParameter]>(INCREMENT_SQL);
 
   return {
     insert(input) {
@@ -95,6 +111,10 @@ export function createLinkRepository(db: DatabaseHandle): LinkRepository {
     findByCode(code) {
       const row = findStatement.get({ code });
       return row === undefined ? undefined : toLink(row);
+    },
+
+    incrementClick(code, nowIso) {
+      return incrementStatement.run({ code, now: nowIso }).changes;
     },
   };
 }

@@ -155,7 +155,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Test database initialization and the error response shape. — 18 new tests in
       `tests/database.test.ts` and `tests/errors.test.ts`; full gate passes with 109 tests total.
 
-### 3. Create short links (complete; §4 pending)
+### 3. Create short links (complete)
 - [x] Add URL and optional-field validation (scheme allow-list, 2048 cap). —
       `src/modules/links/links.schemas.ts` trims then validates `url` with Zod plus explicit
       `http:`/`https:`, credential, and 2048-character checks (D18); unknown body fields are stripped
@@ -177,40 +177,69 @@ this file as work progresses. Decision IDs refer to
       tests across generator, repository, service, and API suites; full gate passes with 146 tests in
       9 files. AC-01.5 is verified through the repository because the statistics endpoint is §7.
 
-### 4. Redirect and click tracking
-- [ ] Implement lookup and the guarded click increment as two statements with no explicit
-      transaction (D20).
-- [ ] Implement `GET /:code` and the non-counting `HEAD /:code` response (D20).
-- [ ] Test the `302` status and exact `Location` header.
-- [ ] Test unknown code.
-- [ ] Test that only successful `GET` redirects increment the count, and that `HEAD` does not (D20).
+### 4. Redirect and click tracking (complete)
+- [x] Implement lookup and the guarded click increment as two statements with no explicit
+      transaction (D20). — `links.repository.ts` prepares `findByCode` and a single guarded
+      `UPDATE … WHERE code = @code AND (expires_at IS NULL OR expires_at > @now)`; no
+      `db.transaction()` anywhere.
+- [x] Implement `GET /:code` and the non-counting `HEAD /:code` response (D20). — an explicit
+      `createRedirectRouter` is mounted after `/health` and `/api`; `controller.redirect` counts only
+      when `req.method === 'GET'`.
+- [x] Test the `302` status and exact `Location` header. — `tests/redirect.test.ts` asserts the exact
+      stored destination and repeat-visit increments.
+- [x] Test unknown code. — `404 NOT_FOUND` in `tests/redirect.test.ts`.
+- [x] Test that only successful `GET` redirects increment the count, and that `HEAD` does not (D20). —
+      API tests plus repository tests for `changes` 1/0 and fifty sequential increments. §4 gate:
+      full gate passed with 174 tests in 11 files.
 
-### 5. Custom aliases
-- [ ] Validate alias length and character set.
-- [ ] Reject reserved route names.
-- [ ] Enforce uniqueness in the database.
-- [ ] Return the approved conflict error.
-- [ ] Test alias success, invalid alias, reserved alias, and collision.
+### 5. Custom aliases (complete)
+- [x] Validate alias length and character set. — `links.schemas.ts` enforces 3–32 `[A-Za-z0-9_-]`
+      without trimming (D6).
+- [x] Reject reserved route names. — `links.service.ts` rejects `api`/`health` case-insensitively with
+      `RESERVED_ALIAS` (D6). The contrary AC-02.3 line was confirmed stale by the user.
+- [x] Enforce uniqueness in the database. — the existing `UNIQUE(code)` constraint is the only
+      guarantee; no pre-check.
+- [x] Return the approved conflict error. — `UniqueCodeError` maps to `409 ALIAS_TAKEN`, including a
+      collision with an existing generated code.
+- [x] Test alias success, invalid alias, reserved alias, and collision. — 16 tests in
+      `tests/alias.test.ts`, including case-sensitive `MyLink`/`mylink` and one-winner concurrent
+      same-alias creates. §5 gate: full gate passed with 162 tests in 10 files.
 
-### 6. Expiration
-- [ ] Validate expiration input and reject past or equal-to-now dates at creation.
-- [ ] Inject the clock into service logic.
-- [ ] Return `410` for expired links on redirect.
-- [ ] Keep expired records available for statistics.
-- [ ] Test all eleven boundary cases in `docs/testing-strategy.md`.
+### 6. Expiration (complete)
+- [x] Validate expiration input and reject past or equal-to-now dates at creation. — `links.schemas.ts`
+      requires an ISO instant with an explicit offset and normalizes via `toISOString()`; the service
+      rejects `expiresAt <= nowIso` with `400 VALIDATION_ERROR` (D15).
+- [x] Inject the clock into service logic. — the same `nowIso` drives `createdAt`, the creation
+      future-check, redirect expiry, increment guard, and statistics `isExpired`.
+- [x] Return `410` for expired links on redirect. — `isExpired` in `src/lib/expiry.ts` yields
+      `LINK_EXPIRED` without any write; the guarded `UPDATE` is the race backstop (D7, D20).
+- [x] Keep expired records available for statistics. — no deletion, flag, or cleanup job exists.
+- [x] Test all eleven boundary cases in `docs/testing-strategy.md`. — `tests/expiration.test.ts`
+      implements all 11 verbatim with a mutable injected clock, plus `tests/expiry.test.ts` unit
+      coverage of the predicate and timestamp normalization. §6 gate: full gate passed with 195 tests
+      in 13 files. Minimal read-only stats were added in §6 for case 9; §7 completed the contract.
 
-### 7. Statistics
-- [ ] Implement `GET /api/links/:code/stats`.
-- [ ] Return the approved metadata and click count with `Cache-Control: no-store`.
-- [ ] Test the approved expired-link behavior.
-- [ ] Test unknown code.
+### 7. Statistics (complete)
+- [x] Implement `GET /api/links/:code/stats`. — registered in `createLinksRouter`; `getStats` reads the
+      row without writing.
+- [x] Return the approved metadata and click count with `Cache-Control: no-store`. — all nine approved
+      fields; `shortUrl` built only from `PUBLIC_BASE_URL` (D17).
+- [x] Test the approved expired-link behavior. — `200` with `isExpired: true` and the retained count,
+      in both §6 case 9 and `tests/stats.test.ts`.
+- [x] Test unknown code. — `404 NOT_FOUND`. §7 gate: full gate passed with 204 tests in 14 files.
+      `tests/stats.test.ts` also covers exact fields, read-only behavior, Host-header safety, and
+      case-sensitive codes.
 
-### 8. Final quality and docs
-- [ ] Run `npm run typecheck && npm run lint && npm test && npm run build`.
-- [ ] Review security and error handling.
+### 8. Final quality and docs (partial — user did not request the README/API-doc work yet)
+- [x] Run `npm run typecheck && npm run lint && npm test && npm run build`. — passed after each of
+      §§4, 5, 6, 7 and again after the final §8 review fix: 14 files, 204 tests.
+- [x] Review security and error handling. — parameterized SQL, no transactions, no SQL time
+      functions, no stack/SQL leakage, no `any`, no debug artifacts; the redirect router cannot
+      shadow `/health` or `/api`.
 - [ ] Write setup and usage README.
 - [ ] Write API documentation / OpenAPI description.
-- [ ] Review the Git diff and repository status.
+- [x] Review the Git diff and repository status. — `git diff --check` clean; no `.db` or secret file
+      staged or created.
 - [ ] Record known limitations and future work.
 
 ## Deferred unless time remains

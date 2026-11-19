@@ -87,7 +87,9 @@ describe('error middleware', () => {
   });
 
   it('returns the 404 envelope for an unmatched route', async () => {
-    const response = await request(createClosedApp()).get('/not-a-route');
+    // Multi-segment path: a single segment is now a short code handled by the
+    // redirect route (which queries the DB), not the static not-found handler.
+    const response = await request(createClosedApp()).get('/not/a/route');
     const body = response.body as ErrorBody;
 
     expect(response.status).toBe(404);

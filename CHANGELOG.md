@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### 2026-11-19 — §§4–7 redirect, aliases, expiration, and statistics implemented and verified
+
+Each section was implemented with tests first and its own full gate run; §4 was added first because
+§6's redirect boundary cases depend on it (confirmed with the user).
+
+- **§4 redirect and click tracking:** `links.repository.ts` gained `incrementClick(code, nowIso)`, a
+  single guarded `UPDATE … WHERE code = @code AND (expires_at IS NULL OR expires_at > @now)` with no
+  explicit transaction (D20). `src/lib/expiry.ts` holds the shared `expiresAt <= now` predicate
+  (D15). `createRedirectRouter` mounts explicit `GET /:code` and `HEAD /:code` handlers after
+  `/health` and `/api`; only `GET` increments. §4 gate: 174 tests in 11 files.
+- **§5 custom aliases:** `links.schemas.ts` validates 3–32 `[A-Za-z0-9_-]` characters without
+  trimming (D6); `links.service.ts` rejects `api`/`health` case-insensitively and maps the existing
+  `UNIQUE(code)` violation to `409 ALIAS_TAKEN`, including collisions with generated codes. The
+  contrary AC-02.3 line was confirmed stale by the user. §5 gate: 162 tests in 10 files.
+- **§6 expiration:** `expiresAt` must be an ISO instant with an explicit offset, is normalized with
+  `toISOString()`, and must be strictly later than the injected clock's `now` (D15). Expired
+  redirects return `410 LINK_EXPIRED` with no write; rows are never deleted (D7). All eleven
+  expiration-boundary cases from `docs/testing-strategy.md` pass with a mutable injected clock, plus
+  unit tests for the predicate and timestamp normalization. §6 gate: 195 tests in 13 files.
+- **§7 statistics:** `GET /api/links/:code/stats` returns all nine approved fields with
+  `Cache-Control: no-store`, uses `PUBLIC_BASE_URL` only for `shortUrl`, reports expired links as
+  `200` with `isExpired: true`, and returns `404 NOT_FOUND` for unknown codes (D17). A read-only
+  stats route was introduced in §6 for boundary case 9 and completed here. §7 gate: 204 tests in
+  14 files.
+- Tests added: `tests/redirect.test.ts`, `tests/alias.test.ts`, `tests/expiration.test.ts`,
+  `tests/expiry.test.ts`, `tests/stats.test.ts`, plus repository increment tests and a narrowed
+  unmatched-route path in `tests/errors.test.ts`.
+- Final verification after the §8 review fix: `npm run typecheck && npm run lint && npm test &&
+  npm run build` — all four pass; 14 test files, 204 tests, 867 ms. No dependency changed; no
+  commit or push was made.
+
 ### 2026-11-19 — §3 create short links implemented and verified
 
 - Added `src/lib/code-generator.ts`: a 7-character Base62 generator using `crypto.randomInt` over an

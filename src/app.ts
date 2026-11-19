@@ -7,7 +7,7 @@ import { errorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
 import { createLinksController } from './modules/links/links.controller.js';
 import { createLinkRepository } from './modules/links/links.repository.js';
-import { createLinksRouter } from './modules/links/links.routes.js';
+import { createLinksRouter, createRedirectRouter } from './modules/links/links.routes.js';
 import { createLinkService } from './modules/links/links.service.js';
 
 /** The typed SQLite handle injected into every app instance (D1, D12). */
@@ -46,12 +46,13 @@ export function createApp(deps: AppDependencies): Express {
   });
   const controller = createLinksController({ service, config: deps.config });
 
-  // Static routes precede the catch-all redirect route (added in §4) and the
-  // not-found handler; the single error writer comes last (D3).
+  // Static routes precede the catch-all redirect route and the not-found
+  // handler; the single error writer comes last (D3, D20).
   app.get('/health', (_req, res) => {
     res.status(200).json(HEALTH_BODY);
   });
   app.use('/api', createLinksRouter(controller));
+  app.use(createRedirectRouter(controller));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

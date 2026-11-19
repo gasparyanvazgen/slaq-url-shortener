@@ -90,10 +90,12 @@ Suggested order:
 9. Final verification and review.
 
 **Status:** In progress — steps 1 (scaffold, configuration validation, `GET /health`), 2 (database
-connection, pragmas, schema, typed helpers, errors, middleware), and 3 (create-link validation,
-generator, repository, service, and `POST /api/links`) are complete and verified: all four
-`AGENTS.md` §8.2 checks pass with 146 tests. Step 4 (redirect and click tracking) and steps 5–9 are
-pending.
+connection, pragmas, schema, typed helpers, errors, middleware), 3 (create-link validation,
+generator, repository, service, and `POST /api/links`), 4 (redirect and click tracking), 5 (custom
+aliases), 6 (expiration), and 7 (statistics) are complete and verified: all four `AGENTS.md` §8.2
+checks pass with 204 tests. Steps 8 (API documentation and README) and 9 (final verification and
+review) remain pending; the §8 workflow itself was run after each step and after the final diff
+review.
 
 **Exit criteria:** Core behavior is implemented, automated checks are run, and limitations are
 documented.
