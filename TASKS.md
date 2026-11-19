@@ -101,23 +101,38 @@ this file as work progresses. Decision IDs refer to
 
 ## MVP implementation
 
-### 1. Scaffold
-- [ ] Initialize the npm project with `"type": "module"`.
-- [ ] Add `.nvmrc` (`24`) and `"engines": { "node": "^24.0.0" }`.
-- [ ] Add runtime deps (`express`, `better-sqlite3`, `zod`) at approved versions.
-- [ ] Add dev deps (TypeScript, ESLint set, `@types/*`, `tsx`, `vitest`, `supertest` — approved
-      D8).
-- [ ] Configure `tsconfig.json` (no emit) and `tsconfig.build.json` (emit to `dist/`).
-- [ ] Configure ESLint flat config with type-aware rules.
-- [ ] Configure Vitest.
-- [ ] Add scripts `typecheck`, `lint`, `test`, `build`, `dev`, `start`.
-- [ ] Commit the lockfile.
-- [ ] Create the Express app factory and server entry point.
-- [ ] Add startup configuration with `PUBLIC_BASE_URL` validation and `PORT` resolution —
+### 1. Scaffold (complete; commit pending user action)
+- [x] Initialize the npm project with `"type": "module"`. — `package.json`, `slaq@0.1.0`,
+      2026-11-19.
+- [x] Add `.nvmrc` (`24`) and `"engines": { "node": "^24.0.0" }`. — Verified under Node v24.22.1 /
+      npm 12.2.1.
+- [x] Add runtime deps (`express` 5.3.0, `better-sqlite3` 13.2.0, `zod` 4.6.7) at approved versions.
+      — `npm ls --depth=0`; `better-sqlite3` loaded `SELECT sqlite_version()` → **3.54.1**.
+- [x] Add dev deps (TypeScript 6.0.3, ESLint 10.15.0 / `@eslint/js` 10.0.1 /
+      `typescript-eslint` 8.73.0 / `globals` 17.14.0, `@types/*`, `tsx` 4.23.15, `vitest` 5.1.1,
+      `supertest` 7.3.2 — approved D8). — All 15 installed versions match
+      `docs/research-findings.md` §2 exactly.
+- [x] Configure `tsconfig.json` (no emit) and `tsconfig.build.json` (emit to `dist/`). — ADR-010
+      options; `tsc -p` passes for both configs.
+- [x] Configure ESLint flat config with type-aware rules. — `eslint.config.js` per ADR-011;
+      `eslint .` passes after typing the Vitest matcher/spy assertions (no suppressions).
+- [x] Configure Vitest. — `vitest.config.ts`, node environment, `tests/**/*.test.ts`.
+- [x] Add scripts `typecheck`, `lint`, `test`, `build`, `dev`, `start`. — All present in
+      `package.json`.
+- [x] Commit the lockfile. — `package-lock.json` generated (lockfileVersion 3) with the approved
+      versions and included in the prepared `git add` command; the commit itself is for the user to
+      run.
+- [x] Create the Express app factory and server entry point. — `src/app.ts` exports
+      `createApp({ db, clock, config })` with `db: unknown` placeholder (D1); `src/server.ts`
+      resolves config, logs and exits 1 before `listen` on failure.
+- [x] Add startup configuration with `PUBLIC_BASE_URL` validation and `PORT` resolution —
       default `3000` in every environment, digits-only 1–65535, leading zeros insignificant,
-      `0000` rejected (D22).
-- [ ] Add `GET /health`.
-- [ ] Verify typecheck, lint, and the health test.
+      `0000` rejected (D22). — `src/config.ts`; 91 tests pass, including every D22 PORT case and
+      PUBLIC_BASE_URL validation under both `NODE_ENV` values.
+- [x] Add `GET /health`. — Liveness only, `{ "status": "ok" }`, no database probe (D19); verified
+      by `tests/health.test.ts` via supertest.
+- [x] Verify typecheck, lint, and the health test. — `npm run typecheck && npm run lint &&
+      npm test && npm run build` all pass: 3 test files, 91 tests, 473 ms.
 
 ### 2. Database and shared infrastructure
 - [ ] Create the SQLite connection.

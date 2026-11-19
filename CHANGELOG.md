@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### 2026-11-19 — §1 scaffold implemented and verified
+
+- Initialized the native-ESM npm project (`slaq@0.1.0`, `"type": "module"`), added `.nvmrc` (`24`)
+  and `engines.node: ^24.0.0`, and generated `package-lock.json` v3. `npm ls --depth=0` reports all
+  15 packages at exactly the approved versions in `docs/research-findings.md` §2:
+  - Runtime: `better-sqlite3` 13.2.0, `express` 5.3.0, `zod` 4.6.7.
+  - Toolchain/test: `typescript` 6.0.3, `eslint` 10.15.0, `@eslint/js` 10.0.1,
+    `typescript-eslint` 8.73.0, `globals` 17.14.0, `vitest` 5.1.1, `tsx` 4.23.15,
+    `supertest` 7.3.2.
+  - Types: `@types/better-sqlite3` 9.6.0, `@types/express` 5.0.6, `@types/node` 24.19.2,
+    `@types/supertest` 7.2.1.
+- Proved the native driver loads on this machine before relying on it: opening `:memory:` and
+  running `SELECT sqlite_version()` returned **SQLite 3.54.1** (Node v24.22.1, npm 12.2.1).
+- Added `tsconfig.json` / `tsconfig.build.json` (ADR-010), the type-aware ESLint 10 flat config
+  (ADR-011), Vitest config, the six scripts (`typecheck`, `lint`, `test`, `build`, `dev`, `start`),
+  and `.env.example`.
+- Added `src/config.ts` (`PUBLIC_BASE_URL` validation per D17; `PORT` trimming, default `3000` in
+  every environment, ASCII-digits-only 1–65535 with insignificant leading zeros and `0000`
+  rejected per D22), `src/lib/clock.ts`, `src/app.ts` (`createApp({ db, clock, config })` with a
+  `db: unknown` placeholder per D1), and `src/server.ts` (fail-fast before `listen`).
+- Added liveness-only `GET /health` returning `200 { "status": "ok" }` with no database probe
+  (D19). **No database tables, schema, or link routes were added.**
+- Added 91 tests in 3 files covering health over supertest, every D22 `PORT` case under both
+  `NODE_ENV` values, `PUBLIC_BASE_URL` validation, and startup/listen behavior. The first gate
+  failed lint with 7 `@typescript-eslint/no-unsafe-*` errors from `any`-typed Vitest matchers and an
+  untyped spy; the tests were fixed with an explicit `ConfigError` helper and
+  `Mock<typeof Server.prototype.listen>` — no suppressions or `any`.
+- Verification: `npm run typecheck && npm run lint && npm test && npm run build` — all four pass;
+  3 test files, 91 tests, 473 ms. No commit or push was made.
+
 ### 2026-11-19 — Prompt 04 persistence design recorded (no code)
 
 - Added a **Repository contract** section to `docs/database-design.md`: the six persistence files,
