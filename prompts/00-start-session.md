@@ -8,8 +8,9 @@ Act as the Slaq Project Manager. Read `AGENTS.md`, `PROJECT.md`, `PROJECT_STATE.
 1. Inspect the actual repository structure and Git status before assuming anything.
 2. Identify existing implementation, uncommitted changes, and mismatches with the state file.
 3. Read `docs/architecture-proposal.md` and `docs/decisions/DECISION-REGISTER.md`.
-4. Treat that architecture as a proposal, not an approved design; every decision is unapproved
-   until the register says otherwise.
+4. Treat that architecture as **approved**: D1–D21 are recorded with ADRs and no decision is
+   pending. Verify the repository against the register instead of assuming; changing an approved
+   decision requires a new decision and a new ADR.
 5. Summarize the current project state and recommend the next action.
 6. List only decisions that genuinely need my approval.
 7. Do not edit implementation files or install dependencies in this session.

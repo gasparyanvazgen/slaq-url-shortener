@@ -1,24 +1,22 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (D1–D7 approval and design finalization).
+> **Last rewritten:** 2026-11-19 (D20/D21 approval, C-1 … C-3 applied, design final).
 
 ## Current status
 
-- **Overall:** Design approved — **19 decisions approved**; the Prompt 03 architecture review
-  recommends the design as-is and has **two proposals pending** (D20, D21)
-- **Current phase:** Phase 5 entry — requirements, architecture, API contract, schema, and testing
-  strategy are final, and the Prompt 03 architecture review is complete; settling its pending items
-  and the implementation scaffold are the next steps
+- **Overall:** Design approved and final — **21 of 21 decisions approved**; the Prompt 03
+  architecture review is approved in full and no architecture decision is pending
+- **Current phase:** Phase 5 entry — requirements, architecture, API contract, schema, testing
+  strategy, and the Prompt 03 architecture review are final; the implementation scaffold is the next
+  step
 - **Implementation started:** No — no `package.json`, `src/`, `tests/`, `tsconfig.json`, lockfile,
   or `node_modules` exists
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
-- **Approved decisions:** **D8–D18** (2026-11-18), **D1–D7** and **D19** (2026-11-19), recorded as
-  `docs/decisions/ADR-001.md` … `ADR-019.md`
-- **Pending decisions:** **D20** (redirect write path) and **D21** (`SQLITE_BUSY` policy), proposed
-  2026-11-19 in `docs/architecture-review.md`; neither has an ADR and neither may be implemented
-  before approval
+- **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, and **D21**
+  (2026-11-19), recorded as `docs/decisions/ADR-001.md` … `ADR-021.md`
+- **Pending decisions:** none — **D1–D21 are all Approved**; C-1 … C-3 are applied
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 72 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09)
 - **Last verified test run:** None — no npm project or test script exists, so the `AGENTS.md` §8.2
@@ -35,15 +33,16 @@
   `dev` is therefore **one commit ahead of `origin/master`** and two ahead of local `master`; the
   Prompt 02 finalization commit has not been pushed.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`**.
-- `git ls-files` reports **65 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-019.md`,
-  and all nineteen records are tracked.
+- `git ls-files` reports **65 tracked files** plus the pending new files from this session.
+  `docs/decisions/` holds `ADR-001.md` … `ADR-021.md`, and all twenty-one records are tracked or
+  about to be committed.
 - Working tree: **clean** — the Prompt 02, D19, and D1–D7 work is committed in `24a83b0`; nothing is
   modified, untracked, or staged.
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
   deleted on 2026-11-18 at the user's request; `freebuff-base` held only an orphan commit with an
   empty tree.
-- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-019.md`,
-  one record per approved decision; **all 19 decisions are approved**.
+- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-021.md`,
+  one record per approved decision; **all 21 decisions are approved**.
 
 ## Toolchain reality in this workspace
 
@@ -53,10 +52,10 @@
 - Nothing is installed: no `node_modules`, no lockfile. `better-sqlite3` prebuilt-binary loading
   and every npm script remain unproven.
 
-## Approved decisions — D1–D19
+## Approved decisions — D1–D21
 
-**D20 and D21 are not in this table:** they are *proposals* raised by the architecture review, not
-approved decisions, and have no ADR. See `docs/architecture-review.md` §2 and §6.
+D20 and D21 were approved on 2026-11-19 from the Prompt 03 architecture review; the three
+corrections C-1 … C-3 from the same review are applied across the design documents.
 
 | ID | Decision | ADR |
 |---|---|---|
@@ -79,6 +78,8 @@ approved decisions, and have no ADR. See `docs/architecture-review.md` §2 and �
 | D17 | API contracts, `PUBLIC_BASE_URL` fail-fast, Host-header safety | `ADR-017` |
 | D18 | `http`/`https` only, 2048-character cap, credentials rejected | `ADR-018` |
 | D19 | Requirement-gap resolutions: unknown fields ignored, no duplicate-destination dedup, `/health` liveness only, body-parser failures → `400 VALIDATION_ERROR` | `ADR-019` |
+| D20 | Redirect: guarded increment, no explicit transaction; `HEAD` does not count a click | `ADR-020` |
+| D21 | `SQLITE_BUSY` after `busy_timeout` → `500 INTERNAL_ERROR`, no retry | `ADR-021` |
 
 Sub-options resolved with the approval: expired-link statistics return `200` with
 `isExpired: true`; `isCustom` is exposed; invalid or missing `PUBLIC_BASE_URL` fails fast in
@@ -87,12 +88,13 @@ deletion stays out of the MVP.
 
 ## Approval state
 
-Every decision D1–D19 is approved and has a matching ADR; see
+Every decision D1–D21 is approved and has a matching ADR; see
 [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md). D1–D7 were approved as
 recommended on 2026-11-19 with two clarifications recorded in their ADRs: the deps object
 `createApp({ db, clock, config })` (D1) and **five generation attempts in total** (D5). D2's `CHECK`
-set is limited to `click_count >= 0` and `is_custom IN (0,1)`. No decision is pending, rejected, or
-superseded; changing one requires a new decision and a new ADR.
+set is limited to `click_count >= 0` and `is_custom IN (0,1)`. D20 and D21 were approved on
+2026-11-19 from the Prompt 03 review, with corrections C-1 … C-3 applied. No decision is pending,
+rejected, or superseded; changing one requires a new decision and a new ADR.
 
 ## Completed work
 
@@ -102,7 +104,7 @@ superseded; changing one requires a new decision and a new ADR.
 - [x] **Prompt 01** technical research completed and re-verified against the npm registry on
       2026-11-18; findings recorded in `docs/research-findings.md`.
 - [x] All decisions consolidated in `docs/decisions/DECISION-REGISTER.md` with no duplicates —
-      18 on 2026-11-18, plus D19 on 2026-11-19.
+      18 on 2026-11-18, plus D19, D20, and D21 on 2026-11-19.
 - [x] Documentation audit and synchronization (2026-11-18, commit `c804101`).
 - [x] **D8–D18 approved by the user on 2026-11-18**; one ADR per decision written.
 - [x] Register, proposal checklist, requirements, API specification, database design, testing
@@ -115,6 +117,9 @@ superseded; changing one requires a new decision and a new ADR.
       (D1) and five generation attempts total (D5).
 - [x] Recorded as `ADR-001.md` … `ADR-007.md`; register, proposal checklist, requirements, API
       specification, and database design finalized against them.
+- [x] **Prompt 03 architecture review** completed 2026-11-19 in `docs/architecture-review.md`;
+      **D20** and **D21** approved (`ADR-020.md`, `ADR-021.md`) and corrections C-1 … C-3 applied
+      across the design documents.
 - [x] **D19 approved by the user on 2026-11-19** — the defaults for Q-2 … Q-5 adopted (unknown
       fields ignored, no duplicate-destination deduplication, `/health` liveness only,
       body-parser failures → `400 VALIDATION_ERROR`) and D9 reconfirmed. Folded into
@@ -194,16 +199,15 @@ node /tmp/slaq-linkcheck.mjs       # -> markdown links checked: 87 broken: 0
 Commands run on 2026-11-19 for the Prompt 03 architecture review:
 
 ```bash
-node /tmp/slaq-linkcheck.mjs              # -> 98 links checked, 0 broken
+node /tmp/slaq-linkcheck.mjs              # -> 112 links checked, 0 broken
 git diff --check                          # -> clean
 grep -cE '^\| D[0-9]+ ' docs/decisions/DECISION-REGISTER.md   # -> 21 entries, 2 Pending
-ls docs/decisions/ADR-*.md | wc -l        # -> 19 (proposals intentionally have no ADR)
+ls docs/decisions/ADR-*.md | wc -l        # -> 21
 git status --porcelain                    # -> docs only; no code, no dependency changes
 ```
 
-The review added no code and installed nothing. `docs/architecture-review.md` is the deliverable;
-D20 and D21 are registered as **Pending User Approval** and C-1 … C-3 are corrections awaiting
-confirmation.
+The review added no code and installed nothing. D20 and D21 were approved on 2026-11-19 and are
+recorded as `ADR-020` and `ADR-021`; C-1 … C-3 are applied across the design documents.
 
 The Markdown-link check covers every `.md` file in the repository and reported **0 broken links**.
 
@@ -217,12 +221,7 @@ No `npm install`, typecheck, lint, test, build, commit, or push was performed.
 
 ## Next recommended action
 
-Settle the Prompt 03 checklist before scaffolding: approve, amend, or decline **C-1 … C-3** and the
-**D20**/**D21** proposals in `docs/architecture-review.md` §6. Approval means writing `ADR-020` and
-`ADR-021` and applying the corrections; declining means recording the rejection and keeping the
-approved documents as they stand.
-
-Then start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin
+Start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin
 the approved dependency set, configure TypeScript/ESLint/Vitest, and add `GET /health` through
 `createApp({ db, clock, config })`. The design gate is closed — do not reopen an approved decision
 without a new ADR. Then work through `TASKS.md` §2–§8 and run the `AGENTS.md` §8.2 gate

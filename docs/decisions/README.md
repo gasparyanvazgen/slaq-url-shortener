@@ -19,14 +19,16 @@ prevents duplicate decision records.
 
 ## Current state (2026-11-19)
 
-- Register: D1–D21. **Nineteen are Approved** — D8–D18 on 2026-11-18, D1–D7 and D19 on
-  2026-11-19, with D9 reconfirmed on 2026-11-19. **D20 and D21 are Pending User Approval**, proposed
-  by the Prompt 03 architecture review ([`../architecture-review.md`](../architecture-review.md)).
-- ADRs written: `ADR-001.md` … `ADR-019.md`, one per approved decision with matching numbers.
+- Register: D1–D21, **all Approved** — D8–D18 on 2026-11-18; D1–D7, D19, D20, and D21 on
+  2026-11-19, with D9 reconfirmed on 2026-11-19. D20 and D21 came from the Prompt 03 architecture
+  review ([`../architecture-review.md`](../architecture-review.md)) and were approved with corrections
+  C-1 … C-3.
+- ADRs written: `ADR-001.md` … `ADR-021.md`, one per approved decision with matching numbers.
   D1–D7 were approved as recommended, with two clarifications recorded in the decisions
   themselves: `createApp({ db, clock, config })` (D1) and five generation attempts in total (D5).
 - The nine-item approval checklist in `docs/architecture-proposal.md` maps onto D1–D9 and is fully
-  checked.
-- No decision is rejected or superseded. D20 and D21 are pending and have **no ADR**; a proposal
-  becomes `Accepted` only through your explicit approval. A later change to any approved decision
-  needs a new decision and a new ADR; do not edit an accepted ADR to look consistent.
+  checked, as is the Prompt 03 review checklist (D20, D21, C-1 … C-3).
+- No decision is pending, rejected, or superseded. Three wording corrections (C-1 … C-3) were
+  applied on 2026-11-19; they changed descriptions, not decisions, and each affected ADR carries a
+  dated clarification. A later change to any approved decision needs a new decision and a new ADR;
+  do not edit an accepted ADR to look consistent.

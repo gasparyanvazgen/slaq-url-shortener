@@ -2,8 +2,9 @@
 
 > **Status:** Approved. The table, its `CHECK` set, and the bootstrap method are **D2**
 > ([`decisions/ADR-002.md`](decisions/ADR-002.md)); the driver is D12, the pragma-adjacent driver
-> behavior is D12/D14, and the timestamp format and expiry boundary are D15. Nothing here is
-> provisional.
+> behavior is D12/D14, and the timestamp format and expiry boundary are D15. The redirect write
+> path is **D20** ([`ADR-020`](decisions/ADR-020.md)) and the busy-error policy is **D21**
+> ([`ADR-021`](decisions/ADR-021.md)). Nothing here is provisional.
 
 SQLite through `better-sqlite3` (synchronous, N-API prebuilds, `engines.node >= 22`).
 
@@ -100,7 +101,7 @@ SELECT id, code, original_url, is_custom, click_count, created_at, expires_at, l
  WHERE code = @code;
 ```
 
-Conditional click increment, inside a transaction and inside the same `try` as the lookup:
+Conditional click increment — one guarded statement, **no explicit transaction** (D20):
 
 ```sql
 UPDATE links
@@ -114,6 +115,11 @@ UPDATE links
 answers `410`/`404` and no count is lost or double-counted. Incrementing only after a successful
 redirect decision is a requirement (FR-04, D7).
 
+The lookup exists to distinguish `404` from `410`; the increment itself needs no transaction
+because the expiry guard is inside the `WHERE` clause and is therefore applied atomically. With one
+process, one connection, and a synchronous driver, no statement can interleave between the two.
+`HEAD` requests return the same redirect response without executing the update (D20).
+
 ## Integrity requirements
 
 - `code` unique and non-null; `original_url` non-null.
@@ -122,10 +128,14 @@ redirect decision is a requirement (FR-04, D7).
 - Parameterized statements only (`AGENTS.md` §4).
 - Prefer database constraints over application-only uniqueness checks.
 
+## Resolved operational question
+
+`SQLITE_BUSY` after `busy_timeout` surfaces `500 INTERNAL_ERROR` with a generic message and **no
+retry** (D21, [`ADR-021`](decisions/ADR-021.md)). The driver detail is logged server-side and never
+returned to the client.
+
 ## Open design questions
 
-- How to handle `SQLITE_BUSY` beyond `busy_timeout`: retry once, or surface `500`? Not decided; the
-  MVP assumes single-process access and a 5-second wait.
 - When does a migration mechanism become necessary? Proposed: not before the first deployed schema
   change.
 

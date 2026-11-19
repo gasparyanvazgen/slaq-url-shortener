@@ -5,8 +5,8 @@
 > `ADR-017`, `ADR-018`); unknown body fields, duplicate destinations, `/health` scope, and
 > body-parser mapping by D19 (2026-11-19 — `ADR-019`); the routes and error envelope by D3
 > (`ADR-003`); the `302` redirect by D4 (`ADR-004`); lazy expiry and `410` by D7 (`ADR-007`); the
-> alias rules by D6 (`ADR-006`); and the `links` schema by D2 (`ADR-002`). Nothing here is
-> provisional.
+> alias rules by D6 (`ADR-006`); the `links` schema by D2 (`ADR-002`); and `HEAD` redirect behavior
+> by D20 (`ADR-020`). Nothing here is provisional.
 
 Base URL: the validated `PUBLIC_BASE_URL` (for example `https://slaq.example`). Short URLs are
 never built from the request `Host` header.
@@ -67,6 +67,8 @@ Failures: `400 VALIDATION_ERROR`, `400 RESERVED_ALIAS`, `409 ALIAS_TAKEN`, `500 
 - Unknown code: `404` with `NOT_FOUND`.
 - Expired code: `410` with `LINK_EXPIRED`; the click count is **not** incremented.
 - Codes are matched case-sensitively.
+- `HEAD /:code` returns the same status and `Location` without incrementing the click count
+  (approved D20). Only `GET` counts as a click.
 
 ```http
 HTTP/1.1 302 Found
@@ -153,6 +155,15 @@ Approved on 2026-11-19 (`ADR-001` … `ADR-007`):
 - The `links` schema with `UNIQUE(code)` and `CHECK` constraints limited to `click_count >= 0` and
   `is_custom IN (0,1)` (D2). Codes are 7 Base62 characters with five generation attempts in total
   (D5).
+
+Approved on 2026-11-19 (`ADR-020`, `ADR-021`):
+
+- `HEAD /:code` mirrors the `GET` redirect status and `Location` but never increments
+  `clickCount` or `lastClickedAt` (D20).
+- The redirect increment is one guarded `UPDATE` with no explicit transaction (D20). This is
+  internal and does not change any response.
+- `SQLITE_BUSY` maps to `500 INTERNAL_ERROR` with a generic message and no retry (D21); no new
+  status or error code is introduced.
 
 Resolved on 2026-11-19 (`ADR-019`, D19). No gap remains open:
 

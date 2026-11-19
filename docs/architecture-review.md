@@ -1,10 +1,9 @@
 # Architecture Review — Prompt 03
 
-> **Status:** Review complete, 2026-11-19. **Nothing in this document is accepted.** The review
-> recommends the architecture as approved and raises **two proposed changes (D20, D21)** plus
-> **three corrections (C-1 … C-3)** that await the user's explicit decision. D1–D19 remain exactly
-> as recorded in [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md); no new ADR was
-> written and no decision was marked accepted by this review.
+> **Status:** Approved and applied, 2026-11-19. The user approved **D20**, **D21**, and corrections
+> **C-1 … C-3**. The decisions are recorded as [`ADR-020`](decisions/ADR-020.md) and
+> [`ADR-021`](decisions/ADR-021.md); the corrections are applied across the design documents. D1–D19
+> are unchanged, and implementation may begin.
 >
 > **Scope:** design review only. No code, dependency install, migration, or test was created or run.
 > Inputs: `PROJECT.md`, `docs/requirements.md`, `docs/architecture-proposal.md`,
@@ -18,11 +17,11 @@ approved**. It is one feature, one table, one process, and one synchronous drive
 cost roughly six files beyond a flat handler file and buy service-level tests without an HTTP
 listener, which is what makes the eleven expiration-boundary cases practical with an injected clock.
 
-Two things in the approved documents do need a decision before scaffolding, and neither is
-structural: the redirect write path (D20) and the `SQLITE_BUSY` policy (D21). Three corrections fix
-wording that would otherwise turn into ad-hoc choices during implementation (C-1 … C-3). No change to
-the requested stack, routes, schema, status codes, or dependency set (other than completing an
-already-approved dev list) is proposed.
+Two items needed a decision before scaffolding, and neither was structural: the redirect write path
+(**D20**) and the `SQLITE_BUSY` policy (**D21**). Both were approved on 2026-11-19, together with
+three corrections that would otherwise have turned into ad-hoc choices during implementation
+(**C-1 … C-3**). No change to the requested stack, routes, schema, status codes, or dependency set
+(other than completing an already-approved dev list) resulted.
 
 | Proposal element | Verdict | Concrete reason |
 |---|---|---|
@@ -82,11 +81,11 @@ than at hour four.
 
 | ID | Change | Why (concrete) | Impact | Status |
 |---|---|---|---|---|
-| **C-1** | **Validation has one owner.** `docs/architecture-proposal.md` §1 says routes "attach validation" *and* that controllers "parse/validate input"; `ADR-001` repeats both. | Two owners guarantee that one of them will be skipped. With zod schemas in `links.schemas.ts`, the controller call is one line and the route stays a pure mapping. | No behavior change. Routes only wire; controllers call `schema.parse` and translate the zod error into `details`. Clarifies D1's wording. | **Awaiting your confirmation** |
-| **C-2** | **Complete the dev-dependency list** in §6: `eslint`, `@eslint/js`, `typescript-eslint`, `globals` are missing although §7 and D11 approve ESLint 10 with type-aware linting. | `TASKS.md` §1 already lists "ESLint set", so the documents disagree about what gets installed. Nothing new is proposed — these four are implied by D11. | Documentation only; no new package, no version change. | **Awaiting your confirmation** |
-| **C-3** | **Correct the `supertest` description.** `ADR-008` and `docs/testing-strategy.md` say "no port is bound". | `supertest` given an Express app creates an `http.Server` and listens on an **ephemeral loopback port** for the duration of each request, then closes it. The accurate claim is "no fixed port and no manual lifecycle", which is what the tests actually rely on. | Wording in `ADR-008`, `docs/testing-strategy.md`, and `docs/architecture-proposal.md` §6. D8's substance (use supertest) is unchanged. | **Awaiting your confirmation** |
-| **D20** | **Redirect write path:** drop the explicit transaction around lookup + increment; keep the single guarded `UPDATE`; do not increment on `HEAD`. | The guard is already in the statement — `WHERE code = @code AND (expires_at IS NULL OR expires_at > @now)` — so the increment is atomic on its own. With one process and one synchronous connection there is nothing to interleave, and `db.transaction()` only adds a `BEGIN`/`COMMIT` pair per redirect. Separately, Express routes `HEAD` to the `GET` handler, so a monitoring `HEAD /:code` would currently count a click. | `TASKS.md` §4 wording, the query-pattern note in `docs/database-design.md`, and `ADR-007`'s implementation note. No API or schema change. | **Proposed — D20** |
-| **D21** | **`SQLITE_BUSY` policy:** after `busy_timeout = 5000` the driver's error maps to `500 INTERNAL_ERROR` with a generic message; no retry. | In a single-process, single-connection MVP the only way to hit `SQLITE_BUSY` is an external writer holding the lock. A retry loop adds a second failure path and can hold a request for up to ten seconds to save a case that should not occur; `500` is honest and already in the contract. | Closes the first open question in `docs/database-design.md`. No new error code, no new dependency. | **Proposed — D21** |
+| **C-1** | **Validation has one owner.** `docs/architecture-proposal.md` §1 said routes "attach validation" *and* that controllers "parse/validate input"; `ADR-001` repeated both. | Two owners guarantee that one of them will be skipped. With zod schemas in `links.schemas.ts`, the controller call is one line and the route stays a pure mapping. | No behavior change. Routes only wire; controllers call `schema.parse` and translate the zod error into `details`. **Applied:** proposal §1, `ADR-001` (dated clarification), `docs/coding-standards.md`. | **Approved 2026-11-19 — applied** |
+| **C-2** | **Complete the dev-dependency list** in §6: `eslint`, `@eslint/js`, `typescript-eslint`, `globals` were missing although §7 and D11 approve ESLint 10 with type-aware linting. | `TASKS.md` §1 already lists "ESLint set", so the documents disagreed about what gets installed. Nothing new was proposed — these four are implied by D11. | Documentation only; no new package, no version change. **Applied:** `docs/architecture-proposal.md` §6. | **Approved 2026-11-19 — applied** |
+| **C-3** | **Correct the `supertest` description.** `ADR-008` and `docs/testing-strategy.md` said "no port is bound". | `supertest` given an Express app creates an `http.Server` and listens on an **ephemeral loopback port** for the duration of each request, then closes it. The accurate claim is "no fixed port and no manual lifecycle", which is what the tests actually rely on. | D8's substance (use supertest) is unchanged. **Applied:** `ADR-008` (dated correction), `docs/testing-strategy.md`, `docs/architecture-proposal.md` §6. | **Approved 2026-11-19 — applied** |
+| **D20** | **Redirect write path:** drop the explicit transaction around lookup + increment; keep the single guarded `UPDATE`; do not increment on `HEAD`. | The guard is already in the statement — `WHERE code = @code AND (expires_at IS NULL OR expires_at > @now)` — so the increment is atomic on its own. With one process and one synchronous connection there is nothing to interleave, and `db.transaction()` only adds a `BEGIN`/`COMMIT` pair per redirect. Separately, Express routes `HEAD` to the `GET` handler, so a monitoring `HEAD /:code` would currently count a click. | `TASKS.md` §4 wording, the query-pattern note in `docs/database-design.md`, and `ADR-007`'s implementation note. No API or schema change. | **Approved 2026-11-19 — [`ADR-020`](decisions/ADR-020.md)** |
+| **D21** | **`SQLITE_BUSY` policy:** after `busy_timeout = 5000` the driver's error maps to `500 INTERNAL_ERROR` with a generic message; no retry. | In a single-process, single-connection MVP the only way to hit `SQLITE_BUSY` is an external writer holding the lock. A retry loop adds a second failure path and can hold a request for up to ten seconds to save a case that should not occur; `500` is honest and already in the contract. | Closes the first open question in `docs/database-design.md`. No new error code, no new dependency. | **Approved 2026-11-19 — [`ADR-021`](decisions/ADR-021.md)** |
 
 **Not changed, deliberately:** the four routes, `302`, lazy expiry with retained rows, alias rules,
 `UNIQUE(code)` plus the two `CHECK`s, `AUTOINCREMENT`, unindexed `expires_at`, and the runtime
@@ -203,7 +202,7 @@ CREATE TABLE IF NOT EXISTS links (
 | Body-parser failures can escape as Express defaults (`413`, HTML body) | Violates D19's single envelope | Error middleware must check body-parser's error type (`entity.parse.failed`, `entity.too.large`) before the generic branch | Malformed JSON and oversized payload tests |
 | Text timestamp comparison breaks if any write path bypasses the clock | Wrong expiry decisions | Repository is the only writer; no SQL time functions | Offset normalization case (`+02:00` → `Z`) and the eleven boundary cases |
 | `WAL` is a no-op on `:memory:` | A naive pragma assertion fails | Assert `foreign_keys` and `busy_timeout` only | Pragma test |
-| `HEAD /:code` currently runs the `GET` handler | Probes and prefetches inflate click counts | D20: no increment for `HEAD` | API test asserting count is unchanged after `HEAD` |
+| `HEAD /:code` would run the `GET` handler and increment | Probes and prefetches inflate click counts | D20 (approved): no increment for `HEAD` | API test asserting count is unchanged after `HEAD` |
 | Click counts include requests the client abandoned before following | Counts are "redirects issued", not "visits" | Accepted as the FR-04 semantic; document it | Repeat-redirect monotonicity test |
 | No rate limiting or quota; table grows without deletion | Abuse and unbounded growth | Explicit non-goals (D9, `PROJECT.md`); no retention requirement | Not tested; documented limitation |
 | `PUBLIC_BASE_URL` with a trailing slash yields `//code` | Broken `shortUrl` | Normalize to an origin at config validation | Config test with a trailing slash |
@@ -217,16 +216,18 @@ exhaustion path needs a stubbed generator.
 
 ## 6. Approval checklist
 
-Nothing below is accepted. `[x]` would mean you approved it and an ADR was written.
+All items were approved by the user on **2026-11-19**. `[x]` means approved and recorded.
 
-- [ ] **C-1** — Validation lives in the controller (zod schema), routes only wire.
-- [ ] **C-2** — §6's dev-dependency list gains `eslint`, `@eslint/js`, `typescript-eslint`, `globals`.
-- [ ] **C-3** — `supertest` described as "ephemeral listener, no fixed port, no manual lifecycle".
-- [ ] **D20** — Redirect: guarded `UPDATE` without an explicit transaction; `HEAD` does not increment.
-- [ ] **D21** — `SQLITE_BUSY` after `busy_timeout` returns `500 INTERNAL_ERROR`; no retry.
-- [ ] **D8 stands** — keep `supertest` as the API harness (no change proposed).
-- [ ] **No stack change** — three runtime dependencies, the approved schema, routes, and status codes.
+- [x] **C-1** — Validation lives in the controller (zod schema), routes only wire.
+- [x] **C-2** — §6's dev-dependency list gains `eslint`, `@eslint/js`, `typescript-eslint`, `globals`.
+- [x] **C-3** — `supertest` described as "ephemeral listener, no fixed port, no manual lifecycle".
+- [x] **D20** — Redirect: guarded `UPDATE` without an explicit transaction; `HEAD` does not increment
+      ([`ADR-020`](decisions/ADR-020.md)).
+- [x] **D21** — `SQLITE_BUSY` after `busy_timeout` returns `500 INTERNAL_ERROR`; no retry
+      ([`ADR-021`](decisions/ADR-021.md)).
+- [x] **D8 stands** — keep `supertest` as the API harness (no change proposed).
+- [x] **No stack change** — three runtime dependencies, the approved schema, routes, and status codes.
 
-On your approval I will write `ADR-020` and `ADR-021`, apply C-1 … C-3 to the affected documents, and
-update the register, `TASKS.md`, and `PROJECT_STATE.md`. Decline or amend any item and I will record
-that instead; nothing is implemented until this checklist is settled.
+Applied on 2026-11-19: `ADR-020` and `ADR-021` were written, C-1 … C-3 were applied to the affected
+documents, and the register, `TASKS.md`, `ROADMAP.md`, `PROJECT_STATE.md`, `README.md`, and
+`CHANGELOG.md` were synchronized. No application code, dependency, install, commit, or push was made.

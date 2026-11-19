@@ -11,7 +11,7 @@
 HTTP request
    |
    v
-Routes       -> map URL + method to controller; attach validation
+Routes       -> map URL + method to controller (no logic, no parsing)
    |
    v
 Controllers  -> parse/validate input, call service, shape HTTP response
@@ -28,6 +28,8 @@ SQLite (better-sqlite3)
 
 ### Proposed rules
 
+- Routes only map method and path; validation has one owner — the controller applies the
+  module's zod schema (`links.schemas.ts`), and routes never parse input.
 - Controllers do not execute SQL.
 - Services do not depend on Express `req` or `res`.
 - Services throw typed application errors.
@@ -178,10 +180,12 @@ Approved development dependencies (D10–D14):
 - `@types/better-sqlite3`
 - `tsx`
 - `vitest`
+- `eslint`, `@eslint/js`, `typescript-eslint`, `globals` (D11 — the type-aware ESLint 10 set)
 
 Approved additional dependency (D8, 2026-11-18 — [`ADR-008`](decisions/ADR-008.md)):
-- `supertest@^7.3.2` and `@types/supertest@^7.2.1`, dev-only, for API integration tests. No
-  ephemeral `fetch` harness is needed.
+- `supertest@^7.3.2` and `@types/supertest@^7.2.1`, dev-only, for API integration tests. It opens
+  an ephemeral loopback listener per request and closes it, so the suite binds no fixed port and
+  writes no listener lifecycle. No `fetch` harness is needed.
 
 ## 7. Verified technical configuration (approved under D10–D18)
 
@@ -260,12 +264,20 @@ Toolchain and contracts — all approved 2026-11-18:
       ([`ADR-017`](decisions/ADR-017.md)).
 - [x] **D18** — URL scheme and length limits ([`ADR-018`](decisions/ADR-018.md)).
 
-### Prompt 03 review
+### Prompt 03 review — approved 2026-11-19
 
-The architecture review in [`architecture-review.md`](architecture-review.md) recommends this design
-unchanged and raised two proposals, **D20** (redirect write path: guarded increment without an
-explicit transaction, and no increment on `HEAD`) and **D21** (`SQLITE_BUSY` → `500
-INTERNAL_ERROR`, no retry). Both are **Pending User Approval** in the register and have no ADR;
-nothing in this document changes until you decide them. The review also records three wording
-corrections (C-1 validation ownership, C-2 the dev-dependency list in §6, C-3 the `supertest`
-port description) that await confirmation.
+[`architecture-review.md`](architecture-review.md) recommends this design unchanged. The user
+approved its two decisions and all three corrections on 2026-11-19:
+
+- [x] **D20** — Redirect write path: the guarded `UPDATE` runs without an explicit transaction, and
+      `HEAD /:code` returns the same status and `Location` without incrementing
+      ([`ADR-020`](decisions/ADR-020.md)).
+- [x] **D21** — `SQLITE_BUSY` after `busy_timeout` maps to `500 INTERNAL_ERROR` with no retry
+      ([`ADR-021`](decisions/ADR-021.md)).
+- [x] **C-1** — Validation has one owner: controllers apply the zod schema; routes only wire.
+- [x] **C-2** — §6 lists the full ESLint set (`eslint`, `@eslint/js`, `typescript-eslint`,
+      `globals`) required by D11.
+- [x] **C-3** — `supertest` is described accurately: an ephemeral loopback listener per request, no
+      fixed port, no manual lifecycle.
+
+No stack, route, error-code, or schema change follows from any of these.

@@ -2,9 +2,9 @@
 
 > **Status:** Approved. Every case follows an approved decision: the harness and toolchain cases by
 > D8–D18 (2026-11-18), the architecture, schema, route, redirect, generation, alias, and expiry
-> cases by D1–D7 (2026-11-19 — `ADR-001` … `ADR-007`), and the unknown-field,
-> duplicate-destination, oversized-body, and health cases by D19 (`ADR-019`). No case is labeled as
-> a proposal.
+> cases by D1–D7 (2026-11-19 — `ADR-001` … `ADR-007`), the unknown-field,
+> duplicate-destination, oversized-body, and health cases by D19 (`ADR-019`), and the `HEAD` and
+> busy-error cases by D20/D21 (`ADR-020`, `ADR-021`). No case is labeled as a proposal.
 
 ## Test layers
 
@@ -17,8 +17,9 @@
 
 - Vitest for all layers; `vitest run` in CI and in the `AGENTS.md` §8.2 gate (never watch mode).
 - API tests use `supertest` (approved 2026-11-18, D8 —
-  [`decisions/ADR-008.md`](decisions/ADR-008.md)) with `createApp(deps)` in-process. No port is
-  bound and no server is started by the test suite.
+  [`decisions/ADR-008.md`](decisions/ADR-008.md)) with `createApp(deps)` in-process. `supertest`
+  opens an ephemeral loopback listener for each request and closes it, so the suite binds no fixed
+  port and writes no listener lifecycle.
 - Tests inject a fixed clock and an isolated `:memory:` database; no test may depend on the real
   current time or on another test's rows.
 
@@ -51,6 +52,8 @@
 - Expired code returns `410 LINK_EXPIRED` and does **not** increment the count.
 - A successful redirect increments the count exactly once and sets `lastClickedAt`.
 - Repeated redirects increment monotonically.
+- `HEAD /:code` returns the same status and `Location` as `GET` and leaves `clickCount` and
+  `lastClickedAt` unchanged (D20).
 
 ### Statistics
 - Correct metadata and count for an active link.
@@ -80,6 +83,8 @@
   `:memory:`.
 - Typed-pragma helper returns a value without `any` or a lint suppression.
 - `lastInsertRowid` is normalized from `number | bigint` before use.
+- A repository error carrying `SQLITE_BUSY` maps to `500 INTERNAL_ERROR` with a generic message and
+  no retry (D21). A real busy database needs a second connection, so this case injects the error.
 
 ## The eleven expiration-boundary cases
 

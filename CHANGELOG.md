@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### 2026-11-19 — C-1 … C-3 applied; D20 and D21 approved
+
+- The user approved the Prompt 03 review in full: **D20** (redirect write path — guarded increment
+  without an explicit transaction, `HEAD` does not count) and **D21** (`SQLITE_BUSY` →
+  `500 INTERNAL_ERROR`, no retry), plus corrections **C-1 … C-3**.
+- Added `docs/decisions/ADR-020.md` and `ADR-021.md`; the register now records **21 of 21 decided,
+  all Approved**, with no pending entry.
+- **C-1** applied: validation has one owner (the controller, via `links.schemas.ts`); routes only
+  wire. Updated `docs/architecture-proposal.md`, `ADR-001` (dated clarification), and
+  `docs/coding-standards.md`.
+- **C-2** applied: `docs/architecture-proposal.md` §6 now lists `eslint`, `@eslint/js`,
+  `typescript-eslint`, and `globals` (D11).
+- **C-3** applied: `supertest` is described as opening an ephemeral loopback listener per request
+  rather than "no port is bound"; updated `ADR-008` (dated correction), `docs/testing-strategy.md`,
+  and the proposal.
+- **D20** applied to `docs/database-design.md`, `docs/requirements.md` (FR-04, NFR-06),
+  `docs/api-specification.md`, `docs/testing-strategy.md`, `docs/research-findings.md`, and `TASKS.md`
+  §4. **D21** applied to `docs/database-design.md`, NFR-06, `docs/testing-strategy.md`, and §2.
+- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `docs/decisions/README.md`,
+  `prompts/03-architecture.md`, and `docs/architecture-review.md` synchronized.
+- No application code, dependencies, installs, tests, commits, or pushes were made.
+
 ### 2026-11-19 — Prompt 03 architecture review; two proposals pending
 
 - Added `docs/architecture-review.md`: the approved architecture (layers, feature module, app

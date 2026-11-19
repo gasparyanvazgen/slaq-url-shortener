@@ -1,9 +1,9 @@
 # Prompt 03 — Architecture Review
 
-**Status:** Review complete 2026-11-19 in `docs/architecture-review.md`. The approved architecture is
-recommended as-is; corrections **C-1 … C-3** and proposals **D20**, **D21** await the user's explicit
-decision. No decision was accepted by the review, no ADR was written for a proposal, and no code was
-implemented.
+**Status:** Completed 2026-11-19. `docs/architecture-review.md` recommends the architecture as-is;
+the user approved **D20** and **D21** (`ADR-020`, `ADR-021`) and corrections **C-1 … C-3**, which are
+applied across the design documents. **21 of 21 decisions are approved** and none is pending. No
+application code, dependency, or install was produced by this prompt.
 
 Follow `agents/backend-architect.md`.
 

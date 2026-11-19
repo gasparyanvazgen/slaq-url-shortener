@@ -41,8 +41,7 @@ small backend URL shortener. Decision IDs refer to
 - [x] Capture proposed folder structure and SQLite table.
 - [x] Complete technical research: versions, compiler/lint configuration, driver typings, ESM,
       timestamps, base-URL security, API contracts, URL limits.
-- [x] Consolidate every open decision into one register (D1–D19; the Prompt 03 review later added
-      D20 and D21 as proposals).
+- [x] Consolidate every open decision into one register (D1–D21).
 - [x] Approve or amend architecture and behavior (D1–D7) — approved 2026-11-19 with the
       deps-object signature (D1) and five generation attempts in total (D5). Evidence:
       `docs/decisions/ADR-001.md` … `ADR-007.md`.
@@ -50,15 +49,15 @@ small backend URL shortener. Decision IDs refer to
 - [x] Confirm API routes, error contract, aliases, code generation, expiry, and click counting —
       approved: the contract (D17/D18), routes/envelope (D3), aliases (D6), codes (D5), and expiry
       (D7).
-- [x] Record approved decisions as ADRs — `docs/decisions/ADR-001.md` … `ADR-019.md`, one per
-      decision, 19 of 19.
+- [x] Record approved decisions as ADRs — `docs/decisions/ADR-001.md` … `ADR-021.md`, one per
+      decision, 21 of 21.
 - [x] Review the approved architecture for five-hour MVP fit (Prompt 03) — `docs/architecture-review.md`
       recommends the layers, module, factory, repository boundary, schema, routes, and dependencies
-      unchanged, with two proposals (D20, D21) and three corrections (C-1 … C-3) pending.
+      unchanged; D20, D21, and corrections C-1 … C-3 were approved on 2026-11-19.
 
 **Exit criteria:** Architecture and key behavior decisions are explicitly approved.
-**Status:** Met — 19 of 19 decisions approved with ADRs. The review's D20/D21 proposals and
-C-1 … C-3 corrections are refinements; implementation starts once they are settled.
+**Status:** Met — 21 of 21 decisions approved with ADRs; the design is final and implementation can
+start.
 
 ## Phase 4 — Component Specifications & Performance
 

@@ -29,7 +29,8 @@
 - Keep Express-specific objects (`req`, `res`, `next`) at the HTTP boundary.
 - Keep SQL in repository/database modules only.
 - Keep business rules in services.
-- Validate untrusted request input with Zod at the boundary; services may assume validated input.
+- Validate untrusted request input with Zod at the HTTP boundary **in the controller**; routes only
+  wire method and path (C-1, 2026-11-19), and services may assume validated input.
 - Return plain typed objects from repositories; do not leak driver row types upward.
 
 ## Data and time

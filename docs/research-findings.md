@@ -270,8 +270,9 @@ is exposed at all.
   `synchronous = NORMAL` under WAL. `journal_mode = WAL` is a no-op for `:memory:` databases,
   so tests must not assert WAL; assert `foreign_keys` and `busy_timeout` instead.
 - Uniqueness is enforced by `UNIQUE(code)`; the service still retries generated-code collisions.
-- Click counting uses a single conditional `UPDATE` inside a transaction so that a redirect that
-  loses an expiry race does not increment.
+- Click counting uses a single conditional `UPDATE` whose `WHERE` clause carries the expiry guard,
+  so a redirect that loses an expiry race does not increment. No explicit transaction is used
+  (approved as D20 on 2026-11-19 — [`decisions/ADR-020.md`](decisions/ADR-020.md)).
 - `:memory:` gives each connection its own database. Tests must create one app/database per test
   or use a shared cache deliberately, and must not rely on cross-test state.
 - `better-sqlite3` is synchronous; no async/pooling concerns, but long statements block the

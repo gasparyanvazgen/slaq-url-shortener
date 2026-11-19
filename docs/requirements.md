@@ -22,14 +22,15 @@
 | **Confirmed** | Backed by `PROJECT.md` or an approved decision. Testable as written. |
 | **Out of scope** | Explicitly excluded by an approved decision; recorded for traceability. |
 
-Approved decisions used here — all nineteen: D1 (layers and the deps object), D2 (schema and the
+Approved decisions used here — all twenty-one: D1 (layers and the deps object), D2 (schema and the
 two `CHECK` constraints), D3 (routes and error envelope), D4 (`302`), D5 (7-character Base62 codes,
 five generation attempts in total), D6 (aliases), D7 (lazy expiry, `410`, retained rows), D8
 (`supertest`), D9 (no deletion; reconfirmed 2026-11-19), D10–D16 (TypeScript, ESLint, driver, Node,
 dependencies, timestamps, ESM), D17 (API contracts, `PUBLIC_BASE_URL`, Host-header safety), D18
 (destination URL scheme, length, credentials), and D19 (unknown fields ignored, no
 duplicate-destination deduplication, `/health` liveness only, body-parser failures mapped to
-`400 VALIDATION_ERROR`).
+`400 VALIDATION_ERROR`), D20 (redirect write path and the non-counting `HEAD`), and D21 (`SQLITE_BUSY`
+→ `500 INTERNAL_ERROR`, no retry).
 
 ## MVP scope baseline
 
@@ -296,7 +297,8 @@ On `404` and `410`: no write.
 ## FR-04 — Click tracking on redirect
 
 **Status:** Confirmed. Cumulative click counting is confirmed (`PROJECT.md` #4); atomicity and the
-exact conditional write are approved by **D2** and **D7** (`ADR-002`, `ADR-007`).
+exact conditional write are approved by **D2** and **D7** (`ADR-002`, `ADR-007`), and the write
+path plus the `HEAD` rule by **D20** (`ADR-020`).
 
 **Inputs**
 
@@ -306,29 +308,32 @@ exact conditional write are approved by **D2** and **D7** (`ADR-002`, `ADR-007`)
 
 - Each `302` increments `click_count` by exactly one and sets `last_clicked_at` to the redirect
   instant in canonical UTC (D15).
-- The lookup and increment happen in one transaction: the count is written only for a link that
-  was both found and unexpired.
+- The lookup and the increment are two statements with no explicit transaction (D20): the guarded
+  `UPDATE` writes the count only for a link that is unexpired, and `changes === 0` means it expired
+  between the two.
 - Repeated and concurrent redirects each add one; the count is monotonic and never negative.
 - No other operation changes the count: statistics reads, creations, `404`s, and `410`s do not.
 
 **Validation rules**
 
-- Only `302` responses increment; an expired link never increments even when requested repeatedly
+- Only `GET` redirects increment; `HEAD /:code` returns the same status and `Location` without
+  touching the count (D20), and an expired link never increments even when requested repeatedly
   (D7).
 - `last_clicked_at` starts as `NULL` and is `NULL` until the first successful redirect.
 
 **Error cases and status codes**
 
 - No dedicated error path. A failed increment must not turn a valid redirect into a `500` after
-  the redirect decision; if the transaction fails, the redirect is not sent and the request
-  returns `500 INTERNAL_ERROR` with no count change. (The ordering is settled at implementation;
-  the requirement is that no redirect is sent without a committed increment.)
+  the redirect decision; if the increment fails, the redirect is not sent and the request returns
+  `500 INTERNAL_ERROR` with no count change. (The ordering is settled at implementation; the
+  requirement is that no redirect is sent without a committed increment.)
 
 **Data changes**
 
 `UPDATE links SET click_count = click_count + 1, last_clicked_at = @now WHERE code = @code AND
-(expires_at IS NULL OR expires_at > @now)`, inside the same transaction as the lookup. Zero rows
+(expires_at IS NULL OR expires_at > @now)`, with **no explicit transaction** (D20). Zero rows
 changed means the link expired between lookup and update, and the response becomes `410`/`404`.
+`HEAD` requests never run this statement.
 
 **Acceptance criteria**
 
@@ -833,9 +838,9 @@ SQL. **Tests:** boundary cases and normalization tests.
 
 **Status:** Confirmed. **Requirement:** one synchronous process and one SQLite connection;
 no rate limiting, queues, cache layer, or background jobs in the MVP; redirects cost one lookup and
-one conditional update inside a transaction; `SQLITE_BUSY` waits up to `busy_timeout` and then
-surfaces `500 INTERNAL_ERROR` with no retry loop (no decision covers this; it is the default this
-requirement records).
+one conditional update with no explicit transaction (D20); `SQLITE_BUSY` waits up to `busy_timeout`
+and then surfaces `500 INTERNAL_ERROR` with no retry, logging the driver detail server-side only
+(D21).
 **Acceptance:** no unbounded retry; no in-memory state required for correctness; the README states
 the operational limits. **Tests:** none beyond the gate; concurrency behavior covered by FR-04.
 No throughput or latency target is claimed.
