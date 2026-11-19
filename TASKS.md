@@ -66,8 +66,12 @@ this file as work progresses. Decision IDs refer to
 - [x] Record the approved decisions as ADRs — `docs/decisions/ADR-008.md` … `ADR-019.md`.
 - [x] Record the D1–D7 approval as `ADR-001` … `ADR-007`. — Evidence:
       `docs/decisions/ADR-001.md` … `ADR-007.md`, 2026-11-19.
-- [ ] Confirm the `.gitignore` change: `.env.*` is ignored, with `.env.example`
-      exempted, so a future example file stays trackable.
+- [x] Confirm the `.gitignore` change: `.env.*` is ignored, with `.env.example`
+      exempted, so a future example file stays trackable. — Verified 2026-11-19:
+      `git check-ignore -v` reports `.gitignore:9:.env.*` for `.env.local`, `.env.production`, and
+      `.env.test`, and `.gitignore:10:!.env.example` for `.env.example`; a throwaway `.env.example`
+      appeared as `??` (trackable) while a throwaway `.env.local` stayed ignored. Both probe files
+      were removed afterwards; the working tree is clean.
 - [x] Draft requirements and acceptance criteria (Prompt 02). — Evidence:
       `docs/requirements.md`, 2026-11-18, finalized 2026-11-19; every requirement is now
       **Confirmed** or **Out of scope**, and no requirement is provisional.

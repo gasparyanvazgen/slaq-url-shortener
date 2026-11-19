@@ -1,7 +1,8 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (D22 approval, `PORT` default recorded, design final).
+> **Last rewritten:** 2026-11-19 (Git status re-verified after Prompt 04 — commit `256adab`;
+> `.gitignore` exemption confirmed).
 
 ## Current status
 
@@ -24,25 +25,47 @@
   gate cannot run
 - **Current timebox:** approximately five hours for the MVP, not started
 
-## Repository and Git status (verified 2026-11-19 on the user's machine)
+## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`dev`** (checked out), tracking `origin/master`.
-- Commits: `HEAD` = `dev` = **`56f1915`** (`docs: approve D20/D21 and apply Prompt 03 corrections`),
-  whose history is `56f1915` → `dcc4698` (`docs: add Prompt 03 architecture review with pending
-  proposals`) → `731b59c` (`docs: sync project state after requirements finalization`) → `24a83b0`
-  (`docs: resolve requirement gaps as D19`). `dev` is **four commits ahead of `origin/master`**, and
-  none of them has been pushed.
-- Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`**.
-- `git ls-files` reports **68 tracked files**; the D22 session adds `docs/decisions/ADR-022.md`
-  as the one new path, so the tracked set becomes 69 once it is committed. `docs/decisions/` holds
-  `ADR-001.md` … `ADR-022.md`, one record per approved decision.
-- Working tree: **13 modified + 1 untracked** (`ADR-022.md`), nothing staged — this is the D22
-  documentation synchronization described below, not unrelated change.
+- Branch: **`dev`** (checked out) — **6 commits ahead of `origin/master`**, none pushed; local
+  `master` sits one commit behind `origin/master`.
+- `HEAD` = `dev` = **`256adab`** (`docs: record the persistence repository contract for Prompt 04`).
+  The unpushed history, newest first: `256adab` → `b77b47c` (`docs: record D22 PORT default and
+  synchronize decision status`) → `56f1915` (`docs: approve D20/D21 and apply Prompt 03
+  corrections`) → `dcc4698` (`docs: add Prompt 03 architecture review with pending proposals`) →
+  `731b59c` (`docs: sync project state after requirements finalization`) → `24a83b0`
+  (`docs: resolve requirement gaps as D19`); `origin/master` is `43efa1a`.
+- Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
+  remote-tracking branches are `origin/master` and `origin/dev`.
+- `git ls-files` reports **69 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
+  one record per approved decision, all 22 tracked.
+- Working tree: **clean** — `git status --porcelain` prints nothing, nothing is staged, and
+  `git diff --check` reports no whitespace errors. The D22 and Prompt 04 documentation work is
+  committed; no change is pending from an earlier session.
+- No implementation exists: `package.json`, `src/`, `tests/`, `tsconfig.json`, the lockfile, and
+  `node_modules` are all absent; the tracked tree is documentation, role cards, prompts, templates,
+  and workflows only.
+- `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
+  stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
   deleted on 2026-11-18 at the user's request; `freebuff-base` held only an orphan commit with an
   empty tree.
 - `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-022.md`,
   one record per approved decision; **all 22 decisions are approved**.
+- Evidence for the statements above:
+
+  ```bash
+  git rev-parse --abbrev-ref HEAD             # -> dev
+  git rev-parse HEAD                          # -> 256adab6eb12fd3b60ad946a7637a0274ae73f3f
+  git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
+  git rev-list --count origin/master..HEAD    # -> 6
+  git ls-files | wc -l                        # -> 69
+  git status --porcelain | wc -l              # -> 0
+  git diff --check                            # -> clean (exit 0)
+  ls docs/decisions/ADR-*.md | wc -l          # -> 22
+  git check-ignore -v .env.local              # -> .gitignore:9:.env.*
+  git check-ignore -v .env.example            # -> .gitignore:10:!.env.example
+  ```
 
 ## Toolchain reality in this workspace
 
