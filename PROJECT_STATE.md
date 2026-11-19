@@ -131,6 +131,10 @@ one requires a new decision and a new ADR.
       `docs/api-specification.md`, and `docs/testing-strategy.md`.
 - [x] Confirm the drafted acceptance criteria — all 77 are confirmed after D19, the D1–D7
       approval, and D22.
+- [x] **Prompt 04 persistence design recorded (2026-11-19)** — `docs/database-design.md` now states
+      the repository contract (six files, three operations, row mapping, UNIQUE translation, no
+      transaction) and the repository-level test cases. No code, dependency, table, index, or
+      migration was added; implementation needs the §1 scaffold first.
 - [x] **D22 approved by the user on 2026-11-19** — `PORT` defaults to `3000` in every environment
       when unset or empty; a set value must be ASCII digits only with a numeric value in 1–65535,
       leading zeros are insignificant (`03000` → `3000`, `0000` rejected), and it is never parsed
@@ -252,6 +256,10 @@ No `npm install`, typecheck, lint, test, build, commit, or push was performed.
 
 Start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin
 the approved dependency set, configure TypeScript/ESLint/Vitest, resolve `PORT` per D22 alongside
-`PUBLIC_BASE_URL`, and add `GET /health` through `createApp({ db, clock, config })`. The design gate is closed — do not reopen an approved decision
+`PUBLIC_BASE_URL`, and add `GET /health` through `createApp({ db, clock, config })`. Prompt 04's
+persistence design is ready and needs no new decision; once the scaffold exists, implement it as
+`src/db/connection.ts`, `src/db/pragma.ts`, `src/db/schema.ts`, `src/db/id.ts`,
+`src/modules/links/links.types.ts`, and `src/modules/links/links.repository.ts`, with tests for
+schema, connection/pragmas, and the repository. The design gate is closed — do not reopen an approved decision
 without a new ADR. Then work through `TASKS.md` §2–§8 and run the `AGENTS.md` §8.2 gate
 (`npm run typecheck && npm run lint && npm test && npm run build`).

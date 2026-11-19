@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### 2026-11-19 — Prompt 04 persistence design recorded (no code)
+
+- Added a **Repository contract** section to `docs/database-design.md`: the six persistence files,
+  the three repository operations (`insert`, `findByCode`, `incrementClick`), typed-row mapping,
+  UNIQUE-failure translation, and the explicit absence of a transaction (D1, D12, D20).
+- Added the repository-level persistence test cases (exact stored values, `UniqueCodeError` without
+  an extra row, case-sensitive lookup, bound-parameter injection regression, `changes === 0` for
+  expired and unknown codes, fifty sequential increments) on top of the cases already required by
+  `docs/testing-strategy.md`.
+- No ORM, migration framework, table, index, column, or dependency was added; the approved schema
+  (D2) and pragma set are unchanged.
+- No application code was written and no test was run — the repository has no `package.json`, so the
+  §1 scaffold must land before these files can be typechecked or tested.
+- `PROJECT_STATE.md` updated with the design status, the approval needed to start implementation,
+  and the exact file list.
+
 ### 2026-11-19 — D22 approved; `PORT` default recorded
 
 - The user approved **D22**: `PORT` is read once at startup, trimmed, and resolved to **`3000` in

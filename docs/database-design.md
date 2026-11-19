@@ -120,6 +120,66 @@ because the expiry guard is inside the `WHERE` clause and is therefore applied a
 process, one connection, and a synchronous driver, no statement can interleave between the two.
 `HEAD` requests return the same redirect response without executing the update (D20).
 
+## Repository contract
+
+SQL lives behind one factory and never leaves it (D1; `AGENTS.md` §4). The module set is fixed by
+`ADR-002` and `ADR-020`; nothing in this section is implemented yet.
+
+| File | Responsibility |
+|---|---|
+| `src/db/connection.ts` | `openDatabase(filename)` — opens `better-sqlite3`, applies the pragmas above, returns the handle. WAL is requested only for file databases. |
+| `src/db/pragma.ts` | `pragmaValue(db, name)` and the `PragmaMap` declared by D12, so `pragma()` results are typed without `any`. |
+| `src/db/schema.ts` | `createSchema(db)` — executes the approved `CREATE TABLE IF NOT EXISTS` verbatim. |
+| `src/db/id.ts` | `toSafeId(value: number \| bigint)` — normalizes `lastInsertRowid` and rejects non-safe integers (D12). |
+| `src/modules/links/links.types.ts` | `LinkRow` (snake_case driver row, internal) and `Link` (camelCase domain object). |
+| `src/modules/links/links.repository.ts` | `createLinkRepository(db)` — the three statements below, prepared once in the factory. |
+
+`createLinkRepository(db)` returns exactly three operations:
+
+- `insert(input: NewLink): Link` — binds `code`, `originalUrl`, `isCustom` (`0 | 1`), `createdAt`,
+  `expiresAt`; returns the domain object assembled from those values plus a `toSafeId`-normalized
+  `lastInsertRowid`, with `clickCount: 0` and `lastClickedAt: null`. The row is not re-read: one
+  round trip, and every stored value is exactly what the caller passed.
+- `findByCode(code: string): Link | undefined` — the lookup above; an absent code is a normal
+  `undefined` at this layer, not an error, because the service owns `404` versus `410`.
+- `incrementClick(code: string, nowIso: string): number` — the guarded update above; returns
+  `changes`. No transaction (D20).
+
+Rules for this layer:
+
+- Every statement is prepared once and bound with named parameters; no identifier, value, or clause
+  is ever assembled from input.
+- The repository never reads a clock. Every timestamp arrives as an already-canonical string from
+  the injected clock (D15), so SQL contains no `CURRENT_TIMESTAMP`, `datetime()`, or `strftime()`.
+- `is_custom` is mapped `1 → true`, `0 → false` on the way out and back to `0 | 1` on the way in;
+  `LinkRow` never escapes the module (D12).
+- `insert` catches only the driver's UNIQUE failure (`SQLITE_CONSTRAINT_UNIQUE`) and rethrows a
+  typed `UniqueCodeError`. It never pre-checks existence: the service decides between
+  `409 ALIAS_TAKEN` and a generator retry (D5, D6).
+- `SQLITE_BUSY` is **not** caught here; the centralized error middleware maps it (D21).
+- No `db.transaction()` call exists anywhere in this layer, and no statement mutates more than one
+  row.
+
+### Persistence tests
+
+The cases already required by `docs/testing-strategy.md` — schema idempotency, both `CHECK`
+constraints, `UNIQUE(code)`, pragma values, and the `SQLITE_BUSY` mapping — are joined by these
+repository-level checks, all on an isolated `:memory:` database with fixed timestamp strings:
+
+- `insert` stores the exact trimmed URL and canonical timestamps, returns `clickCount: 0` and
+  `lastClickedAt: null`, and maps `isCustom` both ways.
+- A duplicate `code` throws `UniqueCodeError` and leaves the row count unchanged.
+- `findByCode` is case-sensitive (`MyLink` does not find `mylink`), returns `undefined` for an
+  unknown code, and returns `undefined` for an injection-shaped code such as `x' OR 1=1 --` with the
+  table unchanged (bound-parameter regression).
+- `incrementClick` returns `1` on an active row, `0` on an expired row (`expires_at === now` and
+  older), `0` for an unknown code, and preserves `click_count` and `last_clicked_at` in every `0`
+  case.
+- Fifty sequential increments produce exactly `50`, and `last_clicked_at` equals the last bound
+  instant.
+- `openDatabase(':memory:')` reports `foreign_keys = 1`, `busy_timeout = 5000`, and
+  `synchronous = 1`; it does not assert `journal_mode`.
+
 ## Integrity requirements
 
 - `code` unique and non-null; `original_url` non-null.
