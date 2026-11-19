@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+### 2026-11-19 — §2 database and shared infrastructure implemented and verified
+
+- Added `src/db/connection.ts` (`openDatabase(filename)`): opens `better-sqlite3`, applies
+  `foreign_keys = ON`, `busy_timeout = 5000`, and `synchronous = NORMAL`, plus `journal_mode = WAL`
+  only for file databases (`:memory:` ignores WAL). Measured in-memory pragma values are `1`,
+  `5000`, and `1` respectively.
+- Added `src/db/schema.ts` with the approved D2 `CREATE TABLE IF NOT EXISTS links` verbatim, including
+  `UNIQUE(code)` and exactly the two approved `CHECK` constraints (`click_count >= 0`,
+  `is_custom IN (0, 1)`). No other table, index, or constraint was added.
+- Added the typed driver helpers `src/db/pragma.ts` (`pragmaValue` with a `PragmaMap`-keyed cast) and
+  `src/db/id.ts` (`toSafeId` normalizes `number | bigint` and rejects unsafe integers). No `any`,
+  `@ts-ignore`, or lint suppression.
+- Added `src/lib/errors.ts` with `AppError` and six subclasses carrying the D3/D17 status/code pairs,
+  plus `src/middleware/error-handler.ts` (the sole error-body writer) and
+  `src/middleware/not-found.ts` (forwards `NotFoundError`).
+- D21: a `SQLITE_BUSY` driver error is logged server-side with its detail and returned as a generic
+  `500 INTERNAL_ERROR` with no retry and no SQLite text in the body. Unexpected errors follow the
+  same generic response; body-parser failures map to `400 VALIDATION_ERROR` (D19).
+- `src/app.ts` now registers `express.json()`, the not-found handler, and the error middleware. No
+  link routes were added.
+- Added 18 tests (`tests/database.test.ts`, `tests/errors.test.ts`) covering pragma values,
+  idempotent schema creation, `UNIQUE(code)`, both CHECKs, `toSafeId`, every error-code mapping, the
+  404 envelope, generic 500 with no leak, `SQLITE_BUSY` logging, and malformed/oversized JSON bodies.
+- Verification: `npm run typecheck && npm run lint && npm test && npm run build` — all four pass;
+  5 test files, 109 tests, 688 ms. One initial lint error on the deliberately unused fourth Express
+  error-middleware argument was resolved with `void _next;`. No dependency changed; no commit or push
+  was made.
+- The database filename remains undecided, so `src/server.ts` still passes the `db: null`
+  placeholder and `createSchema(db)` is exercised in tests rather than at startup.
+
 ### 2026-11-19 — §1 scaffold implemented and verified
 
 - Initialized the native-ESM npm project (`slaq@0.1.0`, `"type": "module"`), added `.nvmrc` (`24`)

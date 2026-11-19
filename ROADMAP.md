@@ -89,8 +89,9 @@ Suggested order:
 8. API documentation and README.
 9. Final verification and review.
 
-**Status:** In progress — step 1 (scaffold, configuration validation, `GET /health`) is complete and
-verified: all four `AGENTS.md` §8.2 checks pass with 91 tests. Steps 2–9 are pending.
+**Status:** In progress — steps 1 (scaffold, configuration validation, `GET /health`) and 2
+(database connection, pragmas, schema, typed helpers, errors, middleware) are complete and verified:
+all four `AGENTS.md` §8.2 checks pass with 109 tests. Steps 3–9 are pending.
 
 **Exit criteria:** Core behavior is implemented, automated checks are run, and limitations are
 documented.

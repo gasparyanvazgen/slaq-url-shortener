@@ -134,15 +134,26 @@ this file as work progresses. Decision IDs refer to
 - [x] Verify typecheck, lint, and the health test. — `npm run typecheck && npm run lint &&
       npm test && npm run build` all pass: 3 test files, 91 tests, 473 ms.
 
-### 2. Database and shared infrastructure
-- [ ] Create the SQLite connection.
-- [ ] Apply approved pragmas and document the rationale.
-- [ ] Create the `links` table with `UNIQUE(code)` and approved `CHECK` constraints.
-- [ ] Add a typed `pragma()` / `lastInsertRowid` wrapper instead of `any`.
-- [ ] Add typed application errors.
-- [ ] Add centralized error middleware and a 404 handler, including the `SQLITE_BUSY` →
-      `500 INTERNAL_ERROR` mapping with server-side logging (D21).
-- [ ] Test database initialization and the error response shape.
+### 2. Database and shared infrastructure (complete; commit pending user action)
+- [x] Create the SQLite connection. — `src/db/connection.ts` `openDatabase(filename)`; WAL is
+      requested only for file databases.
+- [x] Apply approved pragmas and document the rationale. — `foreign_keys = ON`,
+      `busy_timeout = 5000`, `synchronous = NORMAL`, plus file-only WAL; rationale retained in
+      `docs/database-design.md`.
+- [x] Create the `links` table with `UNIQUE(code)` and approved `CHECK` constraints. —
+      `src/db/schema.ts` runs the approved D2 `CREATE TABLE IF NOT EXISTS` verbatim; idempotency and
+      both CHECKs are tested.
+- [x] Add a typed `pragma()` / `lastInsertRowid` wrapper instead of `any`. — `src/db/pragma.ts`
+      (`PragmaMap` keyed cast) and `src/db/id.ts` (`toSafeId` rejects unsafe integers); no `any` or
+      suppression.
+- [x] Add typed application errors. — `src/lib/errors.ts` defines `AppError` and six code-specific
+      subclasses matching the D3/D17 table.
+- [x] Add centralized error middleware and a 404 handler, including the `SQLITE_BUSY` →
+      `500 INTERNAL_ERROR` mapping with server-side logging (D21). — `src/middleware/error-handler.ts`
+      is the sole error-body writer; `src/middleware/not-found.ts` forwards `NotFoundError`;
+      `express.json()` failures map to `400 VALIDATION_ERROR` (D19).
+- [x] Test database initialization and the error response shape. — 18 new tests in
+      `tests/database.test.ts` and `tests/errors.test.ts`; full gate passes with 109 tests total.
 
 ### 3. Create short links
 - [ ] Add URL and optional-field validation (scheme allow-list, 2048 cap).

@@ -1,18 +1,19 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (§1 scaffold implemented and verified; HEAD re-verified as
-> `76584d7`, scaffold untracked and awaiting the user's commit).
+> **Last rewritten:** 2026-11-19 (§1 scaffold committed as `acb51ec`; §2 database and shared
+> infrastructure implemented and verified, awaiting the user's commit).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation. `TASKS.md` §1 (scaffold) is complete and verified;
-  §2 (database and shared infrastructure) is the next step
-- **Implementation started:** Yes — `package.json`, lockfile, `tsconfig*.json`, `eslint.config.js`,
-  `vitest.config.ts`, `.nvmrc`, `.env.example`, `src/`, and `tests/` all exist as **untracked**
-  files; no tables, link routes, or committed scaffold yet
+- **Current phase:** Phase 5 — implementation. `TASKS.md` §1 (scaffold, committed) and §2 (database
+  and shared infrastructure, awaiting commit) are complete and verified; §3 (create short links) is
+  the next step
+- **Implementation started:** Yes — §1 is committed (`acb51ec`); §2 adds `src/db/*`,
+  `src/lib/errors.ts`, and `src/middleware/*` as untracked files plus a modified `src/app.ts`. The
+  `links` table is created by `createSchema(db)`; no link routes or repository operations exist yet
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -21,30 +22,29 @@
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
   proposal
-- **Last verified test run:** 2026-11-19 — `npm run typecheck && npm run lint && npm test &&
-  npm run build`: all four pass; 3 test files, 91 tests, 473 ms
-- **Current timebox:** approximately five hours for the MVP; scaffold done, feature work underway
+- **Last verified test run:** 2026-11-19 (§2) — `npm run typecheck && npm run lint && npm test &&
+  npm run build`: all four pass; 5 test files, 109 tests, 688 ms
+- **Current timebox:** approximately five hours for the MVP; scaffold and persistence/error
+  infrastructure done, feature routes still pending
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`dev`** (checked out) — **7 commits ahead of `origin/master`**, none pushed; local
+- Branch: **`dev`** (checked out) — **8 commits ahead of `origin/master`**, none pushed; local
   `master` sits one commit behind `origin/master`.
-- `HEAD` = `dev` = **`76584d7`** (`docs: re-verify repository git status and confirm gitignore
-  exemption`). This is one commit newer than the `256adab` recorded before this session; the state
-  file was stale. The unpushed history, newest first: `76584d7` → `256adab` → `b77b47c` →
-  `56f1915` → `dcc4698` → `731b59c` → `24a83b0`; `origin/master` is `43efa1a`.
+- `HEAD` = `dev` = **`acb51ec`** (`feat: scaffold ESM app with config validation and health route`).
+  The user committed the §1 scaffold after the previous session; HEAD is one commit newer than the
+  `76584d7` recorded then. `origin/master` is `43efa1a`.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
-- `git ls-files` reports **69 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
-  one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — the §1 scaffold and its tests are untracked
-  (`package.json`, `package-lock.json`, `tsconfig.json`, `tsconfig.build.json`, `eslint.config.js`,
-  `vitest.config.ts`, `.nvmrc`, `.env.example`, `src/`, `tests/`); this session also updated
-  `TASKS.md`, `PROJECT_STATE.md`, `CHANGELOG.md`, and `ROADMAP.md`. Nothing is staged and
+- `git ls-files` reports **84 tracked files** (the 15 committed §1 files join the prior 69).
+  `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`, one record per approved decision, all 22
+  tracked.
+- Working tree: **not clean** — `src/app.ts`, `TASKS.md`, `PROJECT_STATE.md`, `CHANGELOG.md`, and
+  `ROADMAP.md` are modified; `src/db/`, `src/lib/errors.ts`, `src/middleware/`,
+  `tests/database.test.ts`, and `tests/errors.test.ts` are untracked. Nothing is staged and
   `git diff --check` reports no whitespace errors. `dist/` and `node_modules/` are ignored.
-- `node_modules` and `package-lock.json` now exist; the lockfile is version 3 and pins the exact
-  approved versions. All scaffold files are ready for the user's commit; no commit or push was made
-  in this session.
+- The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
+  in §2. All §2 files are ready for the user's commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
@@ -56,11 +56,11 @@
 
   ```bash
   git rev-parse --abbrev-ref HEAD             # -> dev
-  git rev-parse HEAD                          # -> 76584d752972995d9de4ab73b0ca2faec110de8f
+  git rev-parse HEAD                          # -> acb51ec107ddc262d2771af6dbb0cf89fee234fc
   git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
-  git rev-list --count origin/master..HEAD    # -> 7
-  git ls-files | wc -l                        # -> 69
-  git status --porcelain                       # -> 4 modified (docs), 10 untracked scaffold paths
+  git rev-list --count origin/master..HEAD    # -> 8
+  git ls-files | wc -l                        # -> 84
+  git status --porcelain                       # -> 5 modified, 5 untracked §2 paths
   git diff --check                            # -> clean (exit 0)
   ls docs/decisions/ADR-*.md | wc -l          # -> 22
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
@@ -174,20 +174,53 @@ one requires a new decision and a new ADR.
       `createApp({ db, clock, config })` with a `db: unknown` placeholder (D1), startup `PORT`/`PUBLIC_BASE_URL`
       resolution (D17, D22), and liveness-only `GET /health` (D19). 91 tests pass across 3 files;
       all four `AGENTS.md` §8.2 checks pass. No table or link route was added.
-- [ ] Database and schema implemented.
+- [x] **§2 database and shared infrastructure implemented and verified (2026-11-19)** —
+      `src/db/connection.ts` (approved pragmas, file-only WAL), `src/db/schema.ts` (verbatim D2
+      `CREATE TABLE IF NOT EXISTS`), `src/db/pragma.ts` and `src/db/id.ts` (typed helpers, no `any`),
+      `src/lib/errors.ts` (six code-specific `AppError` subclasses), and
+      `src/middleware/error-handler.ts` / `not-found.ts` (single envelope writer, `SQLITE_BUSY` →
+      generic 500 with server-side logging per D21, body-parser failures → 400 per D19). 18 new
+      tests; full gate passes with 109 tests across 5 files. No table other than `links`, no link
+      routes, and no new dependency.
 - [ ] Create-link, redirect, alias, expiration, and statistics behavior implemented.
 - [ ] Tests, API documentation, and README usage section completed.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the scaffold and documentation updates are untracked or
-   modified, not committed. The exact `git add … && git commit … && git push` command is in the
-   session report; the user must run it. This is a handoff step, not a technical failure.
+1. **Commit is pending user action** — the §2 files and documentation updates are untracked or
+   modified, not committed. The exact `git add … && git commit` command is in the session report;
+   the user must run it. This is a handoff step, not a technical failure.
+2. **Database file path is undecided** — no approved decision names a filename for
+   `openDatabase(...)`. `src/server.ts` therefore still passes the `db: null` placeholder into
+   `createApp`, and `createSchema(db)` is exercised by tests rather than at process startup. Choosing
+   a path (for example a default file or a config variable) changes runtime behavior and needs user
+   approval before the connection is wired into `server.ts`.
 
-No technical blocker is open: the `AGENTS.md` §8.2 gate passes, and the approval gate is closed
-(D1–D7 were approved on 2026-11-19). `better-sqlite3` loads on this machine, so §2 can proceed.
+No technical blocker is open for §2: the `AGENTS.md` §8.2 gate passes, all 22 decisions are
+approved, and `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+Commands run on 2026-11-19 for `TASKS.md` §2 (database and shared infrastructure), from the
+project root:
+
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+# -> typecheck: tsc -p tsconfig.json                 (exit 0)
+# -> lint:      eslint .                              (exit 0)
+# -> test:      vitest run — 5 test files passed, 109 tests passed, 688 ms
+# -> build:     tsc -p tsconfig.build.json            (exit 0)
+
+node -e "const D=require('better-sqlite3'); const db=new D(':memory:'); db.pragma('foreign_keys = ON'); db.pragma('busy_timeout = 5000'); db.pragma('synchronous = NORMAL'); console.log(db.pragma('foreign_keys',{simple:true}), db.pragma('busy_timeout',{simple:true}), db.pragma('synchronous',{simple:true}));"
+# -> 1 5000 1
+```
+
+The first gate attempt failed lint with one `@typescript-eslint/no-unused-vars` error on the
+fourth argument of the Express error middleware. Express selects error middleware by arity, so
+`void _next;` documents the intentional non-use; no rule suppression was added. The full gate was
+rerun and passed.
+
+Earlier evidence from the §1 scaffold session follows.
 
 Commands run on 2026-11-19 for `TASKS.md` §1 (scaffold), from the project root:
 
@@ -318,12 +351,12 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §1 scaffold and status updates (do
-not push until the user chooses). Then implement `TASKS.md` §2 using Prompt 04's approved persistence
-design, which needs no new decision: `src/db/connection.ts`, `src/db/pragma.ts`,
-`src/db/schema.ts`, `src/db/id.ts`, `src/modules/links/links.types.ts`, and
-`src/modules/links/links.repository.ts`, with tests for schema, connection/pragmas, and the
-repository. The scaffold's `createApp({ db, clock, config })` currently passes `db: null` from
-`src/server.ts`; §2 replaces that with the real connection. The design gate is closed — do not
-reopen an approved decision without a new ADR. After §2, work through `TASKS.md` §3–§8 and rerun the
-`AGENTS.md` §8.2 gate (`npm run typecheck && npm run lint && npm test && npm run build`).
+Run the prepared `git add … && git commit …` command to land the §2 files and status updates (do not
+push until the user chooses). Then implement `TASKS.md` §3 using Prompt 04's approved repository
+contract, which needs no new decision: `src/modules/links/links.types.ts` (`LinkRow`/`Link`) and
+`src/modules/links/links.repository.ts` (`insert`, `findByCode`, `incrementClick` with prepared
+statements, `UniqueCodeError`, no transaction). Before wiring the connection into `src/server.ts`,
+ask the user to approve a database file path; §2 deliberately left the `db: null` placeholder and
+the choice undecided. The design gate is closed — do not reopen an approved decision without a new
+ADR. After §3, work through `TASKS.md` §4–§8 and rerun the `AGENTS.md` §8.2 gate
+(`npm run typecheck && npm run lint && npm test && npm run build`).

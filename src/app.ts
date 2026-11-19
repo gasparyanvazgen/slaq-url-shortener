@@ -2,6 +2,8 @@ import express, { type Express } from 'express';
 
 import type { AppConfig } from './config.js';
 import type { Clock } from './lib/clock.js';
+import { errorHandler } from './middleware/error-handler.js';
+import { notFoundHandler } from './middleware/not-found.js';
 
 /**
  * Placeholder for the SQLite connection. §2 replaces it with the typed
@@ -30,7 +32,11 @@ const HEALTH_BODY: HealthResponse = { status: 'ok' };
 export function createApp(deps: AppDependencies): Express {
   const app = express();
 
-  // §1 exposes health only. The deps object stays in the signature (D1); later
+  // Body-parser failures must reach the shared 400 envelope, not Express's
+  // default HTML error page (D19).
+  app.use(express.json());
+
+  // §2 exposes health only. The deps object stays in the signature (D1); later
   // sections are what read the database, clock, and config.
   void deps;
 
@@ -38,6 +44,11 @@ export function createApp(deps: AppDependencies): Express {
   app.get('/health', (_req, res) => {
     res.status(200).json(HEALTH_BODY);
   });
+
+  // Static routes precede the not-found handler, which precedes the single
+  // error writer (D3).
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }

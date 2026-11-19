@@ -123,7 +123,8 @@ process, one connection, and a synchronous driver, no statement can interleave b
 ## Repository contract
 
 SQL lives behind one factory and never leaves it (D1; `AGENTS.md` §4). The module set is fixed by
-`ADR-002` and `ADR-020`; nothing in this section is implemented yet.
+`ADR-002` and `ADR-020`. As of 2026-11-19 the `connection`, `pragma`, `id`, and `schema` modules are
+implemented and tested; `links.types.ts` and `links.repository.ts` remain for `TASKS.md` §3.
 
 | File | Responsibility |
 |---|---|
