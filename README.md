@@ -1,70 +1,185 @@
-# Slaq — URL Shortener
+# Slaq
 
-Slaq is a small, backend-focused URL shortener built with Node.js, TypeScript, Express, SQLite
-(`better-sqlite3`), and Zod. It creates short links, redirects with a counted `302`, supports custom
-aliases and expiry, and exposes read-only click statistics.
+> A small, backend-focused URL shortener REST API built with Node.js, TypeScript, Express, and SQLite.
 
-The API contract is specified in [`docs/api-specification.md`](docs/api-specification.md) and
-described in machine-readable form in [`docs/openapi.yaml`](docs/openapi.yaml).
+[![Node.js](https://img.shields.io/badge/Node.js-24%20LTS-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-003B57?logo=sqlite&logoColor=white)](https://github.com/WiseLibs/better-sqlite3)
 
-## Requirements
+<!-- **Live:** [INSERT_LIVE_URL_HERE](INSERT_LIVE_URL_HERE) · **Health check:** [INSERT_LIVE_URL_HERE/health](INSERT_LIVE_URL_HERE/health) · **API docs:** [`docs/api-specification.md`](docs/api-specification.md) -->
 
-- Node.js **24 LTS** (see `.nvmrc`; `engines.node` is `^24.0.0`)
-- npm (a lockfile is committed, so use `npm ci`)
+## Table of Contents
 
-## Install and run
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing & License](#contributing--license)
 
-```bash
-npm ci                 # clean, reproducible install from package-lock.json
-npm run build          # compile to dist/
-npm start              # run the compiled server (creates ./slaq.db on first start)
+## Overview
+
+Long URLs are awkward to share, and most people also want to know whether anyone clicked them. Slaq turns a long `http`/`https` URL into a short link, redirects visitors to the original destination, and keeps a simple click count for every link.
+
+It is a single-process service with a small JSON API. Links can use a generated code or a custom alias, and they can optionally expire. Data is stored in a local SQLite file. There is no frontend.
+
+**Live demo:** [INSERT_LIVE_DEMO_URL_OR_REMOVE_THIS_LINE]
+
+## Key Features
+
+- **Short links with generated codes:** 7-character Base62 codes, with five generation attempts if a collision occurs.
+- **Custom aliases:** 3–32 characters from `A–Z a–z 0–9 _ -`, case-sensitive. `api` and `health` are reserved (case-insensitive).
+- **Redirects:** `GET /:code` answers with `302 Found` and a `Location` header.
+- **Click tracking:** every successful `GET` redirect increments the click count. `HEAD` returns the same redirect without counting.
+- **Link expiration:** optional `expiresAt`. Expired links return `410 Gone`, and no click is recorded.
+- **Statistics:** per-link click count, creation and expiry times, last click time, and an `isExpired` flag. Expired links still return statistics.
+- **Request validation:** Zod validation. Only `http:`/`https:` destinations are accepted, up to 2048 characters, with no embedded credentials or control characters.
+- **Consistent errors:** every error uses one JSON envelope with a stable error code.
+- **Fail-fast configuration:** an invalid `PORT` or `PUBLIC_BASE_URL` stops the server before it listens or opens the database.
+- **Automated tests:** Vitest with an in-memory SQLite database and an injected clock.
+- **API documentation:** a written specification and an OpenAPI 3.1 description.
+
+## Tech Stack
+
+| Area | Technology |
+|---|---|
+| Runtime | Node.js 24 LTS (native ESM) |
+| Language | TypeScript 6 (`strict`, `noUncheckedIndexedAccess`) |
+| Web framework | Express 5 |
+| Database | SQLite via `better-sqlite3` 13 |
+| Validation | Zod 4 |
+| Testing | Vitest 5, Supertest |
+| Linting | ESLint 10 (flat config, `typescript-eslint`) |
+| Dev runner | `tsx` |
+
+Versions are the ranges declared in `package.json`; the committed `package-lock.json` pins exact versions.
+
+## Project Structure
+
+```
+slaq-url-shortener/
+├── src/
+│   ├── server.ts              # Entry point: load config, open SQLite, start listening
+│   ├── app.ts                 # createApp({ db, clock, config }): middleware and routes
+│   ├── config.ts              # PORT / PUBLIC_BASE_URL / NODE_ENV resolution and validation
+│   ├── db/
+│   │   ├── connection.ts      # Opens SQLite and applies pragmas
+│   │   ├── schema.ts          # Idempotent `links` table creation
+│   │   ├── pragma.ts          # Typed pragma helper
+│   │   └── id.ts              # Typed insert-id helper
+│   ├── lib/
+│   │   ├── clock.ts           # Injectable clock
+│   │   ├── code-generator.ts  # Base62 short-code generator
+│   │   ├── errors.ts          # Typed application errors and error codes
+│   │   └── expiry.ts          # Expiry comparison logic
+│   ├── middleware/
+│   │   ├── error-handler.ts   # Single place that writes error responses
+│   │   └── not-found.ts       # 404 handler for unmatched routes
+│   └── modules/links/
+│       ├── links.routes.ts      # Route definitions
+│       ├── links.controller.ts  # HTTP boundary: validate, call service, shape response
+│       ├── links.service.ts     # Business rules: aliases, expiry, collisions
+│       ├── links.repository.ts  # SQL access (prepared statements only)
+│       ├── links.schemas.ts     # Zod request schemas
+│       └── links.types.ts       # Shared types
+├── tests/                     # Vitest unit and API integration tests
+├── docs/
+│   ├── api-specification.md   # REST API contract
+│   ├── openapi.yaml           # OpenAPI 3.1 description
+│   ├── requirements.md        # Functional and non-functional requirements
+│   ├── database-design.md     # Schema, pragmas, queries
+│   ├── security-guidelines.md
+│   ├── coding-standards.md
+│   ├── testing-strategy.md
+│   ├── architecture-proposal.md
+│   ├── decisions/             # Decision register and one ADR per decision (ADR-001…)
+│   └── ai-workflow/           # Project state, tasks, agent role cards, prompts, workflows
+├── AGENTS.md                  # Instructions for AI coding assistants
+├── CHANGELOG.md
+├── .env.example               # Example configuration
+├── .nvmrc                     # Node version (24)
+├── package.json
+├── tsconfig.json              # Type-check configuration (no emit)
+├── tsconfig.build.json        # Build configuration (emits to dist/)
+├── eslint.config.js
+└── vitest.config.ts
 ```
 
-For development with automatic reload:
+Requests flow through four layers: routes → controller → service → repository → SQLite. Only the repository contains SQL.
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js 24 LTS** (`engines.node` is `^24.0.0`; `.nvmrc` contains `24`)
+- **npm** (a lockfile is committed, so use `npm ci`)
+- A writable working directory: the SQLite file is created there
+
+### Installation
 
 ```bash
+git clone https://github.com/gasparyanvazgen/slaq-url-shortener.git
+cd slaq-url-shortener
+nvm use          # optional, if you use nvm
 npm ci
-npm run dev            # tsx watch src/server.ts
 ```
-
-The SQLite database file is fixed as `slaq.db` in the process working directory. Its schema is
-created idempotently at startup. Run the server from a writable directory if you do not want the
-database in the repository root (the file is Git-ignored).
 
 ### Configuration
 
-Configuration is read from the process environment once at startup. An invalid `PORT` or
-`PUBLIC_BASE_URL` aborts startup before the listener or database is opened.
+Configuration is read from the process environment once, at startup. **The server does not load `.env` files automatically** (there is no `dotenv` dependency), so export the variables in your shell or set them in your process manager. `.env.example` documents the same variables.
 
 | Variable | Required | Default | Rules |
 |---|---|---|---|
-| `PUBLIC_BASE_URL` | in production; optional in development | `http://localhost:${PORT}` in development | Absolute `http:`/`https:` origin only — no path, query, fragment, or credentials. Short URLs are built from this value, never from the request `Host` header. |
-| `PORT` | no | `3000` in every environment | ASCII digits only, value 1–65535; leading zeros are insignificant (`03000` → `3000`), `0000` is rejected. |
-| `NODE_ENV` | no | `development` | Any value other than `production` uses development defaults. |
-
-`.env.example` lists the same variables. **The server does not load `.env` automatically** — there
-is no `dotenv` dependency. Export the variables in your shell or set them with your process manager:
+| `PORT` | No | `3000` | ASCII digits only, value 1–65535. Leading zeros are ignored (`03000` becomes `3000`); `0` and `0000` are rejected. |
+| `PUBLIC_BASE_URL` | Required in production | `http://localhost:${PORT}` in development | Absolute `http:`/`https:` origin only: no path, query, fragment, or credentials. Short URLs are built from this value, never from the request `Host` header. |
+| `NODE_ENV` | No | `development` | Any value other than `production` uses the development defaults. |
 
 ```bash
-export PUBLIC_BASE_URL='http://localhost:3000'
 export PORT=3000
+export PUBLIC_BASE_URL='http://localhost:3000'   # use your real public origin in production
 export NODE_ENV=development
+```
+
+The database file is always `slaq.db` in the directory the server is started from (it is Git-ignored), and its schema is created automatically at startup. There is currently no setting to change its name or location, so start the server from the same directory each time.
+
+## Usage
+
+### Run the server
+
+```bash
+# Development, with automatic reload
+npm run dev
+
+# Production-style: compile, then run the compiled server
+npm run build
 npm start
 ```
 
-## API examples
-
-These examples assume `PUBLIC_BASE_URL=http://localhost:3000`.
-
-Health (liveness only — it does not check the database):
+### Run the checks
 
 ```bash
-curl -i http://localhost:3000/health
-# 200 {"status":"ok"}
+npm run typecheck   # tsc -p tsconfig.json
+npm run lint        # eslint .
+npm test            # vitest run
+npm run build       # tsc -p tsconfig.build.json
 ```
 
-Create a link. `alias` and `expiresAt` are optional; `expiresAt` must be a future ISO 8601 instant
-and is returned normalized to UTC with three fractional digits:
+Tests use an in-memory SQLite database and an injected clock, so no external service is needed.
+
+### API
+
+The examples assume `PUBLIC_BASE_URL=http://localhost:3000`.
+
+| Method | Path | Purpose | Success |
+|---|---|---|---|
+| `POST` | `/api/links` | Create a short link | `201` |
+| `GET` | `/api/links/:code/stats` | Get statistics | `200` |
+| `GET` / `HEAD` | `/:code` | Redirect to the original URL | `302` |
+| `GET` | `/health` | Liveness check (does not touch the database) | `200` |
+
+**Create a link** (`alias` and `expiresAt` are optional; `expiresAt` must be a real, future ISO 8601 instant with an offset):
 
 ```bash
 curl -i -X POST http://localhost:3000/api/links \
@@ -76,110 +191,123 @@ curl -i -X POST http://localhost:3000/api/links \
 #  "expiresAt":"2026-12-31T00:00:00.000Z","isCustom":true}
 ```
 
-A generated code needs only `url`:
+Omit `alias` to get a generated 7-character code:
 
 ```bash
 curl -i -X POST http://localhost:3000/api/links \
   -H 'Content-Type: application/json' \
-  -d '{"url":"https://example.com/very/long"}'
-# 201 with a 7-character Base62 code and "expiresAt":null
+  -d '{"url":"https://example.com/very/long/path"}'
 ```
 
-Redirect. Only `GET` increments the click count; `HEAD` returns the same status and `Location`
-without counting. An unknown code returns `404 NOT_FOUND`; an expired code returns
-`410 LINK_EXPIRED` without a write:
+**Follow a short link:**
 
 ```bash
 curl -i http://localhost:3000/my-link
-# 302 Location: https://example.com/path
+# 302, Location: https://example.com/path   (counts one click)
 curl -I http://localhost:3000/my-link
-# 302 Location: https://example.com/path  (no increment)
+# 302, same Location                         (HEAD: no click counted)
 ```
 
-Statistics are read-only, public, and sent with `Cache-Control: no-store`. Expired links still
-return `200` with `isExpired: true`:
+**Get statistics** (always sent with `Cache-Control: no-store`):
 
 ```bash
 curl -i http://localhost:3000/api/links/my-link/stats
-# 200 {"code":"my-link","shortUrl":"...","originalUrl":"https://example.com/path",
-#      "createdAt":"...","expiresAt":"...","isExpired":false,"isCustom":true,
-#      "clickCount":1,"lastClickedAt":"..."}
+# 200
+# {"code":"my-link","shortUrl":"...","originalUrl":"https://example.com/path",
+#  "createdAt":"...","expiresAt":"...","isExpired":false,"isCustom":true,
+#  "clickCount":1,"lastClickedAt":"..."}
 ```
 
-Errors use one envelope, `{ "error": { "code", "message", "details"? } }`. Validation details name
-the offending field:
+**Health check:**
 
 ```bash
-curl -i -X POST http://localhost:3000/api/links \
-  -H 'Content-Type: application/json' -d '{"url":"javascript:alert(1)"}'
-# 400 {"error":{"code":"VALIDATION_ERROR","message":"Request validation failed",
-#      "details":[{"path":"url","message":"url must be a valid http or https URL"}]}}
+curl -i http://localhost:3000/health
+# 200 {"status":"ok"}
 ```
 
-There is no deletion route: `DELETE /api/links/:code` returns `404 NOT_FOUND` (D9).
+### Errors
 
-## Verification
+Every error uses the same envelope. Validation errors also include `details`.
 
-```bash
-npm run typecheck   # tsc -p tsconfig.json
-npm run lint        # eslint .
-npm test            # vitest run
-npm run build       # tsc -p tsconfig.build.json
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "Request validation failed",
+  "details": [ { "path": "url", "message": "url must be a valid http or https URL" } ] } }
 ```
 
-The four commands are the project gate and must all pass. Tests use an in-memory SQLite database
-and an injected clock; no external service is required.
+| HTTP | `code` | When |
+|---|---|---|
+| 400 | `VALIDATION_ERROR` | Malformed body, invalid or over-long URL, invalid alias, invalid or non-future `expiresAt` |
+| 400 | `RESERVED_ALIAS` | Alias is `api` or `health` |
+| 404 | `NOT_FOUND` | Unknown code or unmatched route |
+| 409 | `ALIAS_TAKEN` | Alias already exists |
+| 410 | `LINK_EXPIRED` | The link has expired |
+| 500 | `INTERNAL_ERROR` | Unexpected failure (generic message, no internals exposed) |
 
-## Design decisions summary
+There is no endpoint to delete or edit links.
 
-All 22 decisions (D1–D22) are approved and recorded in
-[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md), one ADR each:
+The full contract is in [`docs/api-specification.md`](docs/api-specification.md), and a machine-readable description is in [`docs/openapi.yaml`](docs/openapi.yaml). You can load the OpenAPI file into any OpenAPI viewer.
 
-- **D1–D7 — architecture and behavior:** layered app with a `createApp({ db, clock, config })` deps
-  object; the `links` table with `UNIQUE(code)`; a stable route set; `302` redirects; 7-character
-  Base62 codes with five generation attempts; 3–32 character aliases with `api`/`health` reserved
-  case-insensitively; lazy expiry with `410` on redirect.
-- **D8, D9 — scope:** `supertest` is the API test harness; link deletion is explicitly out of the
-  MVP.
-- **D10–D16 — toolchain:** TypeScript 6.0.3 with `strict` and `noUncheckedIndexedAccess`, ESLint 10
-  flat config, `better-sqlite3` 13 with separate typings, Node 24 LTS, native ESM with `.js` import
-  extensions, caret ranges with a committed lockfile, and canonical UTC timestamps.
-- **D17, D18 — API contract:** `PUBLIC_BASE_URL` validation and fail-fast, `shortUrl` independent of
-  `Host`, approved bodies and headers, absolute `http:`/`https:` URLs only, 2048-character limit, no
-  embedded credentials.
-- **D19 — resolved gaps:** unknown body fields ignored, duplicate destinations not deduplicated,
-  `/health` is liveness only, body-parser failures map to `400 VALIDATION_ERROR` (never `413`).
-- **D20, D21 — reliability:** counted redirect uses one guarded `UPDATE` with no explicit
-  transaction and `HEAD` does not count; `SQLITE_BUSY` maps to a generic `500 INTERNAL_ERROR`.
-- **D22 — `PORT`:** trimmed ASCII digits, default `3000`, invalid values abort startup.
+### Known limitations
 
-## Known limitations
+- No authentication, rate limiting, or abuse detection: anyone who can reach the service can create links and read statistics.
+- Statistics are public: knowing a code reveals the destination URL, click count, and last click time.
+- A single local SQLite file and a single process, with no migration mechanism. Concurrent write contention returns a generic `500` (no retry).
+- Expired rows are kept and never cleaned up. Only aggregate click counts are stored (no per-click history).
+- `GET /health` only shows that the process is running, not that the database is reachable.
+- Behind a proxy or custom domain, set `PUBLIC_BASE_URL` explicitly, or generated short URLs will point to the wrong origin.
 
-- No authentication or authorization. Anyone who can reach the service can create links and read
-  statistics.
-- No rate limiting, abuse detection, or per-origin quotas.
-- Statistics are public: knowing a code reveals the destination URL, click count, and last click
-  time.
-- No deletion or update of links (D9). Expired rows are retained and there is no cleanup job, so the
-  table grows without bound.
-- A single local SQLite file and a single process: no shared database, horizontal scaling, or
-  migration mechanism. Concurrent writes can contend (`SQLITE_BUSY` returns `500`, no retry).
-- Only aggregate click data is stored — no per-click history, referrer, or user agent.
-- `GET /health` is process liveness only; a `200` does not prove the database is reachable.
-- Short URLs come from `PUBLIC_BASE_URL`, not the request `Host` header. Behind a proxy or custom
-  domain, configure `PUBLIC_BASE_URL` explicitly or links will point to the wrong origin.
-- The server does not read `.env` files automatically.
+## Contributing & License
 
-## Future work
+### Contributing
 
-Deferred unless explicitly approved: rate limiting and abuse prevention, authentication and
-user-owned links, per-click analytics history, a migration mechanism and multi-process deployment,
-operational monitoring, a frontend dashboard, Docker packaging, and QR codes. Link deletion would
-require a new decision superseding D9.
+Contributions are welcome. Please keep changes small and focused, and make sure the checks pass before opening a pull request.
 
-## Project documentation
+1. **Fork** the repository and clone your fork.
+2. **Create a branch** from `dev`: `git checkout -b feat/short-description`.
+3. **Install dependencies:** `npm ci`.
+4. **Make your change**, adding or updating tests for any behavior change.
+5. **Run all checks and make sure they pass:**
+   ```bash
+   npm run typecheck && npm run lint && npm test && npm run build
+   ```
+6. **Update documentation** if behavior or the API changes (`README.md`, `docs/api-specification.md`, `docs/openapi.yaml`, `CHANGELOG.md`).
+7. **Commit** using the message convention below.
+8. **Push** your branch and open a **pull request** against `dev`, describing what changed and why.
 
-The repository also carries the portable AI execution framework used to build Slaq: `AGENTS.md`
-and, under `docs/ai-workflow/`, `PROJECT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`,
-`agents/` (role cards), `prompts/`, `workflows/`, and `templates/`. Requirements, security
-guidance, coding standards, testing strategy, research findings, and ADRs are under `docs/`.
+Do not add dependencies or change approved design decisions (see `docs/decisions/`) without discussing it in an issue first. Never commit `.env` files or secrets.
+
+#### Commit message convention
+
+All commit messages must strictly follow the `type:message` format, with **no space after the colon**.
+
+```
+type:message
+```
+
+Examples:
+
+```
+feat:add feature
+fix:resolve bug
+docs:update readme
+```
+
+Common types:
+
+| Type | Use for |
+|---|---|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | Documentation-only changes |
+| `style` | Formatting changes with no code behavior change |
+| `refactor` | Code changes that neither fix a bug nor add a feature |
+| `perf` | Performance improvements |
+| `test` | Adding or updating tests |
+| `build` | Build system or dependency changes |
+| `ci` | CI configuration changes |
+| `chore` | Maintenance tasks and tooling |
+| `revert` | Reverting a previous commit |
+
+### License
+
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Vazgen Gasparyan.
