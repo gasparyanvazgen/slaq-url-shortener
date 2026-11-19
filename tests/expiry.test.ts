@@ -57,4 +57,47 @@ describe('expiresAt input normalization (D15)', () => {
       ).toBe(false);
     },
   );
+
+  it.each([
+    '2026-02-29T00:00:00Z',
+    '2026-02-30T00:00:00Z',
+    '2026-02-31T00:00:00Z',
+    '2026-04-31T00:00:00Z',
+    '2026-01-00T00:00:00Z',
+    '2026-13-01T00:00:00Z',
+    '2026-01-01T25:00:00Z',
+    '2026-01-01T00:60:00Z',
+    '2026-01-01T00:00:60Z',
+    '2026-02-30T00:00:00+02:00',
+    '2027-02-30T00:00:00-05:00',
+    '1900-02-29T00:00:00Z',
+  ])('rejects the impossible calendar date %s', (value) => {
+    expect(
+      createLinkSchema.safeParse({ url: 'https://example.com', expiresAt: value }).success,
+    ).toBe(false);
+  });
+
+  it('accepts a real leap day and keeps canonical UTC normalization', () => {
+    const parsed = createLinkSchema.safeParse({
+      url: 'https://example.com',
+      expiresAt: '2024-02-29T00:00:00Z',
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.expiresAt).toBe('2024-02-29T00:00:00.000Z');
+    }
+  });
+
+  it('accepts a valid negative offset without changing the instant', () => {
+    const parsed = createLinkSchema.safeParse({
+      url: 'https://example.com',
+      expiresAt: '2026-11-20T23:00:00-05:00',
+    });
+
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.expiresAt).toBe('2026-11-21T04:00:00.000Z');
+    }
+  });
 });

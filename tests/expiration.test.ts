@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { DatabaseHandle } from '../src/db/connection.js';
 import { createLinkRepository } from '../src/modules/links/links.repository.js';
@@ -236,5 +236,27 @@ describe('eleven expiration-boundary cases (§6)', () => {
     expect(activeStats.isExpired).toBe(false);
     expect(expiredStats.isExpired).toBe(true);
     expect(expiredStats.clickCount).toBe(0);
+  });
+});
+
+describe('expiration input validation (D15)', () => {
+  let context: TestApp;
+
+  beforeEach(() => {
+    context = createTestApp();
+  });
+
+  afterEach(() => {
+    context.close();
+  });
+
+  it('rejects a future but impossible calendar date with 400 and inserts nothing', async () => {
+    const response = await request(context.app)
+      .post('/api/links')
+      .send({ url: DESTINATION, expiresAt: '2027-02-30T00:00:00Z' });
+
+    expect(response.status).toBe(400);
+    expect((response.body as ErrorBody).error.code).toBe('VALIDATION_ERROR');
+    expect(rowCount(context.db)).toBe(0);
   });
 });

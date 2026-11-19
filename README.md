@@ -169,10 +169,6 @@ All 22 decisions (D1–D22) are approved and recorded in
 - Short URLs come from `PUBLIC_BASE_URL`, not the request `Host` header. Behind a proxy or custom
   domain, configure `PUBLIC_BASE_URL` explicitly or links will point to the wrong origin.
 - The server does not read `.env` files automatically.
-- Known implementation gaps awaiting approval (not contract changes): a destination containing
-  control characters is accepted at creation but fails on redirect with a generic `500`; an
-  impossible calendar date in `expiresAt` is silently normalized by `Date`; `404` statistics
-  responses omit `Cache-Control: no-store`.
 
 ## Future work
 

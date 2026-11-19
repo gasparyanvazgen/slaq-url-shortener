@@ -67,6 +67,8 @@ export function createLinksController(deps: LinksControllerDependencies): LinksC
 
     stats(req, res, next) {
       try {
+        // Click counts change between reads, so every stats response is never cached (D17).
+        res.setHeader('Cache-Control', 'no-store');
         const rawCode = req.params.code;
         const code = typeof rawCode === 'string' ? rawCode : '';
         const data = deps.service.getStats(code);
@@ -81,8 +83,6 @@ export function createLinksController(deps: LinksControllerDependencies): LinksC
           clickCount: data.clickCount,
           lastClickedAt: data.lastClickedAt,
         };
-        // Click counts change between reads, so this response is never cached (D17).
-        res.setHeader('Cache-Control', 'no-store');
         res.status(200).json(body);
       } catch (error: unknown) {
         next(error);

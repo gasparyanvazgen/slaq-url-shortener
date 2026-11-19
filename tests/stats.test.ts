@@ -68,6 +68,13 @@ describe('GET /api/links/:code/stats (§7)', () => {
     expect((response.body as ErrorBody).error.code).toBe('NOT_FOUND');
   });
 
+  it('also sets Cache-Control: no-store on a 404 statistics response', async () => {
+    const response = await request(context.app).get('/api/links/not-there/stats');
+
+    expect(response.status).toBe(404);
+    expect(response.headers['cache-control']).toBe('no-store');
+  });
+
   it('reports isCustom=false for a generated code', async () => {
     const code = await create();
 

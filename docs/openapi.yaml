@@ -86,9 +86,8 @@ paths:
       tags: [Links]
       summary: Read link statistics
       description: >-
-        Read-only. Successful responses carry Cache-Control: no-store because click counts
-        change; expired links still return 200 with isExpired true. A 404 error response
-        currently omits that header (a known implementation gap, not a contract change).
+        Read-only. Every statistics response, including 404, carries Cache-Control: no-store
+        because click counts change; expired links still return 200 with isExpired true.
       parameters:
         - $ref: '#/components/parameters/Code'
       responses:
@@ -99,7 +98,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatsResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/StatsNotFound'
 
   /{code}:
     parameters:
@@ -189,6 +188,21 @@ components:
             error:
               code: NOT_FOUND
               message: Resource not found
+    StatsNotFound:
+      description: Unknown statistics code; still not cacheable.
+      headers:
+        Cache-Control:
+          description: Click counts change, so even this error response is never cached.
+          schema:
+            const: no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
     LinkExpired:
       description: The code exists but expiresAt is at or before the current time. No click is recorded.
       content:
@@ -228,7 +242,7 @@ components:
           type: string
           format: uri
           maxLength: 2048
-          description: 'Absolute http: or https: URL after trim; no embedded credentials.'
+          description: 'Absolute http: or https: URL; after trim, no embedded credentials or control characters.'
         alias:
           type: string
           pattern: '^[A-Za-z0-9_-]{3,32}$'
@@ -236,7 +250,7 @@ components:
         expiresAt:
           type: string
           format: date-time
-          description: ISO 8601 instant with an explicit offset, strictly in the future.
+          description: 'ISO 8601 instant with an explicit offset and a real calendar date, strictly in the future.'
 
     CreateLinkResponse:
       type: object

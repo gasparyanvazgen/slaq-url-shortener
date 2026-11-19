@@ -1,20 +1,20 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (`TASKS.md` §§1–8 complete; §§1–7 committed locally as `5148145`,
-> §8 docs and coverage tests verified but not yet committed; no push).
+> **Last rewritten:** 2026-11-19 (`TASKS.md` §§1–9 complete; §§1–8 committed locally through
+> `f5d5a2e`; §9 approved fixes verified but not yet committed; no push).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation and operations are complete. `TASKS.md` §1–§8 are
-  complete and verified; the only remaining step is committing the §8 docs/tests and choosing whether
-  to push.
+- **Current phase:** Phase 5 — implementation and operations are complete. `TASKS.md` §1–§9 are
+  complete and verified; the only remaining step is committing the §9 fixes and choosing whether to
+  push.
 - **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`,
-  and §§4–7 as `5148145`. §8 added documentation and acceptance-coverage tests only: `README.md`,
-  `docs/api-specification.md`, `docs/openapi.yaml`, and `tests/acceptance-gaps.test.ts`. No
-  production code, table, index, dependency, or decision changed in §8.
+  §§4–7 as `5148145`, and §8 as `f5d5a2e`. §9 applies the three user-approved review fixes in
+  `links.schemas.ts` and `links.controller.ts` with tests in four existing test files. No table,
+  index, dependency, or decision changed in §§8–9.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -23,32 +23,33 @@
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
   proposal
-- **Last verified test run:** 2026-11-19 (after `rm -rf node_modules && npm ci`) — `npm run
-  typecheck && npm run lint && npm test && npm run build`: all four pass; 15 test files, 217 tests,
-  1.32 s. `npm ci` blocked the `better-sqlite3`/`esbuild` install scripts under this environment's
-  allowScripts policy, but the native driver loaded and the full suite passed.
-- **Current timebox:** approximately five hours for the MVP; all core routes, documentation, and
-  final limitations are done. Unapproved review findings (control characters in a destination,
-  impossible `expiresAt` calendar dates, and the `404` statistics `Cache-Control` gap) remain open
-  deliberately; no production fix was applied.
+- **Last verified test run:** 2026-11-19 (after §9) — `npm run typecheck && npm run lint && npm test
+  && npm run build`: all four pass; 15 test files, 238 tests, 713 ms. The earlier clean-install run
+  (`rm -rf node_modules && npm ci`) passed all four with 217 tests in 1.32 s; `npm ci` blocked the
+  `better-sqlite3`/`esbuild` install scripts under this environment's allowScripts policy, but the
+  driver loaded and the suite passed.
+- **Current timebox:** approximately five hours for the MVP; all core routes, documentation, and the
+  three user-approved review fixes are done. No approved finding remains open.
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
 - Branch: **`dev`** (checked out), tracking `origin/dev` and **in sync with it** — `git status -sb`
-  shows `## dev...origin/dev` with no ahead/behind count. `HEAD` = `origin/dev` = **`5148145`**
-  (`feat: add redirects, aliases, expiration, and statistics`). The branch is 11 commits ahead of
-  `origin/master` (`43efa1a`); local `master` (`c804101`) is one commit behind `origin/master`.
+  shows `## dev...origin/dev` with no ahead/behind count. `HEAD` = `origin/dev` = **`f5d5a2e`**
+  (`docs: verify API examples, add README and OpenAPI, close acceptance gaps`) after the previous
+  session. The branch is 12 commits ahead of `origin/master`
+  (`43efa1a`); local `master` (`c804101`) is one commit behind `origin/master`.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
 - `git ls-files` reports **111 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
   one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — `README.md` and `docs/api-specification.md` are modified;
-  `docs/openapi.yaml` and `tests/acceptance-gaps.test.ts` are untracked. Nothing is staged and
+- Working tree: **not clean** — `src/modules/links/links.schemas.ts`,
+  `src/modules/links/links.controller.ts`, four test files, `README.md`, `docs/api-specification.md`,
+  `docs/openapi.yaml`, `TASKS.md`, `CHANGELOG.md`, and this file are modified. Nothing is staged and
   `git diff --check` reports no whitespace errors. `dist/`, `node_modules/`, and `*.db` files are
-  ignored. The §§4–7 work is already committed in `5148145`.
+  ignored. §§1–8 are committed through `f5d5a2e`.
 - The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
-  in §§4–8. A clean `npm ci` succeeded on 2026-11-19. The §8 docs/tests are ready for the user's
-  commit; no commit or push was made in this session.
+  in §§4–9. A clean `npm ci` succeeded on 2026-11-19. The §9 fixes and status updates are ready for
+  the user's commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
@@ -60,12 +61,12 @@
 
   ```bash
   git status -sb                              # -> ## dev...origin/dev (no ahead/behind)
-  git rev-parse HEAD                          # -> 51481450289f87653ed3c5b0d69bd4c37062f100
-  git rev-parse origin/dev                    # -> 51481450289f87653ed3c5b0d69bd4c37062f100
+  git rev-parse HEAD                          # -> f5d5a2e97ba45ff137ab906ecd8466f354dc4c91
+  git rev-parse origin/dev                    # -> f5d5a2e
   git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
-  git rev-list --count origin/master..HEAD    # -> 11
-  git ls-files | wc -l                        # -> 111
-  git status --porcelain                       # -> 2 modified + 2 untracked §8 paths
+  git rev-list --count origin/master..HEAD    # -> 12
+  git ls-files | wc -l                        # -> 111 (plus no new files in §9)
+  git status --porcelain                       # -> 11 modified §9 paths, nothing staged
   git diff --check                            # -> clean (exit 0)
   ls docs/decisions/ADR-*.md | wc -l          # -> 22
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
@@ -210,25 +211,61 @@ one requires a new decision and a new ADR.
       mismatches were corrected; `docs/openapi.yaml` was added without a dependency; `README.md`
       now documents setup, usage, decisions, limitations, and future work; 13 coverage tests were
       added in `tests/acceptance-gaps.test.ts`. Production code was not changed.
+- [x] **§8 committed** — the user committed the docs, coverage tests, and status updates as
+      `f5d5a2e`; `origin/dev` now points at the same commit.
+- [x] **§9 approved review fixes completed (2026-11-19)** — all three findings were written as
+      failing tests first, then fixed in `links.schemas.ts` and `links.controller.ts`: control
+      characters in a destination now return `400 VALIDATION_ERROR`, impossible `expiresAt` calendar
+      dates are rejected while UTC normalization is preserved, and `404` statistics responses carry
+      `Cache-Control: no-store`. Docs and task status were synchronized; the full gate passes with
+      238 tests in 15 files.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the §8 documentation, coverage tests, and status updates are
-   modified/untracked. The exact `git add … && git commit` command is in the session report; the
+1. **Commit is pending user action** — the §9 fixes, tests, and status updates are modified but not
+   staged or committed. The exact `git add … && git commit` command is in the session report; the
    user must run it. This is a handoff step, not a technical failure.
 2. **Push is a user decision** — `dev` is in sync with `origin/dev`; nothing was pushed in this
    session.
-3. **Three review findings remain open deliberately** — control characters in a destination cause
-   a `500` on redirect, impossible calendar dates in `expiresAt` are silently normalized, and `404`
-   statistics responses omit `Cache-Control: no-store`. All are documented; none was fixed because
-   fixes need user approval and §§4–7 are committed.
 
-No technical blocker is open for §§4–8: the §4 dependency was resolved by the user (implement §4
+No review finding remains open: all three were approved by the user and fixed in §9.
+
+No technical blocker is open for §§4–9: the §4 dependency was resolved by the user (implement §4
 first), the stale AC-02.3 alias line was resolved by the user (case-insensitive reserved names), the
-expiry/stats split was resolved by the user (minimal stats in §6), the `AGENTS.md` §8.2 gate passes
-after a clean install, all 22 decisions are approved, and `better-sqlite3` loads on this machine.
+expiry/stats split was resolved by the user (minimal stats in §6), the three review findings were
+approved and fixed in §9, the `AGENTS.md` §8.2 gate passes after a clean install and after §9, all 22
+decisions are approved, and `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+### §9 approved fixes: red-first evidence and final gate (2026-11-19)
+
+Each test was run before its fix and observed failing:
+
+```bash
+npx vitest run tests/create-link.test.ts -t 'control character'
+# -> 5 failed: expected 201 to be 400
+
+npx vitest run tests/expiry.test.ts tests/expiration.test.ts
+# -> 5 failed: schema accepted impossible dates; one API case not yet isolated
+
+npx vitest run tests/expiration.test.ts -t 'impossible calendar date'
+# -> 1 failed: expected 201 to be 400 (2027-02-30, impossible but future)
+
+npx vitest run tests/stats.test.ts -t '404 statistics response'
+# -> 1 failed: expected undefined to be 'no-store'
+```
+
+Final gate after fixing the lint error (`no-control-regex` rejected a literal control-character
+regex, replaced by an explicit `charCodeAt` check) and self-review cleanup:
+
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+# -> typecheck:  tsc -p tsconfig.json                 (exit 0)
+# -> lint:       eslint .                              (exit 0)
+# -> test:       vitest run — 15 test files passed, 238 tests passed, 713 ms (final run)
+# -> build:      tsc -p tsconfig.build.json            (exit 0)
+```
 
 ### §8 clean-install gate and live API verification (2026-11-19)
 
@@ -438,10 +475,7 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §8 docs, coverage tests, and status
-updates (do not push until the user chooses; `dev` currently matches `origin/dev`). Then decide
-whether to approve the three documented code fixes from the review — reject control characters in
-destination URLs, validate `expiresAt` calendar dates strictly, and add `Cache-Control: no-store` to
-`404` statistics responses. Any approved fix requires its own test and a fresh
-`npm run typecheck && npm run lint && npm test && npm run build` run before commit. The design gate
-is closed — do not reopen an approved decision without a new ADR.
+Run the prepared `git add … && git commit …` command to land the §9 fixes, tests, documentation, and
+status updates (do not push until the user chooses; `dev` currently matches `origin/dev`). All three
+review findings are fixed and the full gate passes. The design gate is closed — do not reopen an
+approved decision without a new ADR.

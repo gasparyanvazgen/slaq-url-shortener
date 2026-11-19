@@ -101,7 +101,7 @@ this file as work progresses. Decision IDs refer to
 
 ## MVP implementation
 
-### 1. Scaffold (complete; commit pending user action)
+### 1. Scaffold (complete — committed as `acb51ec`)
 - [x] Initialize the npm project with `"type": "module"`. — `package.json`, `slaq@0.1.0`,
       2026-11-19.
 - [x] Add `.nvmrc` (`24`) and `"engines": { "node": "^24.0.0" }`. — Verified under Node v24.22.1 /
@@ -119,9 +119,8 @@ this file as work progresses. Decision IDs refer to
 - [x] Configure Vitest. — `vitest.config.ts`, node environment, `tests/**/*.test.ts`.
 - [x] Add scripts `typecheck`, `lint`, `test`, `build`, `dev`, `start`. — All present in
       `package.json`.
-- [x] Commit the lockfile. — `package-lock.json` generated (lockfileVersion 3) with the approved
-      versions and included in the prepared `git add` command; the commit itself is for the user to
-      run.
+- [x] Commit the lockfile. — `package-lock.json` (lockfileVersion 3) with the approved versions was
+      committed with §1 as `acb51ec`.
 - [x] Create the Express app factory and server entry point. — `src/app.ts` exports
       `createApp({ db, clock, config })` with `db: unknown` placeholder (D1); `src/server.ts`
       resolves config, logs and exits 1 before `listen` on failure.
@@ -134,7 +133,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Verify typecheck, lint, and the health test. — `npm run typecheck && npm run lint &&
       npm test && npm run build` all pass: 3 test files, 91 tests, 473 ms.
 
-### 2. Database and shared infrastructure (complete; commit pending user action)
+### 2. Database and shared infrastructure (complete — committed as `93dd0f8`)
 - [x] Create the SQLite connection. — `src/db/connection.ts` `openDatabase(filename)`; WAL is
       requested only for file databases.
 - [x] Apply approved pragmas and document the rationale. — `foreign_keys = ON`,
@@ -247,9 +246,26 @@ this file as work progresses. Decision IDs refer to
       parses cleanly and needs no new dependency.
 - [x] Review the Git diff and repository status. — `git diff --check` clean; no `.db` or secret file
       staged or created.
-- [x] Record known limitations and future work. — README "Known limitations" and "Future work",
-      plus the documented `404` statistics `Cache-Control` gap in `docs/api-specification.md` and
-      `PROJECT_STATE.md`; no production code was changed in §8.
+- [x] Record known limitations and future work. — README "Known limitations" and "Future work";
+      the three documented gaps were approved and fixed in §9, so they are no longer listed as
+      limitations. No production code was changed in §8.
+
+### 9. Approved review fixes (complete)
+- [x] Reject destinations containing ASCII control characters. — `links.schemas.ts` rejects them at
+      the HTTP boundary; five API tests in `tests/create-link.test.ts` confirm `400 VALIDATION_ERROR`
+      with a `url` detail and no inserted row. Stays within D18; no new decision.
+- [x] Validate `expiresAt` calendar dates strictly. — `links.schemas.ts` shifts the parsed instant
+      back into the submitted offset and requires every submitted component to match, so impossible
+      dates are rejected while canonical UTC normalization, offsets, and fractional digits remain.
+      Twelve schema cases in `tests/expiry.test.ts` plus an API test in `tests/expiration.test.ts`
+      pass; real leap days and negative offsets remain accepted (D15).
+- [x] Send `Cache-Control: no-store` on every statistics response. — the header is set before the
+      service call in `links.controller.ts`, so `404` responses carry it too; new assertion in
+      `tests/stats.test.ts` (D17).
+- Tests were written first: the five control-character cases returned `201`, five impossible-date
+      cases were accepted by the schema, the impossible-future API case returned `201`, and the 404
+      statistics header was `undefined`. Each failed before the fix and passes after it. Full gate
+      evidence is in `PROJECT_STATE.md`.
 
 ## Deferred unless time remains
 

@@ -117,6 +117,24 @@ describe('POST /api/links', () => {
     expect(rowCount(context.db)).toBe(0);
   });
 
+  it.each([
+    ['CRLF', 'https://example.com/a\r\nX-Injected: 1'],
+    ['newline', 'https://example.com/a\nb'],
+    ['NUL', 'https://example.com/a\u0000b'],
+    ['DEL', 'https://example.com/a\u007fb'],
+    ['tab', 'https://example.com/a\tb'],
+  ])('rejects a destination containing a %s control character', async (_label, url) => {
+    const response = await request(context.app).post('/api/links').send({ url });
+
+    expect(response.status).toBe(400);
+    expect(errorOf(response).error.code).toBe('VALIDATION_ERROR');
+    expect(errorOf(response).error.details).toContainEqual({
+      path: 'url',
+      message: 'url must be a valid http or https URL',
+    });
+    expect(rowCount(context.db)).toBe(0);
+  });
+
   // Alias and expiry validation belong to TASKS.md §§5–6; §3 validates `url`.
   it.each([
     ['missing url', {}],

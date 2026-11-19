@@ -3,9 +3,22 @@ import { z } from 'zod';
 const MAX_URL_LENGTH = 2048;
 const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
 const URL_MESSAGE = 'url must be a valid http or https URL';
+/** ASCII control characters are invalid in a stored destination and in a Location header value (D18). */
+function hasControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /** D18: validate the submitted URL without normalizing what gets stored. */
 function isAllowedDestination(value: string): boolean {
+  if (hasControlCharacter(value)) {
+    return false;
+  }
   let parsed: URL;
   try {
     parsed = new URL(value);
@@ -45,13 +58,49 @@ const alias = z
 
 const EXPIRES_MESSAGE = 'expiresAt must be an ISO 8601 instant with an offset';
 /** An explicit Z or +/-HH:MM offset is required; any fractional length is fine. */
-const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+const ISO_INSTANT =
+  /^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})T(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})(?:\.(?<fraction>\d+))?(?:Z|(?<sign>[+-])(?<offsetHour>\d{2}):(?<offsetMinute>\d{2}))$/;
 
-/** D15: validate the instant's shape, then normalize to canonical UTC text. */
+/**
+ * `Date` rolls impossible dates such as 2026-02-30 into the next month. Shift the parsed
+ * instant back into the submitted offset and require every submitted component to match,
+ * while still letting Date normalize fractional digits and produce canonical UTC text (D15).
+ */
+function isRealInstant(value: string): boolean {
+  const match = ISO_INSTANT.exec(value);
+  if (match?.groups === undefined) {
+    return false;
+  }
+  const groups = match.groups;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  const offsetHour = Number(groups.offsetHour ?? '0');
+  const offsetMinute = Number(groups.offsetMinute ?? '0');
+  if (offsetHour > 23 || offsetMinute > 59) {
+    return false;
+  }
+  const offsetMs = (groups.sign === '-' ? -1 : 1) * (offsetHour * 60 + offsetMinute) * 60_000;
+  const local = new Date(parsed.getTime() + offsetMs);
+
+  return (
+    local.getUTCFullYear() === Number(groups.year) &&
+    local.getUTCMonth() + 1 === Number(groups.month) &&
+    local.getUTCDate() === Number(groups.day) &&
+    local.getUTCHours() === Number(groups.hour) &&
+    local.getUTCMinutes() === Number(groups.minute) &&
+    local.getUTCSeconds() === Number(groups.second) &&
+    local.getUTCMilliseconds() === Number(`${groups.fraction ?? ''}000`.slice(0, 3))
+  );
+}
+
+/** D15: validate the instant's shape and calendar, then normalize to canonical UTC text. */
 const instant = z
   .string()
   .regex(ISO_INSTANT, EXPIRES_MESSAGE)
-  .refine((value) => !Number.isNaN(new Date(value).getTime()), EXPIRES_MESSAGE)
+  .refine(isRealInstant, EXPIRES_MESSAGE)
   .transform((value) => new Date(value).toISOString());
 
 /**

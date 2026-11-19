@@ -33,14 +33,17 @@ never built from the request `Host` header.
 
 | Field | Required | Rules |
 |---|---|---|
-| `url` | yes | Absolute `http:`/`https:` URL, ≤ 2048 characters after trim, no embedded credentials. |
+| `url` | yes | Absolute `http:`/`https:` URL, ≤ 2048 characters after trim, no embedded credentials, no ASCII control characters after trim. |
 | `alias` | no | 3–32 characters, `[A-Za-z0-9_-]`, case-sensitive, not `api` or `health` (compared case-insensitively), not already used. |
-| `expiresAt` | no | ISO 8601 with offset; normalized to UTC `Z`; must be strictly in the future. |
+| `expiresAt` | no | ISO 8601 with offset and a real calendar date; normalized to UTC `Z`; must be strictly in the future. |
 
 `expiresAt` is normalized by `new Date(value).toISOString()`, so the response always has exactly
 three fractional digits: the example input `2026-12-31T00:00:00Z` returns
 `2026-12-31T00:00:00.000Z`. The same rule applies to a supplied offset or a different fractional
-precision.
+precision. The submitted date, time, and offset components must describe a real instant: values
+such as `2026-02-30T00:00:00Z` and `1900-02-29T00:00:00Z` are rejected rather than rolled into a
+different date by `Date`. A destination containing an ASCII control character (including CRLF) is
+rejected at creation so that the stored value can always be sent in a `Location` header.
 
 Field handling (approved D19): unknown body fields are ignored and never stored — only `url`,
 `alias`, and `expiresAt` are read. A destination that already exists is **not** deduplicated, so
@@ -126,7 +129,7 @@ only for `400` validation failures.
 
 | HTTP | `error.code` | When |
 |---|---|---|
-| 400 | `VALIDATION_ERROR` | malformed or oversized body, bad URL, over-long URL, invalid alias, non-future expiry |
+| 400 | `VALIDATION_ERROR` | malformed or oversized body, bad URL (including control characters), over-long URL, invalid alias, impossible or non-future expiry |
 | 400 | `RESERVED_ALIAS` | alias equals `api` or `health` |
 | 404 | `NOT_FOUND` | unknown code, or any unmatched route |
 | 409 | `ALIAS_TAKEN` | alias already exists |
@@ -137,9 +140,8 @@ only for `400` validation failures.
 
 - `Content-Type: application/json; charset=utf-8` on JSON responses.
 - `Location` on `201` (short URL) and `302` (destination).
-- `Cache-Control: no-store` on successful statistics responses, because click counts change.
-  A `404` statistics response currently omits this header; that is a known implementation gap
-  tracked in `PROJECT_STATE.md`, not an approved contract change.
+- `Cache-Control: no-store` on every statistics response, including `404`, because click counts
+  change.
 - No `Cache-Control` override on the redirect beyond Express defaults.
 
 ## Decision status

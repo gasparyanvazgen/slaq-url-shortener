@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### 2026-11-19 — §9 approved review fixes implemented
+
+The user approved all three findings from the code review; each boundary fix is limited to the
+already-approved D18, D15, and D17 contracts. No dependency or decision changed.
+
+- **Control characters in destinations:** `links.schemas.ts` now rejects ASCII control characters
+  (`U+0000`–`U+001F`, `U+007F`) after trimming, so a destination that passes validation can always be
+  sent as a `Location` header value (D18). Five new API tests in `tests/create-link.test.ts` cover
+  CRLF, newline, NUL, DEL, and tab.
+- **Strict expiry calendar dates:** `links.schemas.ts` shifts the parsed instant into the submitted
+  offset and requires the year, month, day, hour, minute, second, and millisecond to match the input,
+  so `Date` no longer rolls `2026-02-30` or `1900-02-29` into another date. Canonical UTC
+  normalization, arbitrary fractional precision, explicit offsets, real leap days, and negative
+  offsets are preserved (D15). Twelve rejecting schema cases in `tests/expiry.test.ts`, two accepting
+  cases, and one `400`/no-row API case in `tests/expiration.test.ts` were added.
+- **Statistics cache header:** `links.controller.ts` sets `Cache-Control: no-store` before the
+  lookup, so `404` statistics responses carry it as well as `200` ones (D17). New assertion in
+  `tests/stats.test.ts`.
+- Each test was observed failing before its fix (five `201` responses for control characters, five
+  accepted impossible schema dates, one `201` for an impossible future date, and an absent
+  `Cache-Control` on `404`) and passing afterwards.
+- Documentation synchronized: `README.md` known limitations, `docs/api-specification.md`,
+  `docs/openapi.yaml`, `TASKS.md` (including the stale §1/§2 "commit pending" labels, now recorded
+  as `acb51ec`/`93dd0f8`), `PROJECT_STATE.md`, and this changelog.
+
 ### 2026-11-19 — §8 final quality and documentation verified
 
 - Verified every request/response example in `docs/api-specification.md` by starting the compiled
