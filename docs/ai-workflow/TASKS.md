@@ -2,7 +2,7 @@
 
 Use `[ ]` pending, `[x]` completed with evidence, and `[-]` deferred. Keep tasks small and update
 this file as work progresses. Decision IDs refer to
-[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
+[`docs/decisions/DECISION-REGISTER.md`](../decisions/DECISION-REGISTER.md).
 
 ## Gate 0 — Research and decision approval
 
@@ -11,9 +11,9 @@ this file as work progresses. Decision IDs refer to
 - [x] Inspect the repository and Git status. — 2026-11-18: baseline commit `b01087c`, clean tree,
       44 tracked files, no remote, documentation-only.
 - [x] Complete Prompt 00 session review and record the stale-state corrections. — Evidence:
-      `PROJECT_STATE.md` → Repository and Git status.
+      `docs/ai-workflow/PROJECT_STATE.md` → Repository and Git status.
 - [x] Complete Prompt 01 technical research and re-verify versions against the npm registry. —
-      Evidence: `docs/research-findings.md`.
+      Evidence: `docs/ai-workflow/research-findings.md`.
 - [x] Consolidate D1–D18 into a single register with no duplicate records. — Evidence:
       `docs/decisions/DECISION-REGISTER.md`.
 - [x] Audit and synchronize project documentation with the findings. — Evidence: `CHANGELOG.md`
@@ -95,7 +95,7 @@ this file as work progresses. Decision IDs refer to
       Host-injection regression test. — Evidence: `docs/testing-strategy.md`, status Approved. No
       test has been executed; there is no npm project yet.
 - [x] Review the approved architecture for MVP fit (Prompt 03). — Evidence:
-      `docs/architecture-review.md`, 2026-11-19. The layers, module, factory, schema, routes, and
+      `docs/ai-workflow/architecture-review.md`, 2026-11-19. The layers, module, factory, schema, routes, and
       dependencies were recommended unchanged; the user approved **D20**/**`D21`** (`ADR-020`,
       `ADR-021`) and corrections **C-1 … C-3**, which are applied across the design documents.
 
@@ -111,7 +111,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Add dev deps (TypeScript 6.0.3, ESLint 10.15.0 / `@eslint/js` 10.0.1 /
       `typescript-eslint` 8.73.0 / `globals` 17.14.0, `@types/*`, `tsx` 4.23.15, `vitest` 5.1.1,
       `supertest` 7.3.2 — approved D8). — All 15 installed versions match
-      `docs/research-findings.md` §2 exactly.
+      `docs/ai-workflow/research-findings.md` §2 exactly.
 - [x] Configure `tsconfig.json` (no emit) and `tsconfig.build.json` (emit to `dist/`). — ADR-010
       options; `tsc -p` passes for both configs.
 - [x] Configure ESLint flat config with type-aware rules. — `eslint.config.js` per ADR-011;
@@ -265,7 +265,23 @@ this file as work progresses. Decision IDs refer to
 - Tests were written first: the five control-character cases returned `201`, five impossible-date
       cases were accepted by the schema, the impossible-future API case returned `201`, and the 404
       statistics header was `undefined`. Each failed before the fix and passes after it. Full gate
-      evidence is in `PROJECT_STATE.md`.
+      evidence is in `docs/ai-workflow/PROJECT_STATE.md`.
+
+### 10. Repository tidy-up (complete)
+- [x] Move the workflow sources into `docs/ai-workflow/` with `git mv` (history preserved):
+      `PROJECT.md`, `PROJECT_STATE.md`, `TASKS.md`, `ROADMAP.md`, `agents/`, `prompts/`, `workflows/`,
+      `templates/`, `research-findings.md`, `architecture-review.md`,
+      `ai_execution_framework_original.md`, and `original-framework-notes.md`.
+- [x] Update every internal reference. — `AGENTS.md`, `README.md`, `CHANGELOG.md`, all `docs/`
+      files, the moved workflow files, and one test comment now use the new paths; Markdown link
+      destinations were recomputed relative to each file's new directory.
+- [x] Keep the root layout. — `README.md`, `CHANGELOG.md`, `AGENTS.md`, config files, `src/`, and
+      `tests/` remain at the root. No file was deleted; no `LICENSE` file exists in this repository.
+- [x] Verify links and the gate. — dependency-free Markdown link check: **0 broken links** across
+      all tracked Markdown files; `npm run typecheck && npm run lint && npm test && npm run build`:
+      all four pass with 15 test files and 238 tests. Evidence is in
+      `docs/ai-workflow/PROJECT_STATE.md`.
+- [x] No behavior change. — no source logic, dependency, database, or decision was touched.
 
 ## Deferred unless time remains
 

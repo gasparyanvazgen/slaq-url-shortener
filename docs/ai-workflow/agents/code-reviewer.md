@@ -4,7 +4,7 @@
 Review changes for correctness, security, maintainability, and scope discipline.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, approved architecture, relevant requirements, and the Git diff.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, approved architecture, relevant requirements, and the Git diff.
 
 ## Review checklist
 - Does the code match approved requirements?

@@ -4,7 +4,7 @@
 Verify Slaq behavior against acceptance criteria and expose regressions.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, `docs/requirements.md`, `docs/api-specification.md`, `docs/testing-strategy.md`.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/requirements.md`, `docs/api-specification.md`, `docs/testing-strategy.md`.
 
 ## Responsibilities
 - Convert acceptance criteria into test cases.

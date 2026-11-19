@@ -1,7 +1,7 @@
 # Verified Research Findings — Prompts 00 and 01
 
 > **Status:** Evidence record. Not an approval. Every decision derived from these findings is
-> tracked in [`docs/decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md) with its own
+> tracked in [`docs/decisions/DECISION-REGISTER.md`](../decisions/DECISION-REGISTER.md) with its own
 > status. Nothing in this file authorizes implementation.
 
 - **Research completed:** 2026-11-18
@@ -27,7 +27,7 @@
 
 Node 24 entered Maintenance LTS on 2026-10-20 and is supported until 2028-04-30. Node 26
 ("Lithium") is the current Active LTS line. The sandbox runs 26, which is **not** the declared
-target; this mismatch is recorded as a blocker in `PROJECT_STATE.md` and as an open question in
+target; this mismatch is recorded as a blocker in `docs/ai-workflow/PROJECT_STATE.md` and as an open question in
 the decision register (D13).
 
 ## 2. Registry versions (verified 2026-11-18)
@@ -272,7 +272,7 @@ is exposed at all.
 - Uniqueness is enforced by `UNIQUE(code)`; the service still retries generated-code collisions.
 - Click counting uses a single conditional `UPDATE` whose `WHERE` clause carries the expiry guard,
   so a redirect that loses an expiry race does not increment. No explicit transaction is used
-  (approved as D20 on 2026-11-19 — [`decisions/ADR-020.md`](decisions/ADR-020.md)).
+  (approved as D20 on 2026-11-19 — [`decisions/ADR-020.md`](../decisions/ADR-020.md)).
 - `:memory:` gives each connection its own database. Tests must create one app/database per test
   or use a shared cache deliberately, and must not rely on cross-test state.
 - `better-sqlite3` is synchronous; no async/pooling concerns, but long statements block the

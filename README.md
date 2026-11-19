@@ -179,7 +179,7 @@ require a new decision superseding D9.
 
 ## Project documentation
 
-The repository also carries the portable AI execution framework used to build Slaq: `AGENTS.md`,
-`PROJECT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `agents/` (role cards), `prompts/`,
-`workflows/`, and `templates/`. Requirements, security guidance, coding standards, testing
-strategy, research findings, and ADRs are under `docs/`.
+The repository also carries the portable AI execution framework used to build Slaq: `AGENTS.md`
+and, under `docs/ai-workflow/`, `PROJECT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`,
+`agents/` (role cards), `prompts/`, `workflows/`, and `templates/`. Requirements, security
+guidance, coding standards, testing strategy, research findings, and ADRs are under `docs/`.

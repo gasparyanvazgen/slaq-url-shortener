@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### 2026-11-19 — Repository tidy-up (no behavior change)
+
+- Moved the AI-workflow sources into `docs/ai-workflow/` with `git mv`, preserving history:
+  `PROJECT.md`, `PROJECT_STATE.md`, `TASKS.md`, `ROADMAP.md`, `agents/`, `prompts/`, `workflows/`,
+  `templates/`, plus the research/review/framework documents `research-findings.md`,
+  `architecture-review.md`, `ai_execution_framework_original.md`, and `original-framework-notes.md`.
+- Updated every internal reference: plain path mentions and Markdown link destinations in
+  `AGENTS.md`, `README.md`, this changelog, all `docs/` files, the moved workflow files, and one test
+  comment. Relative links were recomputed from each file's new directory.
+- Kept at the root: `README.md`, `CHANGELOG.md`, `AGENTS.md`, all config files, `src/`, and `tests/`.
+  No file was deleted, no dependency or decision changed, and no behavior changed. There is no
+  `LICENSE` file in this repository.
+- Verified: a dependency-free Markdown link check reported **0 broken links** across all tracked
+  Markdown files; `npm run typecheck && npm run lint && npm test && npm run build` passed with
+  15 test files and 238 tests.
+
 ### 2026-11-19 — §9 approved review fixes implemented
 
 The user approved all three findings from the code review; each boundary fix is limited to the
@@ -24,8 +40,8 @@ already-approved D18, D15, and D17 contracts. No dependency or decision changed.
   accepted impossible schema dates, one `201` for an impossible future date, and an absent
   `Cache-Control` on `404`) and passing afterwards.
 - Documentation synchronized: `README.md` known limitations, `docs/api-specification.md`,
-  `docs/openapi.yaml`, `TASKS.md` (including the stale §1/§2 "commit pending" labels, now recorded
-  as `acb51ec`/`93dd0f8`), `PROJECT_STATE.md`, and this changelog.
+  `docs/openapi.yaml`, `docs/ai-workflow/TASKS.md` (including the stale §1/§2 "commit pending" labels, now recorded
+  as `acb51ec`/`93dd0f8`), `docs/ai-workflow/PROJECT_STATE.md`, and this changelog.
 
 ### 2026-11-19 — §8 final quality and documentation verified
 
@@ -52,7 +68,7 @@ already-approved D18, D15, and D17 contracts. No dependency or decision changed.
   && npm run build` — all four pass; 15 test files, 217 tests, 1.32 s. `npm ci` reported that this
   environment blocked the `better-sqlite3` and `esbuild` install scripts under its allowScripts
   policy; the driver still loaded and the full suite passed.
-- Synchronized `TASKS.md` §8, `ROADMAP.md` Phase 5, `PROJECT_STATE.md`, and this changelog.
+- Synchronized `docs/ai-workflow/TASKS.md` §8, `docs/ai-workflow/ROADMAP.md` Phase 5, `docs/ai-workflow/PROJECT_STATE.md`, and this changelog.
 
 ### 2026-11-19 — §§4–7 redirect, aliases, expiration, and statistics implemented and verified
 
@@ -154,7 +170,7 @@ Each section was implemented with tests first and its own full gate run; §4 was
 
 - Initialized the native-ESM npm project (`slaq@0.1.0`, `"type": "module"`), added `.nvmrc` (`24`)
   and `engines.node: ^24.0.0`, and generated `package-lock.json` v3. `npm ls --depth=0` reports all
-  15 packages at exactly the approved versions in `docs/research-findings.md` §2:
+  15 packages at exactly the approved versions in `docs/ai-workflow/research-findings.md` §2:
   - Runtime: `better-sqlite3` 13.2.0, `express` 5.3.0, `zod` 4.6.7.
   - Toolchain/test: `typescript` 6.0.3, `eslint` 10.15.0, `@eslint/js` 10.0.1,
     `typescript-eslint` 8.73.0, `globals` 17.14.0, `vitest` 5.1.1, `tsx` 4.23.15,
@@ -193,7 +209,7 @@ Each section was implemented with tests first and its own full gate run; §4 was
   (D2) and pragma set are unchanged.
 - No application code was written and no test was run — the repository has no `package.json`, so the
   §1 scaffold must land before these files can be typechecked or tested.
-- `PROJECT_STATE.md` updated with the design status, the approval needed to start implementation,
+- `docs/ai-workflow/PROJECT_STATE.md` updated with the design status, the approval needed to start implementation,
   and the exact file list.
 
 ### 2026-11-19 — D22 approved; `PORT` default recorded
@@ -210,8 +226,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
 - `docs/security-guidelines.md`, `docs/coding-standards.md`, and `docs/testing-strategy.md` carry the
   parsing rule and its configuration test cases; `docs/architecture-proposal.md` §7 and §9 record
   D22.
-- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `docs/decisions/README.md`,
-  `prompts/00-start-session.md`, and `prompts/03-architecture.md` synchronized to 22 of 22.
+- `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/TASKS.md`, `README.md`, `docs/decisions/README.md`,
+  `docs/ai-workflow/prompts/00-start-session.md`, and `docs/ai-workflow/prompts/03-architecture.md` synchronized to 22 of 22.
 - No application code, dependencies, installs, tests, commits, or pushes were made.
 
 ### 2026-11-19 — C-1 … C-3 applied; D20 and D21 approved
@@ -230,15 +246,15 @@ Each section was implemented with tests first and its own full gate run; §4 was
   rather than "no port is bound"; updated `ADR-008` (dated correction), `docs/testing-strategy.md`,
   and the proposal.
 - **D20** applied to `docs/database-design.md`, `docs/requirements.md` (FR-04, NFR-06),
-  `docs/api-specification.md`, `docs/testing-strategy.md`, `docs/research-findings.md`, and `TASKS.md`
+  `docs/api-specification.md`, `docs/testing-strategy.md`, `docs/ai-workflow/research-findings.md`, and `docs/ai-workflow/TASKS.md`
   §4. **D21** applied to `docs/database-design.md`, NFR-06, `docs/testing-strategy.md`, and §2.
-- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `docs/decisions/README.md`,
-  `prompts/03-architecture.md`, and `docs/architecture-review.md` synchronized.
+- `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/TASKS.md`, `README.md`, `docs/decisions/README.md`,
+  `docs/ai-workflow/prompts/03-architecture.md`, and `docs/ai-workflow/architecture-review.md` synchronized.
 - No application code, dependencies, installs, tests, commits, or pushes were made.
 
 ### 2026-11-19 — Prompt 03 architecture review; two proposals pending
 
-- Added `docs/architecture-review.md`: the approved architecture (layers, feature module, app
+- Added `docs/ai-workflow/architecture-review.md`: the approved architecture (layers, feature module, app
   factory, repository boundary, schema, routes, dependencies) is **recommended as-is** for the
   five-hour MVP, with concrete trade-offs and a testability review.
 - Raised **D20** (redirect write path: guarded increment without an explicit transaction; `HEAD`
@@ -247,8 +263,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
 - Recorded three corrections awaiting confirmation: C-1 validation ownership (routes versus
   controllers), C-2 the incomplete dev-dependency list in `docs/architecture-proposal.md` §6, and
   C-3 the inaccurate "no port is bound" description of `supertest`.
-- `docs/decisions/DECISION-REGISTER.md` now lists D1–D21 with D20/D21 pending, and `TASKS.md`,
-  `PROJECT_STATE.md`, `ROADMAP.md`, and `prompts/03-architecture.md` reflect the review.
+- `docs/decisions/DECISION-REGISTER.md` now lists D1–D21 with D20/D21 pending, and `docs/ai-workflow/TASKS.md`,
+  `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, and `docs/ai-workflow/prompts/03-architecture.md` reflect the review.
 - No application code, dependencies, installs, tests, commits, or pushes were made.
 
 ### 2026-11-19 — D1–D7 approved; architecture, requirements, and design finalized
@@ -265,8 +281,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
   "Partly confirmed"/"Proposal" labels and pending notes are gone.
 - `docs/api-specification.md` and `docs/database-design.md` finalized: the drafts are removed and
   the approved routes, envelope, `302`, alias rules, lazy expiry, and schema are stated as settled.
-- `TASKS.md`, `ROADMAP.md`, `PROJECT_STATE.md`, `README.md`, `docs/testing-strategy.md`,
-  `docs/security-guidelines.md`, `docs/coding-standards.md`, and `docs/research-findings.md`
+- `docs/ai-workflow/TASKS.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/PROJECT_STATE.md`, `README.md`, `docs/testing-strategy.md`,
+  `docs/security-guidelines.md`, `docs/coding-standards.md`, and `docs/ai-workflow/research-findings.md`
   synchronized to the approved state.
 - No application code, dependencies, installs, commits, or pushes were made.
 
@@ -283,8 +299,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
   reflect D19; the gap paragraph is replaced by the resolutions.
 - `docs/testing-strategy.md`: unknown-field, duplicate-destination, oversized-body, and
   health-without-database cases added.
-- Register, ADR index, `TASKS.md`, `ROADMAP.md`, `PROJECT_STATE.md`, and
-  `prompts/02-requirements.md` synchronized: 12 of 19 decisions approved at that point, with D1–D7
+- Register, ADR index, `docs/ai-workflow/TASKS.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/PROJECT_STATE.md`, and
+  `docs/ai-workflow/prompts/02-requirements.md` synchronized: 12 of 19 decisions approved at that point, with D1–D7
   still pending until the next entry.
 - No application code, dependencies, installs, commits, or pushes were made.
 
@@ -294,13 +310,13 @@ Each section was implemented with tests first and its own full gate run; §4 was
   with inputs, success behavior, validation rules, error cases and status codes, data changes,
   acceptance criteria, and the tests needed.
 - Labeled every requirement **Confirmed**, **Partly confirmed**, **Proposal**, or **Out of scope**.
-  Only `PROJECT.md` and D8–D18 back confirmed items; anything resting on D1–D7 is a proposal.
+  Only `docs/ai-workflow/PROJECT.md` and D8–D18 back confirmed items; anything resting on D1–D7 is a proposal.
 - Recorded deletion as out of scope from the user's approved D9 (`ADR-009`) instead of re-deciding
   it; FR-09 has no endpoint and no deletion column.
 - Added FR-10 (health) and FR-11 (startup `PUBLIC_BASE_URL` configuration, confirmed by D17).
 - Logged four unresolved gaps as proposals: unknown body fields (Q-2), duplicate destinations
   (Q-3), `/health` scope (Q-4), and body-parser error mapping (Q-5).
-- Corrected `TASKS.md` (deletion moved out of "if time remains"), `ROADMAP.md`, and the
+- Corrected `docs/ai-workflow/TASKS.md` (deletion moved out of "if time remains"), `docs/ai-workflow/ROADMAP.md`, and the
   unknown-field note in `docs/testing-strategy.md`; linked the gaps from
   `docs/api-specification.md`.
 - No application code, dependencies, installs, commits, or pushes were made.
@@ -326,8 +342,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
 - `docs/testing-strategy.md`: `supertest` is the approved API harness; the D17/D18 cases are
   approved; the D2 constraint case is explicitly conditional.
 - `docs/security-guidelines.md`: D17/D18 rules marked approved; D2/D6 items remain proposals.
-- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `PROJECT.md`, and
-  `prompts/01-research.md` synchronized to the same status: 11 of 18 approved, ADRs written,
+- `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/TASKS.md`, `README.md`, `docs/ai-workflow/PROJECT.md`, and
+  `docs/ai-workflow/prompts/01-research.md` synchronized to the same status: 11 of 18 approved, ADRs written,
   D1–D7 pending.
 - Corrected stale environment facts: this machine runs **Node 24.22.1** (the Node 26.13.0 figure
   came from a cloud sandbox), 46 tracked files, `origin` configured, and `dev`/`master` in sync
@@ -336,11 +352,11 @@ Each section was implemented with tests first and its own full gate run; §4 was
 
 ### 2026-11-18 — Documentation audit and synchronization (no code)
 
-- Completed the Prompt 00 repository review and corrected `PROJECT_STATE.md`: the branch has a
+- Completed the Prompt 00 repository review and corrected `docs/ai-workflow/PROJECT_STATE.md`: the branch has a
   baseline commit (`b01087c`), a clean tree, 44 tracked files, and no Git remote. Replaced the
   stale "no commits / everything untracked" claim.
 - Completed Prompt 01 technical research and re-verified every version against the npm registry
-  on 2026-11-18. Recorded it in `docs/research-findings.md` so findings no longer exist only in
+  on 2026-11-18. Recorded it in `docs/ai-workflow/research-findings.md` so findings no longer exist only in
   chat history.
 - Added `docs/decisions/DECISION-REGISTER.md` with D1–D18 — architecture/behavior (D1–D9) and
   toolchain/contracts (D10–D18) — all **Pending User Approval**, with justification,
@@ -355,8 +371,8 @@ Each section was implemented with tests first and its own full gate run; §4 was
   policy, the 2048-character URL limit, and the `expiresAt <= now` boundary in
   `docs/api-specification.md`, `docs/database-design.md`, `docs/testing-strategy.md`,
   `docs/security-guidelines.md`, and `docs/coding-standards.md`. All remain proposals.
-- Expanded `TASKS.md` Gate 0 to the 18 decisions plus separate Gate 1 specification work, and
-  updated `ROADMAP.md` phase progress.
+- Expanded `docs/ai-workflow/TASKS.md` Gate 0 to the 18 decisions plus separate Gate 1 specification work, and
+  updated `docs/ai-workflow/ROADMAP.md` phase progress.
 - Added `.env.*` to `.gitignore` while keeping `.env.example` trackable.
 - No application code, dependencies, installs, commits, or pushes were made.
 

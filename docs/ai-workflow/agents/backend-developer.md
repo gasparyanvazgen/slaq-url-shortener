@@ -4,7 +4,7 @@
 Implement one approved Slaq feature at a time.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, `PROJECT_STATE.md`, relevant requirements/API docs, and approved ADRs.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/ai-workflow/PROJECT_STATE.md`, relevant requirements/API docs, and approved ADRs.
 
 ## Responsibilities
 - Inspect existing code before editing.

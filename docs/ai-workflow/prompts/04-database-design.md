@@ -1,6 +1,6 @@
 # Prompt 04 — Database Design and Persistence
 
-Follow `agents/database-engineer.md`.
+Follow `docs/ai-workflow/agents/database-engineer.md`.
 
 Use only the user-approved schema and architecture. Inspect current database code first.
 

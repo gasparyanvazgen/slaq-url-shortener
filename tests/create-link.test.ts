@@ -135,7 +135,7 @@ describe('POST /api/links', () => {
     expect(rowCount(context.db)).toBe(0);
   });
 
-  // Alias and expiry validation belong to TASKS.md §§5–6; §3 validates `url`.
+  // Alias and expiry validation belong to docs/ai-workflow/TASKS.md §§5–6; §3 validates `url`.
   it.each([
     ['missing url', {}],
     ['non-string url', { url: 42 }],

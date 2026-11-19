@@ -165,7 +165,7 @@ Status codes (approved D3, [`ADR-003`](decisions/ADR-003.md)):
 ## 6. Dependencies
 
 > Exact versions were verified on 2026-11-18 and recorded in
-> [`research-findings.md`](research-findings.md) §2. Version pinning, the Node policy, and the
+> [`research-findings.md`](ai-workflow/research-findings.md) §2. Version pinning, the Node policy, and the
 > lockfile rule are **D10–D14** and were approved on 2026-11-18.
 
 Requested runtime dependencies:
@@ -190,7 +190,7 @@ Approved additional dependency (D8, 2026-11-18 — [`ADR-008`](decisions/ADR-008
 ## 7. Verified technical configuration (approved under D10–D18)
 
 The research pass added decisions this proposal did not originally cover. They are recorded in
-[`research-findings.md`](research-findings.md), tracked as **D10–D18**, and **approved on
+[`research-findings.md`](ai-workflow/research-findings.md), tracked as **D10–D18**, and **approved on
 2026-11-18** (`ADR-010` … `ADR-018`). The bullets below are the approved configuration, not
 proposals.
 
@@ -269,7 +269,7 @@ Toolchain and contracts — all approved 2026-11-18:
 
 ### Prompt 03 review — approved 2026-11-19
 
-[`architecture-review.md`](architecture-review.md) recommends this design unchanged. The user
+[`architecture-review.md`](ai-workflow/architecture-review.md) recommends this design unchanged. The user
 approved its two decisions and all three corrections on 2026-11-19:
 
 - [x] **D20** — Redirect write path: the guarded `UPDATE` runs without an explicit transaction, and

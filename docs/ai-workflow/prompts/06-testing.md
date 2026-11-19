@@ -1,6 +1,6 @@
 # Prompt 06 — Test a Feature or Release
 
-Follow `agents/qa-engineer.md`.
+Follow `docs/ai-workflow/agents/qa-engineer.md`.
 
 Inspect the implementation and test setup. Map the relevant requirements to tests.
 

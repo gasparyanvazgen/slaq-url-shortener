@@ -5,9 +5,9 @@ Act as the Slaq Project Manager.
 Review the current Git diff, task tracker, relevant docs, and the actual command outputs from this session.
 
 Update:
-- `PROJECT_STATE.md`
-- `TASKS.md`
-- `ROADMAP.md` only if phase status changed
+- `docs/ai-workflow/PROJECT_STATE.md`
+- `docs/ai-workflow/TASKS.md`
+- `docs/ai-workflow/ROADMAP.md` only if phase status changed
 - Relevant design/API docs if behavior or approved decisions changed
 
 Record:

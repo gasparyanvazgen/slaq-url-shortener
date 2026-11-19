@@ -59,7 +59,7 @@ review, together with corrections C-1 … C-3. D22 settled the last unsourced st
 | D22 | `PORT` default (`3000` in every environment) and ASCII-digit parsing in 1–65535 | **Approved** — `ADR-022` |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
-D10–D18 are the toolchain and contract findings verified in `docs/research-findings.md`.
+D10–D18 are the toolchain and contract findings verified in `docs/ai-workflow/research-findings.md`.
 
 ---
 
@@ -78,8 +78,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   mixes concerns and weakens tests. Global `controllers/`+`services/` folders add navigation cost
   for one feature.
 - **Verification:** Structural review only; nothing to install. Matches `AGENTS.md` §4.
-- **Affected documents:** `docs/architecture-proposal.md` §1–2, `ROADMAP.md` Phase 3–4,
-  `docs/testing-strategy.md`, `TASKS.md`.
+- **Affected documents:** `docs/architecture-proposal.md` §1–2, `docs/ai-workflow/ROADMAP.md` Phase 3–4,
+  `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md`.
 - **Depends on / constrains:** Nothing. Constrains D10 (path aliases are unnecessary), D16
   (import extensions).
 
@@ -118,7 +118,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Verification:** SQLite `UNIQUE`/`CHECK` semantics; `better-sqlite3` executes DDL via `exec`.
   Not yet executed — no database exists.
 - **Affected documents:** `docs/architecture-proposal.md` §3, `docs/database-design.md`,
-  `docs/testing-strategy.md`, `TASKS.md` §2.
+  `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md` §2.
 - **Depends on / constrains:** D15 (timestamp format), D12 (driver), D13 (runtime). D7 relies on
   expired rows being retained.
 
@@ -151,7 +151,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   correctness.
 - **Verification:** Express `res.redirect(302, url)` semantics; no runtime check yet.
 - **Affected documents:** `docs/api-specification.md`, `docs/architecture-proposal.md` §5.2,
-  `docs/requirements.md` FR-03/FR-04, `TASKS.md` §4.
+  `docs/requirements.md` FR-03/FR-04, `docs/ai-workflow/TASKS.md` §4.
 - **Depends on / constrains:** D7 (expired links must not redirect), D18 (only validated targets
   are ever placed in `Location`).
 
@@ -171,7 +171,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   pressure.
 - **Verification:** `node:crypto.randomInt(max)` is uniform over `[0, max)`; no code exists yet.
 - **Affected documents:** `docs/architecture-proposal.md` §5.1, `docs/testing-strategy.md`
-  (generator + collision cases), `TASKS.md` §3.
+  (generator + collision cases), `docs/ai-workflow/TASKS.md` §3.
 - **Depends on / constrains:** D6 (aliases share the namespace), D2 (`UNIQUE(code)` is the real
   guarantee).
 
@@ -191,7 +191,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   reserved list is safer if new top-level routes are added later.
 - **Verification:** Regex and length rules are pure functions; `UNIQUE` is the storage guarantee.
 - **Affected documents:** `docs/architecture-proposal.md` §5.4, `docs/requirements.md`
-  (open question resolved as a proposal), `docs/api-specification.md`, `TASKS.md` §5.
+  (open question resolved as a proposal), `docs/api-specification.md`, `docs/ai-workflow/TASKS.md` §5.
 - **Depends on / constrains:** D3 (route names), D5 (shared namespace), D17 (error codes).
 
 ## D7 — Expiration behavior
@@ -207,7 +207,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   explicit but reveals that a code once existed — acceptable for this product.
 - **Verification:** Boundary semantics fixed by D15; no runtime check yet.
 - **Affected documents:** `docs/architecture-proposal.md` §5.3, `docs/requirements.md` FR-05,
-  `docs/api-specification.md`, `docs/testing-strategy.md`, `TASKS.md` §6–7.
+  `docs/api-specification.md`, `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md` §6–7.
 - **Depends on / constrains:** D2 (rows retained), D15 (format and `<=` boundary), D17 (stats
   contract for expired links).
 
@@ -224,8 +224,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   closer to production behavior, at the cost of more boilerplate and port lifecycle bugs.
   `vitest` + `fetch` also works but does not reduce the boilerplate.
 - **Verification:** `supertest` 7.3.2 supports Express 5 apps; typings 7.2.1 exist. Not installed.
-- **Affected documents:** `PROJECT.md` (dependency note), `docs/architecture-proposal.md` §6,
-  `docs/testing-strategy.md`, `TASKS.md` Gate 0.
+- **Affected documents:** `docs/ai-workflow/PROJECT.md` (dependency note), `docs/architecture-proposal.md` §6,
+  `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md` Gate 0.
 - **Depends on / constrains:** D1 (`createApp` must be importable without listening), D14
   (lockfile records the resolution).
 
@@ -239,9 +239,9 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   authorization questions (anyone could delete any link) that the project explicitly excludes.
 - **Alternatives / trade-offs:** Adding `DELETE /api/links/:code` costs an endpoint, a test file,
   and an unauthenticated destructive capability. Soft delete complicates every read path.
-- **Verification:** Scope review against `PROJECT.md` non-goals; no code involved.
-- **Affected documents:** `docs/requirements.md` FR-09, `PROJECT.md`, `docs/api-specification.md`,
-  `TASKS.md`.
+- **Verification:** Scope review against `docs/ai-workflow/PROJECT.md` non-goals; no code involved.
+- **Affected documents:** `docs/requirements.md` FR-09, `docs/ai-workflow/PROJECT.md`, `docs/api-specification.md`,
+  `docs/ai-workflow/TASKS.md`.
 - **Depends on / constrains:** Nothing.
 
 ## D10 — TypeScript 6.0.3 and tsconfig layout
@@ -249,7 +249,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Status:** **Approved** 2026-11-18 — [`ADR-010.md`](ADR-010.md).
 - **Decision:** `typescript@^6.0.3` (not 7.0.2), with a no-emit `tsconfig.json` for
   typecheck/editor and a `tsconfig.build.json` that emits `dist/`, as specified in
-  `docs/research-findings.md` §3.
+  `docs/ai-workflow/research-findings.md` §3.
 - **Justification:** `typescript-eslint@8.73.0` peers `typescript >=4.8.4 <6.1.0`; 7.0.2 also has
   no programmatic API for type-aware linting. Splitting build config keeps tests out of `dist/`.
 - **Alternatives / trade-offs:** TS 7 would require dropping type-aware linting. A single
@@ -257,8 +257,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   unnecessary given `tsx`.
 - **Verification:** Registry peer range and TS 6.0 release notes verified 2026-11-18; the config
   itself is unproven until scaffolding.
-- **Affected documents:** `PROJECT.md`, `docs/coding-standards.md`, `TASKS.md` §1,
-  `docs/research-findings.md`.
+- **Affected documents:** `docs/ai-workflow/PROJECT.md`, `docs/coding-standards.md`, `docs/ai-workflow/TASKS.md` §1,
+  `docs/ai-workflow/research-findings.md`.
 - **Depends on / constrains:** D11 (must stay within the peer range), D16 (`nodenext`),
   D13 (`@types/node` major).
 
@@ -273,7 +273,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Alternatives / trade-offs:** `recommended` (non-type-aware) is faster but cannot catch
   floating promises or unsafe `any`. Prettier would add another dependency and is not requested.
 - **Verification:** Peer ranges cross-checked; unproven until `npm install` and `eslint .` run.
-- **Affected documents:** `PROJECT.md`, `docs/coding-standards.md`, `TASKS.md` §1, `AGENTS.md`
+- **Affected documents:** `docs/ai-workflow/PROJECT.md`, `docs/coding-standards.md`, `docs/ai-workflow/TASKS.md` §1, `AGENTS.md`
   §8.2 script names.
 - **Depends on / constrains:** D10 (TS version), D16 (ESM config file), D14.
 
@@ -290,8 +290,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   adds a large dependency the brief did not request.
 - **Verification:** Manifest fields (`engines`, `files`, `gypfile`, absence of `types`) verified
   2026-11-18; the wrapper's sufficiency is unproven until compilation.
-- **Affected documents:** `PROJECT.md`, `docs/database-design.md`, `docs/coding-standards.md`,
-  `TASKS.md` §2.
+- **Affected documents:** `docs/ai-workflow/PROJECT.md`, `docs/database-design.md`, `docs/coding-standards.md`,
+  `docs/ai-workflow/TASKS.md` §2.
 - **Depends on / constrains:** D13 (Node range), D10 (typings under TS 6), D16 (CJS default
   import under ESM).
 
@@ -309,8 +309,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Verification:** Node release schedule (24 Maintenance LTS since 2026-10-20, EOL 2028-04-30);
   `better-sqlite3` engines. The user's machine runs **Node 24.22.1**, which satisfies the target;
   the earlier mismatch came from a cloud sandbox running Node 26.13.0.
-- **Affected documents:** `PROJECT.md`, `PROJECT_STATE.md` (blocker), `README.md`, `TASKS.md` §1,
-  `docs/research-findings.md` §1/§6.
+- **Affected documents:** `docs/ai-workflow/PROJECT.md`, `docs/ai-workflow/PROJECT_STATE.md` (blocker), `README.md`, `docs/ai-workflow/TASKS.md` §1,
+  `docs/ai-workflow/research-findings.md` §1/§6.
 - **Depends on / constrains:** D12 (`engines.node >= 22`), D10 (`@types/node` 24.x), D14.
 
 ## D14 — Dependency ranges plus a committed lockfile
@@ -325,8 +325,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   manual. `latest` is unreviewable. Floating ranges without a lockfile are not reproducible at
   all.
 - **Verification:** npm lockfile v3 behavior; no lockfile exists yet.
-- **Affected documents:** `PROJECT.md`, `README.md` (setup), `TASKS.md` §1,
-  `docs/research-findings.md` §2.
+- **Affected documents:** `docs/ai-workflow/PROJECT.md`, `README.md` (setup), `docs/ai-workflow/TASKS.md` §1,
+  `docs/ai-workflow/research-findings.md` §2.
 - **Depends on / constrains:** Every dependency decision (D8, D10–D13) feeds the lockfile.
 
 ## D15 — Canonical UTC timestamps and expiry boundary
@@ -362,8 +362,8 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
   adds a build dependency for no MVP need.
 - **Verification:** Node ESM resolution rules and `import.meta.dirname` availability (Node
   ≥20.11). Unproven until build/run.
-- **Affected documents:** `docs/coding-standards.md`, `docs/research-findings.md` §7,
-  `TASKS.md` §1, `PROJECT_STATE.md`.
+- **Affected documents:** `docs/coding-standards.md`, `docs/ai-workflow/research-findings.md` §7,
+  `docs/ai-workflow/TASKS.md` §1, `docs/ai-workflow/PROJECT_STATE.md`.
 - **Depends on / constrains:** D10 (`nodenext`), D12 (`export =` default import), D11 (ESM
   `eslint.config.js`).
 
@@ -372,7 +372,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Status:** **Approved** 2026-11-18 — [`ADR-017.md`](ADR-017.md). All three sub-options are
   resolved below.
 - **Decision:** Adopt the create/statistics bodies, error codes, and security rules in
-  `docs/research-findings.md` §9–10 and `docs/api-specification.md`. `shortUrl` is built only
+  `docs/ai-workflow/research-findings.md` §9–10 and `docs/api-specification.md`. `shortUrl` is built only
   from validated `PUBLIC_BASE_URL`; the `Host`/`X-Forwarded-Host` header is never used.
   `PUBLIC_BASE_URL` is validated at startup, defaults to `http://localhost:${PORT}` in
   development, and fails fast in production.
@@ -387,7 +387,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Verification:** `new URL()` normalization, Zod 4 `z.url()`/`z.iso.datetime()` behavior.
   Unproven until implemented and tested with a forged `Host` header.
 - **Affected documents:** `docs/api-specification.md`, `docs/security-guidelines.md`,
-  `docs/requirements.md` FR-06, `docs/testing-strategy.md`, `TASKS.md` §7.
+  `docs/requirements.md` FR-06, `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md` §7.
 - **Depends on / constrains:** D3 (routes/envelope), D15 (timestamps), D7 (expired stats). D17 is
   settled as of 2026-11-18; the create-link controller is gated only by D1–D7.
 
@@ -410,7 +410,7 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Verification:** Zod 4 `z.url()` is permissive and does not normalize unless asked; scheme and
   length must be checked explicitly. Not yet implemented.
 - **Affected documents:** `docs/requirements.md` (open question resolved as proposal),
-  `docs/security-guidelines.md`, `docs/api-specification.md`, `TASKS.md` §3.
+  `docs/security-guidelines.md`, `docs/api-specification.md`, `docs/ai-workflow/TASKS.md` §3.
 - **Depends on / constrains:** D3 (validation errors), D17 (error codes).
 
 ## D19 — Requirement-gap resolutions for the MVP contract
@@ -433,15 +433,15 @@ D10–D18 are the toolchain and contract findings verified in `docs/research-fin
 - **Verification:** Documentation review only; no code exists. The Express `express.json()` default
   limit and `body-parser` failure types must be confirmed when the middleware is written.
 - **Affected documents:** `docs/requirements.md` (FR-01, FR-07, FR-08, FR-10 and the gaps section),
-  `docs/api-specification.md`, `docs/testing-strategy.md`, `TASKS.md`, `PROJECT_STATE.md`,
-  `ROADMAP.md`, `CHANGELOG.md`.
+  `docs/api-specification.md`, `docs/testing-strategy.md`, `docs/ai-workflow/TASKS.md`, `docs/ai-workflow/PROJECT_STATE.md`,
+  `docs/ai-workflow/ROADMAP.md`, `CHANGELOG.md`.
 - **Depends on / constrains:** D3 (the `/health` route and the validation envelope), D17 (error
   codes), D18 (create validation). D7 governs whether expired rows are retained.
 
 ## D20 — Redirect write path and click-count semantics
 
 - **Status:** **Approved** 2026-11-19 — [`ADR-020.md`](ADR-020.md). Raised by the Prompt 03
-  architecture review ([`../architecture-review.md`](../architecture-review.md) §2).
+  architecture review ([`docs/ai-workflow/architecture-review.md`](../ai-workflow/architecture-review.md) §2).
 - **Decision:** the redirect path loads the row to distinguish `404` from `410`, then runs
   the single guarded update
   `UPDATE links SET click_count = click_count + 1, last_clicked_at = @now WHERE code = @code AND
@@ -461,13 +461,13 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
   asserting a `HEAD` request leaves `click_count` unchanged. Nothing is implemented.
 - **Affected documents (synchronized 2026-11-19):** `docs/database-design.md` (query pattern),
   `docs/requirements.md` (FR-04, NFR-06), `docs/api-specification.md` (HEAD behavior),
-  `docs/testing-strategy.md` (HEAD case), `TASKS.md` §4.
+  `docs/testing-strategy.md` (HEAD case), `docs/ai-workflow/TASKS.md` §4.
 - **Depends on / constrains:** D7 (expiry boundary and `410`), D2 (schema), D3 (status codes).
 
 ## D21 — `SQLITE_BUSY` handling
 
 - **Status:** **Approved** 2026-11-19 — [`ADR-021.md`](ADR-021.md). Raised by the Prompt 03
-  architecture review ([`../architecture-review.md`](../architecture-review.md) §2).
+  architecture review ([`docs/ai-workflow/architecture-review.md`](../ai-workflow/architecture-review.md) §2).
 - **Decision:** do not retry. After `busy_timeout = 5000` elapses, the driver's
   `SQLITE_BUSY` error is handled by the centralized error middleware as `500 INTERNAL_ERROR` with a
   generic message; the detail is logged server-side only.
@@ -482,7 +482,7 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
   of the error mapping and, if cheap, by a test that injects a repository throwing a `SQLITE_BUSY`
   error and asserts the `500` envelope shape. Nothing is implemented.
 - **Affected documents (synchronized 2026-11-19):** `docs/database-design.md` (open questions),
-  `docs/requirements.md` (NFR-06), `TASKS.md` §2, `docs/testing-strategy.md`.
+  `docs/requirements.md` (NFR-06), `docs/ai-workflow/TASKS.md` §2, `docs/testing-strategy.md`.
 - **Depends on / constrains:** D2 (connection setup), D3 (error envelope), D12 (driver).
 
 ## D22 — `PORT` default and startup parsing
@@ -516,7 +516,7 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
 - **Affected documents (synchronized 2026-11-19):** `docs/requirements.md` (FR-11 and
   AC-11.6 … AC-11.10, gaps section), `docs/security-guidelines.md` (startup configuration),
   `docs/coding-standards.md` (configuration), `docs/testing-strategy.md` (configuration cases),
-  `docs/architecture-proposal.md` (§7, §9), `TASKS.md` §1, `PROJECT_STATE.md`, `ROADMAP.md`,
+  `docs/architecture-proposal.md` (§7, §9), `docs/ai-workflow/TASKS.md` §1, `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`,
   `README.md`, `CHANGELOG.md`.
 - **Depends on / constrains:** D17 (the development `PUBLIC_BASE_URL` default interpolates the
   resolved port), D13 (runtime), D8/NFR-08 (no test binds a port, so `0` has no use).
@@ -558,7 +558,7 @@ only pin versions and configuration.
 | 2026-11-19 | D20, D21, and corrections C-1 … C-3 from the Prompt 03 architecture review | Approved by the user | `ADR-020.md`, `ADR-021.md`; corrections applied across the design documents |
 | 2026-11-19 | D22: the `PORT` default (`3000` in every environment) and its ASCII-digit parsing rule, with leading zeros allowed as insignificant | Approved by the user | `ADR-022.md` |
 
-On 2026-11-19 the Prompt 03 architecture review (`docs/architecture-review.md`) raised **D20**,
+On 2026-11-19 the Prompt 03 architecture review (`docs/ai-workflow/architecture-review.md`) raised **D20**,
 **D21**, and corrections C-1 … C-3. The user approved both decisions and all three corrections the
 same day: each decision has an ADR, and the corrections are applied across the design documents.
 **D22** was approved later the same day, closing the `PORT` value that FR-11 had carried as an

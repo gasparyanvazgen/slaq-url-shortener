@@ -1,6 +1,6 @@
 # Prompt 08 — Review Current Changes
 
-Follow `agents/code-reviewer.md`.
+Follow `docs/ai-workflow/agents/code-reviewer.md`.
 
 Review the current Git diff and relevant surrounding code against the approved architecture, requirements, and security guidelines.
 

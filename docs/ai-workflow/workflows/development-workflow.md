@@ -1,7 +1,7 @@
 # Development Workflow
 
 ## Start
-1. Read `AGENTS.md`, `PROJECT.md`, `PROJECT_STATE.md`, and `TASKS.md`.
+1. Read `AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/ai-workflow/PROJECT_STATE.md`, and `docs/ai-workflow/TASKS.md`.
 2. Inspect repository and Git status.
 3. Confirm one task and its acceptance criteria.
 4. Load the relevant agent role card.
@@ -19,9 +19,9 @@
 4. Inspect the diff for unrelated changes.
 
 ## Review
-1. Use `agents/code-reviewer.md`.
+1. Use `docs/ai-workflow/agents/code-reviewer.md`.
 2. Fix material findings.
 3. Run relevant verification again.
 
 ## Handoff
-Use `prompts/10-session-handoff.md`. Update state and task tracking based on evidence.
+Use `docs/ai-workflow/prompts/10-session-handoff.md`. Update state and task tracking based on evidence.

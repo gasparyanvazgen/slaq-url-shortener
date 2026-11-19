@@ -4,7 +4,7 @@
 Design and implement the SQLite persistence layer with data integrity and simple queries.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, `docs/database-design.md`, approved ADRs, and current database code.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/database-design.md`, approved ADRs, and current database code.
 
 ## Responsibilities
 - Review schema and constraints.

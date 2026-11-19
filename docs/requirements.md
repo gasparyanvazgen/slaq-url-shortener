@@ -13,7 +13,7 @@
 > ([`decisions/ADR-022.md`](decisions/ADR-022.md)), which replaced the last unsourced startup value
 > — the `PORT` default and its parsing rule — so FR-11 no longer contains a proposal.
 >
-> Sources: `PROJECT.md` (capabilities and non-goals), `docs/decisions/DECISION-REGISTER.md`
+> Sources: `docs/ai-workflow/PROJECT.md` (capabilities and non-goals), `docs/decisions/DECISION-REGISTER.md`
 > (status), `docs/api-specification.md` (contract), `docs/database-design.md`,
 > `docs/testing-strategy.md`, `docs/security-guidelines.md`.
 
@@ -21,7 +21,7 @@
 
 | Label | Meaning in this document |
 |---|---|
-| **Confirmed** | Backed by `PROJECT.md` or an approved decision. Testable as written. |
+| **Confirmed** | Backed by `docs/ai-workflow/PROJECT.md` or an approved decision. Testable as written. |
 | **Out of scope** | Explicitly excluded by an approved decision; recorded for traceability. |
 
 Approved decisions used here — all twenty-two: D1 (layers and the deps object), D2 (schema and the
@@ -37,12 +37,12 @@ rule).
 
 ## MVP scope baseline
 
-The ten capabilities in `PROJECT.md` remain the scope. Unchanged non-goals: user accounts or
+The ten capabilities in `docs/ai-workflow/PROJECT.md` remain the scope. Unchanged non-goals: user accounts or
 authentication, a frontend or dashboard, multi-tenancy, per-click analytics history, QR codes,
 background jobs, Redis/queues/microservices/cloud infrastructure, production deployment and custom
 domains, and rate limiting or abuse detection.
 
-| `PROJECT.md` capability | Requirement |
+| `docs/ai-workflow/PROJECT.md` capability | Requirement |
 |---|---|
 | 1. Create a short URL with a generated code | FR-01 |
 | 2. Optional custom aliases | FR-02 |
@@ -73,13 +73,13 @@ are supporting behaviors the approved contract already implies (D17, D19, D22).
 | FR-09 | Delete a link | **Out of scope** | D9 approved |
 | FR-10 | Health check | **Confirmed** | D3, D19 |
 | FR-11 | Startup configuration and `PUBLIC_BASE_URL` | **Confirmed** | D17, D22 |
-| FR-12 | REST API documentation | **Confirmed** | `PROJECT.md` #10 |
+| FR-12 | REST API documentation | **Confirmed** | `docs/ai-workflow/PROJECT.md` #10 |
 
 ---
 
 ## FR-01 — Create a short link with a generated code
 
-**Status:** Confirmed. The capability is confirmed (`PROJECT.md` #1); the route and error envelope
+**Status:** Confirmed. The capability is confirmed (`docs/ai-workflow/PROJECT.md` #1); the route and error envelope
 by D3, persistence by D2, and code generation by D5 (`ADR-003`, `ADR-002`, `ADR-005`), with the
 response body and destination rules by D17/D18 and unknown-field and no-duplicate-destination
 behavior by D19.
@@ -176,7 +176,7 @@ partially written state.
 
 ## FR-02 — Custom alias creation
 
-**Status:** Confirmed. The capability is confirmed (`PROJECT.md` #2); every alias rule, including
+**Status:** Confirmed. The capability is confirmed (`docs/ai-workflow/PROJECT.md` #2); every alias rule, including
 reserved names and case sensitivity, is approved by **D6** (`ADR-006`), and the shared namespace by
 **D2** (`ADR-002`).
 
@@ -241,7 +241,7 @@ row and no separate alias table.
 
 ## FR-03 — Redirect from a short code
 
-**Status:** Confirmed. The capability is confirmed (`PROJECT.md` #3); the route (D3), `302` status
+**Status:** Confirmed. The capability is confirmed (`docs/ai-workflow/PROJECT.md` #3); the route (D3), `302` status
 (D4), and expired-link `410` (D7) are approved (`ADR-003`, `ADR-004`, `ADR-007`).
 
 **Inputs**
@@ -299,7 +299,7 @@ On `404` and `410`: no write.
 
 ## FR-04 — Click tracking on redirect
 
-**Status:** Confirmed. Cumulative click counting is confirmed (`PROJECT.md` #4); atomicity and the
+**Status:** Confirmed. Cumulative click counting is confirmed (`docs/ai-workflow/PROJECT.md` #4); atomicity and the
 exact conditional write are approved by **D2** and **D7** (`ADR-002`, `ADR-007`), and the write
 path plus the `HEAD` rule by **D20** (`ADR-020`).
 
@@ -619,7 +619,7 @@ re-decide it. Changing it requires a new decision superseding `ADR-009`.
 
 - No `DELETE` route exists for links, and no `deleted_at` / `is_deleted` column exists.
 - No read path filters deleted rows, because there is no deletion state.
-- `TASKS.md` lists deletion as post-MVP work, not as "if time remains" within the MVP.
+- `docs/ai-workflow/TASKS.md` lists deletion as post-MVP work, not as "if time remains" within the MVP.
 
 **Inputs**
 
@@ -640,7 +640,7 @@ None. Rows are never removed by the application (expired rows are retained, D7).
 2. AC-09.2 — The `links` schema has no deletion column.
 3. AC-09.3 — Redirect and statistics work identically before and after any request that attempts
    deletion.
-4. AC-09.4 — `PROJECT.md`, `docs/api-specification.md`, `TASKS.md`, and this document all describe
+4. AC-09.4 — `docs/ai-workflow/PROJECT.md`, `docs/api-specification.md`, `docs/ai-workflow/TASKS.md`, and this document all describe
    deletion as excluded or post-MVP.
 
 **Tests needed**
@@ -779,7 +779,7 @@ None.
 
 ## FR-12 — REST API documentation
 
-**Status:** **Confirmed** (`PROJECT.md` #10).
+**Status:** **Confirmed** (`docs/ai-workflow/PROJECT.md` #10).
 
 **Inputs**
 
@@ -898,8 +898,8 @@ test binds a port, reads the wall clock, or depends on another test's rows.
 **Status:** Confirmed (D8, D14, `AGENTS.md` §3). **Requirement:** only the approved dependency set
 (`express`, `better-sqlite3`, `zod`; dev: TypeScript, ESLint set, `typescript-eslint`, `globals`,
 `tsx`, `vitest`, `supertest`, and the `@types` packages) is installed at the approved ranges.
-**Acceptance:** `package.json` matches `PROJECT.md`; the lockfile is committed; no `latest`.
-**Tests:** review check against `PROJECT.md`.
+**Acceptance:** `package.json` matches `docs/ai-workflow/PROJECT.md`; the lockfile is committed; no `latest`.
+**Tests:** review check against `docs/ai-workflow/PROJECT.md`.
 
 ---
 
@@ -907,10 +907,10 @@ test binds a port, reads the wall clock, or depends on another test's rows.
 
 ### C-1 — Link deletion is resolved, not re-decided here
 
-`PROJECT.md` lists no deletion capability, `docs/api-specification.md` has no delete route, and
-`TASKS.md` previously listed deletion under "Deferred unless time remains". The user approved
+`docs/ai-workflow/PROJECT.md` lists no deletion capability, `docs/api-specification.md` has no delete route, and
+`docs/ai-workflow/TASKS.md` previously listed deletion under "Deferred unless time remains". The user approved
 **D9** on 2026-11-18: deletion is **out of scope**, with no endpoint and no `deleted_at` column
-([`ADR-009.md`](decisions/ADR-009.md)). FR-09 therefore records that approval, and `TASKS.md` now
+([`ADR-009.md`](decisions/ADR-009.md)). FR-09 therefore records that approval, and `docs/ai-workflow/TASKS.md` now
 lists deletion as post-MVP rather than optional in-MVP work. Nothing about deletion was decided
 silently: opening it now would require a new decision superseding `ADR-009`.
 
@@ -928,7 +928,7 @@ MVP. Each answer is now a confirmed requirement, recorded as **D19**
 | Q-5 | Body-parser failures (malformed JSON and oversized payloads) | Map every body-parser failure to `400 VALIDATION_ERROR`; keep Express's default body limit; add no `413` and no new code. | FR-07, FR-08 (AC-07.7, AC-08.6) |
 
 No requirements gap remains open and no requirement is provisional. With D1–D7 approved on 2026-11-19, every
-acceptance criterion below is backed by `PROJECT.md` or an approved decision; none is provisional.
+acceptance criterion below is backed by `docs/ai-workflow/PROJECT.md` or an approved decision; none is provisional.
 
 ### `PORT` default resolved on 2026-11-19 (D22)
 
@@ -942,7 +942,7 @@ proposal label is gone and AC-11.6 … AC-11.10 cover the behavior.
 
 ## Confirmed scope summary
 
-- **Confirmed:** FR-01 … FR-08, FR-10, FR-11, and FR-12 in full — capabilities from `PROJECT.md`
+- **Confirmed:** FR-01 … FR-08, FR-10, FR-11, and FR-12 in full — capabilities from `docs/ai-workflow/PROJECT.md`
   #1–#8 and #10, with the layers and deps object (D1), schema (D2), routes and envelope (D3),
   redirect status (D4), code generation (D5), aliases (D6), expiry (D7), and the contract details
   from D15–D19, D20, D21, and D22.

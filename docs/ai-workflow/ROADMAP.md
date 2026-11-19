@@ -2,7 +2,7 @@
 
 This roadmap adapts the five phases of the supplied AI-Assisted Project Execution Framework to a
 small backend URL shortener. Decision IDs refer to
-[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
+[`docs/decisions/DECISION-REGISTER.md`](../decisions/DECISION-REGISTER.md).
 
 ## Phase 1 — Research & Product Framing
 
@@ -51,7 +51,7 @@ small backend URL shortener. Decision IDs refer to
       (D7).
 - [x] Record approved decisions as ADRs — `docs/decisions/ADR-001.md` … `ADR-022.md`, one per
       decision, 22 of 22.
-- [x] Review the approved architecture for five-hour MVP fit (Prompt 03) — `docs/architecture-review.md`
+- [x] Review the approved architecture for five-hour MVP fit (Prompt 03) — `docs/ai-workflow/architecture-review.md`
       recommends the layers, module, factory, repository boundary, schema, routes, and dependencies
       unchanged; D20, D21, and corrections C-1 … C-3 were approved on 2026-11-19.
 

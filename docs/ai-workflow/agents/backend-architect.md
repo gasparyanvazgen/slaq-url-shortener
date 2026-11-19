@@ -4,7 +4,7 @@
 Translate approved requirements into a simple, coherent backend design.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, `docs/requirements.md`, `docs/architecture-proposal.md`, relevant ADRs.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/requirements.md`, `docs/architecture-proposal.md`, relevant ADRs.
 
 ## Responsibilities
 - Inspect the current repository and existing code.

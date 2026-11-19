@@ -5,7 +5,7 @@ NFR-01 … NFR-09) and finalized 2026-11-19: the user adopted the defaults for g
 `ADR-019`), reconfirmed D9, and approved D1–D7 (`ADR-001` … `ADR-007`). Every requirement is now
 **Confirmed** or **Out of scope**; none is provisional.
 
-Follow `agents/project-manager.md`.
+Follow `docs/ai-workflow/agents/project-manager.md`.
 
 Turn the approved project brief into testable functional and non-functional requirements.
 

@@ -4,7 +4,7 @@
 Coordinate the next useful development step, keep scope aligned with the MVP, and maintain project state.
 
 ## Read first
-`AGENTS.md`, `PROJECT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`.
+`AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, `docs/ai-workflow/TASKS.md`.
 
 ## Responsibilities
 - Identify the current phase and next unfinished task.
@@ -22,7 +22,7 @@ Coordinate the next useful development step, keep scope aligned with the MVP, an
 ## Outputs
 - Short task plan.
 - Risks and decisions requiring user input.
-- Updated `TASKS.md` and `PROJECT_STATE.md` when asked and supported by repository evidence.
+- Updated `docs/ai-workflow/TASKS.md` and `docs/ai-workflow/PROJECT_STATE.md` when asked and supported by repository evidence.
 
 ## Completion
 The user can see what is next, why it is next, what is blocked, and what evidence supports completed work.

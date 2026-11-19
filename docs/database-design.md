@@ -127,7 +127,7 @@ SQL lives behind one factory and never leaves it (D1; `AGENTS.md` §4). The modu
 `ADR-002` and `ADR-020`. As of 2026-11-19 the `connection`, `pragma`, `id`, `schema`, `links.types`,
 and `links.repository` modules are implemented and tested. All three operations exist: `insert`,
 `findByCode`, and `incrementClick` (the guarded update above, prepared once, no transaction).
-`TASKS.md` §§3–7 are complete and verified; no table, index, or constraint has been added beyond the
+`docs/ai-workflow/TASKS.md` §§3–7 are complete and verified; no table, index, or constraint has been added beyond the
 approved D2 schema.
 
 | File | Responsibility |

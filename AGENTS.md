@@ -7,13 +7,13 @@ Help build Slaq, a small, reliable, backend-focused URL shortener, in incrementa
 ## 2. Mandatory context
 
 Before making a change, read the relevant parts of:
-- `PROJECT.md`
-- `PROJECT_STATE.md`
-- `TASKS.md`
+- `docs/ai-workflow/PROJECT.md`
+- `docs/ai-workflow/PROJECT_STATE.md`
+- `docs/ai-workflow/TASKS.md`
 - The relevant design document under `docs/`
-- The selected role card under `agents/`
+- The selected role card under `docs/ai-workflow/agents/`
 
-At the start of a fresh session, inspect the actual repository and compare it with `PROJECT_STATE.md`. The state file may be stale.
+At the start of a fresh session, inspect the actual repository and compare it with `docs/ai-workflow/PROJECT_STATE.md`. The state file may be stale.
 
 ## 3. Authority and decision rules
 
@@ -55,20 +55,20 @@ Never fabricate test output.
 This framework uses portable Markdown role cards and prompts. Do not assume native subagents, hooks, slash commands, or Claude Code-specific features exist.
 
 When asked to use a role:
-- Read its `agents/<role>.md` file.
+- Read its `docs/ai-workflow/agents/<role>.md` file.
 - Follow it for the current task.
 - If the role requires another specialist, recommend a handoff prompt; do not pretend a second agent ran.
 
 ## 7. Session and state management
 
 At the beginning of a session:
-- Read `PROJECT_STATE.md` and `TASKS.md`.
+- Read `docs/ai-workflow/PROJECT_STATE.md` and `docs/ai-workflow/TASKS.md`.
 - Inspect Git status and relevant source files.
 - Confirm the next task with the user if it is not explicit.
 
 At the end of a meaningful session:
-- Update `PROJECT_STATE.md` with completed work, current status, test evidence, blockers, and next action.
-- Update `TASKS.md`.
+- Update `docs/ai-workflow/PROJECT_STATE.md` with completed work, current status, test evidence, blockers, and next action.
+- Update `docs/ai-workflow/TASKS.md`.
 - Update docs if behavior or design changed.
 - Do not mark tasks complete without evidence.
 
@@ -101,15 +101,15 @@ All four checks must pass before describing the task/story/epic as fully complet
 ### 8.3 Synchronize project status and documentation
 
 Update every relevant status reference so the repository tells one consistent story:
-- `TASKS.md`: update the task/story/epic status and its checklist items;
-- `PROJECT_STATE.md`: record what changed, current progress, verification evidence, blockers, and the next action;
-- `ROADMAP.md`: update phase/epic progress if the completed work changes it;
+- `docs/ai-workflow/TASKS.md`: update the task/story/epic status and its checklist items;
+- `docs/ai-workflow/PROJECT_STATE.md`: record what changed, current progress, verification evidence, blockers, and the next action;
+- `docs/ai-workflow/ROADMAP.md`: update phase/epic progress if the completed work changes it;
 - the relevant feature/story/specification document: update acceptance-criteria statuses and its Definition of Done, if present;
 - the relevant prompt or workflow file: update any `Status:` fields, status tables, headings, and checklists that track this work.
 
 Search for duplicate references to the item being updated; do not update only the first occurrence. Move completed items out of sections labelled `Not implemented` or equivalent. Use the project's existing status vocabulary. If work is partial, mark it as in progress/partially complete (🟡 where that convention is used) and state precisely what remains. Never mark an item complete unless its acceptance criteria are met and the required verification evidence is available.
 
-Do not create or update `BACKEND_AGENT_PROMPTS.md` unless that file actually exists and is part of the active project. In this framework, use the existing project source-of-truth files listed above, especially `TASKS.md`, `PROJECT_STATE.md`, and the relevant files under `prompts/` and `docs/`.
+Do not create or update `BACKEND_AGENT_PROMPTS.md` unless that file actually exists and is part of the active project. In this framework, use the existing project source-of-truth files listed above, especially `docs/ai-workflow/TASKS.md`, `docs/ai-workflow/PROJECT_STATE.md`, and the relevant files under `docs/ai-workflow/prompts/` and `docs/`.
 
 ### 8.4 Prepare the commit and push commands
 

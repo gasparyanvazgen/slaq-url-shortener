@@ -34,7 +34,7 @@ peers `typescript >=4.8.4 <6.1.0`; 7.x would force dropping type-aware linting.
 Do not add a dependency without explaining its purpose and asking for approval. `supertest` plus
 `@types/supertest` are approved as dev-only test dependencies (D8). Dependency ranges use carets
 with a committed `package-lock.json` (D14). Every decision and its status is in
-[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
+[`docs/decisions/DECISION-REGISTER.md`](../decisions/DECISION-REGISTER.md).
 
 ## MVP capabilities
 

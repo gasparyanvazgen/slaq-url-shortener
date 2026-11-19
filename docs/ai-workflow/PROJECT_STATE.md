@@ -1,20 +1,20 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (`TASKS.md` §§1–9 complete; §§1–8 committed locally through
-> `f5d5a2e`; §9 approved fixes verified but not yet committed; no push).
+> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–10 complete; §§1–9 committed through
+> `8a03267` on `master`; §10 repository tidy-up verified but not yet committed).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation and operations are complete. `TASKS.md` §1–§9 are
-  complete and verified; the only remaining step is committing the §9 fixes and choosing whether to
-  push.
+- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§10
+  are complete and verified; the only remaining step is committing the §10 tidy-up and choosing
+  whether to push.
 - **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`,
-  §§4–7 as `5148145`, and §8 as `f5d5a2e`. §9 applies the three user-approved review fixes in
-  `links.schemas.ts` and `links.controller.ts` with tests in four existing test files. No table,
-  index, dependency, or decision changed in §§8–9.
+  §§4–7 as `5148145`, §8 as `f5d5a2e`, and §9 as `8a03267`. §10 moves the AI-workflow files into
+  `docs/ai-workflow/` with `git mv` and updates references; no behavior, table, index, dependency,
+  or decision changed in §10.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -23,8 +23,8 @@
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
   proposal
-- **Last verified test run:** 2026-11-19 (after §9) — `npm run typecheck && npm run lint && npm test
-  && npm run build`: all four pass; 15 test files, 238 tests, 713 ms. The earlier clean-install run
+- **Last verified test run:** 2026-11-19 (after §10) — `npm run typecheck && npm run lint && npm test
+  && npm run build`: all four pass; 15 test files, 238 tests, 1.04 s. The earlier clean-install run
   (`rm -rf node_modules && npm ci`) passed all four with 217 tests in 1.32 s; `npm ci` blocked the
   `better-sqlite3`/`esbuild` install scripts under this environment's allowScripts policy, but the
   driver loaded and the suite passed.
@@ -33,23 +33,21 @@
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`dev`** (checked out), tracking `origin/dev` and **in sync with it** — `git status -sb`
-  shows `## dev...origin/dev` with no ahead/behind count. `HEAD` = `origin/dev` = **`f5d5a2e`**
-  (`docs: verify API examples, add README and OpenAPI, close acceptance gaps`) after the previous
-  session. The branch is 12 commits ahead of `origin/master`
-  (`43efa1a`); local `master` (`c804101`) is one commit behind `origin/master`.
+- Branch: **`master`** (checked out), tracking `origin/master` and **in sync with it** — `git status -sb`
+  shows `## master...origin/master` with no ahead/behind count. `HEAD` = `origin/master` =
+  **`8a03267`** (`fix: validate destination controls and expiry dates, cache stats errors`); the
+  user committed and pushed §9 after the previous session.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
-- `git ls-files` reports **111 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
+- `git ls-files` reports **113 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
   one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — `src/modules/links/links.schemas.ts`,
-  `src/modules/links/links.controller.ts`, four test files, `README.md`, `docs/api-specification.md`,
-  `docs/openapi.yaml`, `TASKS.md`, `CHANGELOG.md`, and this file are modified. Nothing is staged and
-  `git diff --check` reports no whitespace errors. `dist/`, `node_modules/`, and `*.db` files are
-  ignored. §§1–8 are committed through `f5d5a2e`.
+- Working tree: **not clean** — 35 paths were moved with `git mv` into `docs/ai-workflow/`, and the
+  reference updates modify `AGENTS.md`, `README.md`, `CHANGELOG.md`, `docs/` files, one test comment,
+  and the moved status files. `git diff --check` reports no whitespace errors. `dist/`,
+  `node_modules/`, and `*.db` files are ignored. §§1–9 are committed through `8a03267`.
 - The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
-  in §§4–9. A clean `npm ci` succeeded on 2026-11-19. The §9 fixes and status updates are ready for
-  the user's commit; no commit or push was made in this session.
+  in §§4–10. A clean `npm ci` succeeded on 2026-11-19. The §10 tidy-up is ready for the user's
+  commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
@@ -60,13 +58,12 @@
 - Evidence for the statements above:
 
   ```bash
-  git status -sb                              # -> ## dev...origin/dev (no ahead/behind)
-  git rev-parse HEAD                          # -> f5d5a2e97ba45ff137ab906ecd8466f354dc4c91
-  git rev-parse origin/dev                    # -> f5d5a2e
-  git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
-  git rev-list --count origin/master..HEAD    # -> 12
-  git ls-files | wc -l                        # -> 111 (plus no new files in §9)
-  git status --porcelain                       # -> 11 modified §9 paths, nothing staged
+  git status -sb                              # -> ## master...origin/master + §10 paths
+  git rev-parse HEAD                          # -> 8a0326741d564c4fff40258550d4068eb50c876f
+  git rev-parse origin/master                 # -> 8a0326741d564c4fff40258550d4068eb50c876f
+  git rev-list --count origin/master..HEAD    # -> 0
+  git ls-files | wc -l                        # -> 113
+  git status --porcelain                       # -> 35 renames staged, reference edits unstaged
   git diff --check                            # -> clean (exit 0)
   ls docs/decisions/ADR-*.md | wc -l          # -> 22
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
@@ -79,7 +76,7 @@
 - The earlier Node 26.13.0 measurement came from a cloud sandbox, not from this machine; the
   runtime blocker it created is resolved.
 - Dependencies are installed from the committed-range lockfile: `npm ls --depth=0` shows all 15
-  packages at the exact versions in `docs/research-findings.md` §2.
+  packages at the exact versions in `docs/ai-workflow/research-findings.md` §2.
 - `better-sqlite3` prebuilt-binary loading is **proven**: `node -e "const Database =
   require('better-sqlite3'); const db = new Database(':memory:'); console.log(db.prepare('SELECT
   sqlite_version() AS v').get().v); db.close();"` → **3.54.1**. This replaces the earlier
@@ -125,7 +122,7 @@ deletion stays out of the MVP.
 ## Approval state
 
 Every decision D1–D22 is approved and has a matching ADR; see
-[`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md). D1–D7 were approved as
+[`docs/decisions/DECISION-REGISTER.md`](../decisions/DECISION-REGISTER.md). D1–D7 were approved as
 recommended on 2026-11-19 with two clarifications recorded in their ADRs: the deps object
 `createApp({ db, clock, config })` (D1) and **five generation attempts in total** (D5). D2's `CHECK`
 set is limited to `click_count >= 0` and `is_custom IN (0,1)`. D20 and D21 were approved on
@@ -136,11 +133,11 @@ one requires a new decision and a new ADR.
 
 ## Completed work
 
-- [x] Initial product brief captured (`PROJECT.md`).
+- [x] Initial product brief captured (`docs/ai-workflow/PROJECT.md`).
 - [x] Architecture proposal captured as a proposal (`docs/architecture-proposal.md`).
 - [x] **Prompt 00** session review completed and repository state inspected.
 - [x] **Prompt 01** technical research completed and re-verified against the npm registry on
-      2026-11-18; findings recorded in `docs/research-findings.md`.
+      2026-11-18; findings recorded in `docs/ai-workflow/research-findings.md`.
 - [x] All decisions consolidated in `docs/decisions/DECISION-REGISTER.md` with no duplicates —
       18 on 2026-11-18, plus D19, D20, and D21 on 2026-11-19.
 - [x] Documentation audit and synchronization (2026-11-18, commit `c804101`).
@@ -155,7 +152,7 @@ one requires a new decision and a new ADR.
       (D1) and five generation attempts total (D5).
 - [x] Recorded as `ADR-001.md` … `ADR-007.md`; register, proposal checklist, requirements, API
       specification, and database design finalized against them.
-- [x] **Prompt 03 architecture review** completed 2026-11-19 in `docs/architecture-review.md`;
+- [x] **Prompt 03 architecture review** completed 2026-11-19 in `docs/ai-workflow/architecture-review.md`;
       **D20** and **D21** approved (`ADR-020.md`, `ADR-021.md`) and corrections C-1 … C-3 applied
       across the design documents.
 - [x] **D19 approved by the user on 2026-11-19** — the defaults for Q-2 … Q-5 adopted (unknown
@@ -222,21 +219,40 @@ one requires a new decision and a new ADR.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the §9 fixes, tests, and status updates are modified but not
-   staged or committed. The exact `git add … && git commit` command is in the session report; the
-   user must run it. This is a handoff step, not a technical failure.
-2. **Push is a user decision** — `dev` is in sync with `origin/dev`; nothing was pushed in this
+1. **Commit is pending user action** — the §10 moves and reference updates are staged/unstaged but
+   not committed. The exact `git add … && git commit` command is in the session report; the user must
+   run it. This is a handoff step, not a technical failure.
+2. **Push is a user decision** — `master` is in sync with `origin/master`; nothing was pushed in this
    session.
 
 No review finding remains open: all three were approved by the user and fixed in §9.
 
-No technical blocker is open for §§4–9: the §4 dependency was resolved by the user (implement §4
+No technical blocker is open for §§4–10: the §4 dependency was resolved by the user (implement §4
 first), the stale AC-02.3 alias line was resolved by the user (case-insensitive reserved names), the
 expiry/stats split was resolved by the user (minimal stats in §6), the three review findings were
-approved and fixed in §9, the `AGENTS.md` §8.2 gate passes after a clean install and after §9, all 22
-decisions are approved, and `better-sqlite3` loads on this machine.
+approved and fixed in §9, the §10 tidy-up has 0 broken links and passes the `AGENTS.md` §8.2 gate,
+all 22 decisions are approved, and `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+### §10 repository tidy-up: link check and gate (2026-11-19)
+
+```bash
+node /tmp/opencode/check-links.mjs
+# -> Markdown files scanned: 68
+# -> Internal links checked: 114
+# -> Broken links: 0
+
+npm run typecheck && npm run lint && npm test && npm run build
+# -> typecheck:  tsc -p tsconfig.json                 (exit 0)
+# -> lint:       eslint .                              (exit 0)
+# -> test:       vitest run — 15 test files passed, 238 tests passed, 1.04 s
+# -> build:      tsc -p tsconfig.build.json            (exit 0)
+```
+
+The link checker is a temporary dependency-free Node script outside the repository; it scans every
+tracked Markdown file, resolves internal inline/reference links relative to each file, and validates
+file targets and heading anchors.
 
 ### §9 approved fixes: red-first evidence and final gate (2026-11-19)
 
@@ -290,7 +306,7 @@ were fixed (`expiresAt` normalization and the validation error envelope). The ha
 
 ### Earlier §§4–7 evidence
 
-Commands run on 2026-11-19 for `TASKS.md` §§4–7 and the final §8 review, from the project root:
+Commands run on 2026-11-19 for `docs/ai-workflow/TASKS.md` §§4–7 and the final §8 review, from the project root:
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run build
@@ -308,7 +324,7 @@ validation and stats; §7 failed only on the absent `Cache-Control: no-store` he
 
 Earlier evidence from the §3 session follows.
 
-Commands run on 2026-11-19 for `TASKS.md` §3 (create short links), from the project root:
+Commands run on 2026-11-19 for `docs/ai-workflow/TASKS.md` §3 (create short links), from the project root:
 
 ```bash
 npm run typecheck && npm run lint && npm test && npm run build
@@ -320,12 +336,12 @@ npm run typecheck && npm run lint && npm test && npm run build
 
 The §3 tests were written first and run before implementation; that red run failed with four
 "Cannot find module" errors for the new generator/repository/service modules. Two additional tests
-covering alias and expiry field types were removed after the first green attempt because `TASKS.md`
+covering alias and expiry field types were removed after the first green attempt because `docs/ai-workflow/TASKS.md`
 assigns that validation to §§5–6; no scope was expanded to make them pass.
 
 Earlier evidence from the §2 session follows.
 
-Commands run on 2026-11-19 for `TASKS.md` §2 (database and shared infrastructure), from the
+Commands run on 2026-11-19 for `docs/ai-workflow/TASKS.md` §2 (database and shared infrastructure), from the
 project root:
 
 ```bash
@@ -346,14 +362,14 @@ rerun and passed.
 
 Earlier evidence from the §1 scaffold session follows.
 
-Commands run on 2026-11-19 for `TASKS.md` §1 (scaffold), from the project root:
+Commands run on 2026-11-19 for `docs/ai-workflow/TASKS.md` §1 (scaffold), from the project root:
 
 ```bash
 node -e "const Database = require('better-sqlite3'); const db = new Database(':memory:'); console.log(db.prepare('SELECT sqlite_version() AS v').get().v); db.close();"
 # -> 3.54.1
 
 npm ls --depth=0
-# -> slaq@0.1.0 with 15 packages, all at the exact versions approved in docs/research-findings.md §2
+# -> slaq@0.1.0 with 15 packages, all at the exact versions approved in docs/ai-workflow/research-findings.md §2
 #    (better-sqlite3 13.2.0, express 5.3.0, zod 4.6.7, typescript 6.0.3, eslint 10.15.0,
 #     @eslint/js 10.0.1, typescript-eslint 8.73.0, globals 17.14.0, vitest 5.1.1,
 #     tsx 4.23.15, supertest 7.3.2, @types/* 5.0.6 / 24.19.2 / 9.6.0 / 7.2.1)
@@ -475,7 +491,7 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §9 fixes, tests, documentation, and
-status updates (do not push until the user chooses; `dev` currently matches `origin/dev`). All three
-review findings are fixed and the full gate passes. The design gate is closed — do not reopen an
+Run the prepared `git add … && git commit …` command to land the §10 tidy-up and its status updates
+(do not push until the user chooses; `master` currently matches `origin/master`). Link checking
+reports 0 broken links and the full gate passes. The design gate is closed — do not reopen an
 approved decision without a new ADR.

@@ -1,6 +1,6 @@
 # Prompt 05 — Implement One Feature
 
-Follow `agents/backend-developer.md`.
+Follow `docs/ai-workflow/agents/backend-developer.md`.
 
 Feature to implement: [INSERT ONE APPROVED TASK]
 

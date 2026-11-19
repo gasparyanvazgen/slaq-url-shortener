@@ -1,14 +1,14 @@
 # Prompt 01 — Product Framing and Technical Research
 
-**Status:** Completed 2026-11-18. Findings are recorded in `docs/research-findings.md`; decisions
+**Status:** Completed 2026-11-18. Findings are recorded in `docs/ai-workflow/research-findings.md`; decisions
 are in `docs/decisions/DECISION-REGISTER.md`. The user approved **D8–D18** on 2026-11-18
 (`ADR-008` … `ADR-018`) and **D1–D7** on 2026-11-19 (`ADR-001` … `ADR-007`); every decision is
 approved. Re-run only if the stack, versions, or scope change.
 
-Follow `agents/project-manager.md` for framing and `agents/backend-architect.md` for technical
+Follow `docs/ai-workflow/agents/project-manager.md` for framing and `docs/ai-workflow/agents/backend-architect.md` for technical
 questions.
 
-Review `PROJECT.md`, `docs/requirements.md`, and `docs/architecture-proposal.md`. Inspect the
+Review `docs/ai-workflow/PROJECT.md`, `docs/requirements.md`, and `docs/architecture-proposal.md`. Inspect the
 repository and Git state before assuming anything.
 
 ## Part A — Product framing

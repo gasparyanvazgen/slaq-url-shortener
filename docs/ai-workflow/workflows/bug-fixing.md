@@ -8,4 +8,4 @@
 6. Make the smallest fix.
 7. Run regression and relevant full checks.
 8. Record any remaining uncertainty.
-9. Update `PROJECT_STATE.md`.
+9. Update `docs/ai-workflow/PROJECT_STATE.md`.

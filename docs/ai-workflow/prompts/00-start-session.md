@@ -1,9 +1,9 @@
 # Prompt 00 — Start a Slaq Session
 
-**Status:** Completed 2026-11-18. Re-run at the start of any new session; `PROJECT_STATE.md` may
+**Status:** Completed 2026-11-18. Re-run at the start of any new session; `docs/ai-workflow/PROJECT_STATE.md` may
 be stale. The canonical decision status is `docs/decisions/DECISION-REGISTER.md`.
 
-Act as the Slaq Project Manager. Read `AGENTS.md`, `PROJECT.md`, `PROJECT_STATE.md`, `ROADMAP.md`, and `TASKS.md`.
+Act as the Slaq Project Manager. Read `AGENTS.md`, `docs/ai-workflow/PROJECT.md`, `docs/ai-workflow/PROJECT_STATE.md`, `docs/ai-workflow/ROADMAP.md`, and `docs/ai-workflow/TASKS.md`.
 
 1. Inspect the actual repository structure and Git status before assuming anything.
 2. Identify existing implementation, uncommitted changes, and mismatches with the state file.

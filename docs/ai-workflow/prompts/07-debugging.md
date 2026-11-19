@@ -1,6 +1,6 @@
 # Prompt 07 — Debug a Defect
 
-Follow `agents/backend-developer.md` and, where useful, `agents/qa-engineer.md`.
+Follow `docs/ai-workflow/agents/backend-developer.md` and, where useful, `docs/ai-workflow/agents/qa-engineer.md`.
 
 Bug report:
 [PASTE ERROR, REPRODUCTION STEPS, AND EXPECTED BEHAVIOR]

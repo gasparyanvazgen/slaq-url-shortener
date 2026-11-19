@@ -6,7 +6,7 @@ prevents duplicate decision records.
 
 ## Rules
 
-- One ADR per **approved** decision, created from `templates/adr-template.md`.
+- One ADR per **approved** decision, created from `docs/ai-workflow/templates/adr-template.md`.
 - File name: `ADR-NNN.md`, using the same number as its `D-NNN` register entry (`ADR-010.md` for
   D10). Do not renumber approved decisions.
 - Allowed statuses: `Proposed`, `Accepted`, `Rejected`, `Superseded`.
@@ -21,7 +21,7 @@ prevents duplicate decision records.
 
 - Register: D1–D22, **all Approved** — D8–D18 on 2026-11-18; D1–D7, D19, D20, D21, and D22 on
   2026-11-19, with D9 reconfirmed on 2026-11-19. D20 and D21 came from the Prompt 03 architecture
-  review ([`../architecture-review.md`](../architecture-review.md)) and were approved with corrections
+  review ([`docs/ai-workflow/architecture-review.md`](../ai-workflow/architecture-review.md)) and were approved with corrections
   C-1 … C-3; D22 settled the `PORT` default and parsing rule that FR-11 had carried as a proposal.
 - ADRs written: `ADR-001.md` … `ADR-022.md`, one per approved decision with matching numbers.
   D1–D7 were approved as recommended, with two clarifications recorded in the decisions
