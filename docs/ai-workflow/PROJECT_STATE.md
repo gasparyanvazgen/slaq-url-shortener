@@ -1,20 +1,20 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–11 complete; §§1–10 committed through
-> `8ae119c` on `dev`; §11 Swagger UI work verified but not yet committed).
+> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–12 complete; v0.2.0 release
+> recorded from `v0.1.0..HEAD`; `dev` and `master` at `dac6bf2` before the version-bump commit).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§11
-  are complete and verified; the only remaining step is committing §11 and choosing whether to push.
+- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§12
+  are complete and verified; the remaining release actions are the commit, pushes, and tag.
 - **Implementation started:** Yes — §1 as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`, §§4–7 as
   `5148145`, §8 as `f5d5a2e`, §9 as `8a03267`; the user then committed the §10 tidy-up as `fe9bd1d`,
-  a README revision as `4ab7c27`, and the MIT LICENSE as `8ae119c`. §11 adds locally served Swagger
-  UI with the single user-approved `swagger-ui-dist` dependency; no table, index, error code, or
-  link contract changed.
+  a README revision as `4ab7c27`, and the MIT LICENSE as `8ae119c`. §11 was committed as `fc22d69`
+  with a follow-up README edit as `dac6bf2`; it adds locally served Swagger UI with the single
+  user-approved `swagger-ui-dist` dependency. No table, index, error code, or link contract changed.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -31,6 +31,10 @@
   driver loaded and the suite passed.
 - **Current timebox:** approximately five hours for the MVP; all core routes, documentation, and the
   three user-approved review fixes are done. No approved finding remains open.
+- **Release:** v0.2.0 records `v0.1.0..HEAD` (`fe9bd1d`, `4ab7c27`, `8ae119c`, `fc22d69`, `dac6bf2`):
+  repository tidy-up, README revision, MIT LICENSE, and locally served Swagger UI. The §9 fixes and
+  all earlier work were already released in v0.1.0 and are not listed in the 0.2.0 section. Evidence
+  for the release gate and the compiled-server check is in this file.
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 

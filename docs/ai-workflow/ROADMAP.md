@@ -101,6 +101,9 @@ was committed as `fe9bd1d`; §11 adds locally served Swagger UI under `/api` wit
 `swagger-ui-dist` dependency and D23 / `ADR-023` recorded as **Proposed**, and is verified with
 16 test files and 244 tests.
 
+**Release:** v0.2.0 records those commits; the version bump, CHANGELOG section, and status records
+are in place, with verification evidence in `docs/ai-workflow/PROJECT_STATE.md`.
+
 **Exit criteria:** Core behavior is implemented, automated checks are run, and limitations are
 documented.
 

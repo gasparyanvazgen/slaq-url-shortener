@@ -312,6 +312,17 @@ this file as work progresses. Decision IDs refer to
       links, **0 broken links**; `npm run typecheck && npm run lint && npm test && npm run build`
       passes with 16 test files and 244 tests. Evidence is in `docs/ai-workflow/PROJECT_STATE.md`.
 
+### 12. v0.2.0 release
+- [x] Version bumped to `0.2.0` in `package.json`, `package-lock.json`, and `docs/openapi.yaml`.
+- [x] `CHANGELOG.md` now has a fresh empty `[Unreleased]` and a `[0.2.0]` section limited to the
+      `v0.1.0..HEAD` commits; the earlier dev log is preserved under `[0.1.0]` with its text
+      unchanged. The §9 fixes were already released in v0.1.0 and are not listed again.
+- [x] Verified before the release commit: `npm ci && npm run typecheck && npm run lint && npm test
+      && npm run build` passes (16 files, 244 tests), `npm audit` reports 0 vulnerabilities, and the
+      compiled server passed the different-working-directory check with all routes `200`/`302` and
+      `clickCount: 1`. Evidence is in `docs/ai-workflow/PROJECT_STATE.md`.
+- [ ] Publish the GitHub Release from the 0.2.0 CHANGELOG section — done by the user in the web UI.
+
 ## Deferred unless time remains
 
 - [ ] Rate limiting.

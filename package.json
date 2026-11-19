@@ -1,6 +1,6 @@
 {
   "name": "slaq",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Slaq - a small, reliable URL shortener with a REST API.",
   "main": "dist/server.js",
   "directories": {

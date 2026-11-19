@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
   title: Slaq URL Shortener API
-  version: 0.1.0
+  version: 0.2.0
   description: >-
     Hand-maintained description of the approved contract in api-specification.md. No generator
     or runtime dependency is used. Short URLs are built from the configured PUBLIC_BASE_URL,
