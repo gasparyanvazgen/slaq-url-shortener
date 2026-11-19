@@ -1,19 +1,20 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (§§1–3 committed; §§4–7 implemented and verified, awaiting the
-> user's commit; TASKS.md §8 docs work is the next step).
+> **Last rewritten:** 2026-11-19 (`TASKS.md` §§1–8 complete; §§1–7 committed locally as `5148145`,
+> §8 docs and coverage tests verified but not yet committed; no push).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation. `TASKS.md` §1–§7 are complete and verified; only the
-  documentation items in §8 (README, API docs, known limitations) remain.
-- **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, and §3 as
-  `26dc26e`. This session adds `src/lib/expiry.ts`, five new test files, and modifications to the
-  link modules, app, and two existing tests. The create, redirect, stats, alias, and expiry paths are
-  implemented; the guarded click increment exists and no table, index, or decision changed.
+- **Current phase:** Phase 5 — implementation and operations are complete. `TASKS.md` §1–§8 are
+  complete and verified; the only remaining step is committing the §8 docs/tests and choosing whether
+  to push.
+- **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`,
+  and §§4–7 as `5148145`. §8 added documentation and acceptance-coverage tests only: `README.md`,
+  `docs/api-specification.md`, `docs/openapi.yaml`, and `tests/acceptance-gaps.test.ts`. No
+  production code, table, index, dependency, or decision changed in §8.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
@@ -22,28 +23,32 @@
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
   proposal
-- **Last verified test run:** 2026-11-19 (final §8 run, after §§4–7) — `npm run typecheck && npm run
-  lint && npm test && npm run build`: all four pass; 14 test files, 204 tests, 867 ms
-- **Current timebox:** approximately five hours for the MVP; all core routes done, README/API docs
-  and final limitations still pending
+- **Last verified test run:** 2026-11-19 (after `rm -rf node_modules && npm ci`) — `npm run
+  typecheck && npm run lint && npm test && npm run build`: all four pass; 15 test files, 217 tests,
+  1.32 s. `npm ci` blocked the `better-sqlite3`/`esbuild` install scripts under this environment's
+  allowScripts policy, but the native driver loaded and the full suite passed.
+- **Current timebox:** approximately five hours for the MVP; all core routes, documentation, and
+  final limitations are done. Unapproved review findings (control characters in a destination,
+  impossible `expiresAt` calendar dates, and the `404` statistics `Cache-Control` gap) remain open
+  deliberately; no production fix was applied.
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`dev`** (checked out) — **10 commits ahead of `origin/master`**, none pushed; local
-  `master` sits one commit behind `origin/master`.
-- `HEAD` = `dev` = **`26dc26e`** (`feat: implement create-link API with SQLite persistence`). The
-  user committed §3 after the previous session; `origin/master` is `43efa1a`.
+- Branch: **`dev`** (checked out), tracking `origin/dev` and **in sync with it** — `git status -sb`
+  shows `## dev...origin/dev` with no ahead/behind count. `HEAD` = `origin/dev` = **`5148145`**
+  (`feat: add redirects, aliases, expiration, and statistics`). The branch is 11 commits ahead of
+  `origin/master` (`43efa1a`); local `master` (`c804101`) is one commit behind `origin/master`.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
-- `git ls-files` reports **105 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
+- `git ls-files` reports **111 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
   one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — `CHANGELOG.md`, `ROADMAP.md`, `TASKS.md`, `PROJECT_STATE.md`,
-  `docs/database-design.md`, `src/app.ts`, six `src/modules/links/*` files, and two test files are
-  modified; `src/lib/expiry.ts` and five test files are untracked. Nothing is staged and
+- Working tree: **not clean** — `README.md` and `docs/api-specification.md` are modified;
+  `docs/openapi.yaml` and `tests/acceptance-gaps.test.ts` are untracked. Nothing is staged and
   `git diff --check` reports no whitespace errors. `dist/`, `node_modules/`, and `*.db` files are
-  ignored.
+  ignored. The §§4–7 work is already committed in `5148145`.
 - The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
-  in §§4–7. All files are ready for the user's commit; no commit or push was made in this session.
+  in §§4–8. A clean `npm ci` succeeded on 2026-11-19. The §8 docs/tests are ready for the user's
+  commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
@@ -54,16 +59,17 @@
 - Evidence for the statements above:
 
   ```bash
-  git rev-parse --abbrev-ref HEAD             # -> dev
-  git rev-parse HEAD                          # -> 26dc26e5474b98f73b74e9a3c23ec616a1c1dd4d
+  git status -sb                              # -> ## dev...origin/dev (no ahead/behind)
+  git rev-parse HEAD                          # -> 51481450289f87653ed3c5b0d69bd4c37062f100
+  git rev-parse origin/dev                    # -> 51481450289f87653ed3c5b0d69bd4c37062f100
   git rev-parse origin/master                 # -> 43efa1a10919642a3e96ba54c7ad980a30bc4565
-  git rev-list --count origin/master..HEAD    # -> 10
-  git ls-files | wc -l                        # -> 105
-  git status --porcelain                       # -> 14 modified, 6 untracked §§4–7 paths
+  git rev-list --count origin/master..HEAD    # -> 11
+  git ls-files | wc -l                        # -> 111
+  git status --porcelain                       # -> 2 modified + 2 untracked §8 paths
   git diff --check                            # -> clean (exit 0)
   ls docs/decisions/ADR-*.md | wc -l          # -> 22
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
-  git check-ignore -v .env.example            # -> .gitignore:10:!.env.example
+  git check-ignore -v .env.example            # -> no output, exit 1 (exempt at .gitignore:10)
   ```
 
 ## Toolchain reality in this workspace
@@ -195,25 +201,57 @@ one requires a new decision and a new ADR.
       future-only `expiresAt`, `410 LINK_EXPIRED` with no write, retained rows, and all eleven
       `docs/testing-strategy.md` boundary cases; §7 adds the full `GET /api/links/:code/stats` body
       with `Cache-Control: no-store` and `404` for unknown codes. Each section passed its own full
-      gate (174, 162, 195, and 204 tests respectively); the final §8 run has 204 tests in 14 files.
-- [ ] Tests, API documentation, and README usage section completed — tests are complete; README and
-      API documentation remain.
+      gate (174, 162, 195, and 204 tests respectively); that §§4–7 gate had 204 tests in 14 files
+      and was superseded by the §8 clean-install run with 217 tests in 15 files.
+- [x] **§§4–7 committed** — the user committed the feature work and status updates locally as
+      `5148145`; no push was made.
+- [x] **§8 tests, API documentation, and README completed (2026-11-19)** — all examples in
+      `docs/api-specification.md` were exercised against a live compiled server and the two observed
+      mismatches were corrected; `docs/openapi.yaml` was added without a dependency; `README.md`
+      now documents setup, usage, decisions, limitations, and future work; 13 coverage tests were
+      added in `tests/acceptance-gaps.test.ts`. Production code was not changed.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the §§4–7 files and status updates are untracked or modified,
-   not committed. The exact `git add … && git commit` command is in the session report; the user must
-   run it. This is a handoff step, not a technical failure.
-2. **Documentation items remain** — `TASKS.md` §8 still lists a setup/usage README, an API
-   documentation/OpenAPI description, and known limitations as unchecked. The user did not request
-   those in this pass.
+1. **Commit is pending user action** — the §8 documentation, coverage tests, and status updates are
+   modified/untracked. The exact `git add … && git commit` command is in the session report; the
+   user must run it. This is a handoff step, not a technical failure.
+2. **Push is a user decision** — `dev` is in sync with `origin/dev`; nothing was pushed in this
+   session.
+3. **Three review findings remain open deliberately** — control characters in a destination cause
+   a `500` on redirect, impossible calendar dates in `expiresAt` are silently normalized, and `404`
+   statistics responses omit `Cache-Control: no-store`. All are documented; none was fixed because
+   fixes need user approval and §§4–7 are committed.
 
-No technical blocker is open for §§4–7: the §4 dependency was resolved by the user (implement §4
+No technical blocker is open for §§4–8: the §4 dependency was resolved by the user (implement §4
 first), the stale AC-02.3 alias line was resolved by the user (case-insensitive reserved names), the
-expiry/stats split was resolved by the user (minimal stats in §6), the `AGENTS.md` §8.2 gate passes,
-all 22 decisions are approved, and `better-sqlite3` loads on this machine.
+expiry/stats split was resolved by the user (minimal stats in §6), the `AGENTS.md` §8.2 gate passes
+after a clean install, all 22 decisions are approved, and `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+### §8 clean-install gate and live API verification (2026-11-19)
+
+```bash
+rm -rf node_modules && npm ci && npm run typecheck && npm run lint && npm test && npm run build
+# -> npm ci:     added 234 packages, audited 235, 0 vulnerabilities; install scripts for
+#               better-sqlite3 and esbuild were blocked by this environment's allowScripts policy
+# -> typecheck:  tsc -p tsconfig.json                 (exit 0)
+# -> lint:       eslint .                              (exit 0)
+# -> test:       vitest run — 15 test files passed, 217 tests passed, 1.32 s
+# -> build:      tsc -p tsconfig.build.json            (exit 0)
+```
+
+A compiled server (`npm run build`) was started from `dist/` in `/tmp/opencode/slaq-live*` with its
+own `slaq.db` and exercised with `curl`: `GET /health`, `POST /api/links` (generated, alias, expiry,
+query/fragment, unknown fields, duplicate destination), `GET`/`HEAD /:code`, statistics (fresh,
+clicked, expired, unknown code), `410` expiry, reserved and duplicate aliases, invalid URL,
+malformed JSON, unmatched routes, `DELETE`, `Host` header, and response headers. Two doc mismatches
+were fixed (`expiresAt` normalization and the validation error envelope). The hand-written
+`docs/openapi.yaml` was parsed with `python3 -c "import yaml; yaml.safe_load(open('docs/openapi.yaml'))"`
+— 3.1.0, 4 paths, 6 schemas. No new dependency.
+
+### Earlier §§4–7 evidence
 
 Commands run on 2026-11-19 for `TASKS.md` §§4–7 and the final §8 review, from the project root:
 
@@ -400,9 +438,10 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §§4–7 files and status updates (do
-not push until the user chooses). Then complete the remaining `TASKS.md` §8 documentation items if
-requested: a setup/usage README, an API documentation/OpenAPI description, and a known-limitations
-section. Re-run the `AGENTS.md` §8.2 gate after any further code change
-(`npm run typecheck && npm run lint && npm test && npm run build`). The design gate is closed — do
-not reopen an approved decision without a new ADR.
+Run the prepared `git add … && git commit …` command to land the §8 docs, coverage tests, and status
+updates (do not push until the user chooses; `dev` currently matches `origin/dev`). Then decide
+whether to approve the three documented code fixes from the review — reject control characters in
+destination URLs, validate `expiresAt` calendar dates strictly, and add `Cache-Control: no-store` to
+`404` statistics responses. Any approved fix requires its own test and a fresh
+`npm run typecheck && npm run lint && npm test && npm run build` run before commit. The design gate
+is closed — do not reopen an approved decision without a new ADR.

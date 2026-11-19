@@ -230,17 +230,26 @@ this file as work progresses. Decision IDs refer to
       `tests/stats.test.ts` also covers exact fields, read-only behavior, Host-header safety, and
       case-sensitive codes.
 
-### 8. Final quality and docs (partial — user did not request the README/API-doc work yet)
+### 8. Final quality and docs (complete)
 - [x] Run `npm run typecheck && npm run lint && npm test && npm run build`. — passed after each of
-      §§4, 5, 6, 7 and again after the final §8 review fix: 14 files, 204 tests.
+      §§4, 5, 6, 7 and after the final review; a clean `rm -rf node_modules && npm ci` run passed all
+      four checks with 15 test files, 217 tests, 1.32 s.
 - [x] Review security and error handling. — parameterized SQL, no transactions, no SQL time
       functions, no stack/SQL leakage, no `any`, no debug artifacts; the redirect router cannot
       shadow `/health` or `/api`.
-- [ ] Write setup and usage README.
-- [ ] Write API documentation / OpenAPI description.
+- [x] Write setup and usage README. — `README.md` now covers requirements, install, `.env`/env-var
+      rules, run, curl examples, verification, a D1–D22 summary, known limitations, and future work;
+      the stale framework-only status lines are gone.
+- [x] Write API documentation / OpenAPI description. — every request/response example in
+      `docs/api-specification.md` was exercised against a real server started from `dist/` on a
+      temporary database; two mismatches were fixed (the `expiresAt` normalization text and the
+      validation error envelope). Added the hand-written `docs/openapi.yaml` (OpenAPI 3.1), which
+      parses cleanly and needs no new dependency.
 - [x] Review the Git diff and repository status. — `git diff --check` clean; no `.db` or secret file
       staged or created.
-- [ ] Record known limitations and future work.
+- [x] Record known limitations and future work. — README "Known limitations" and "Future work",
+      plus the documented `404` statistics `Cache-Control` gap in `docs/api-specification.md` and
+      `PROJECT_STATE.md`; no production code was changed in §8.
 
 ## Deferred unless time remains
 

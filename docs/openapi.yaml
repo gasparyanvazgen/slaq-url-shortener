@@ -1,0 +1,315 @@
+openapi: 3.1.0
+
+info:
+  title: Slaq URL Shortener API
+  version: 0.1.0
+  description: >-
+    Hand-maintained description of the approved contract in api-specification.md. No generator
+    or runtime dependency is used. Short URLs are built from the configured PUBLIC_BASE_URL,
+    never from the request Host header. Codes and aliases are matched case-sensitively.
+
+servers:
+  - url: http://localhost:3000
+    description: Development default. Replace with the validated PUBLIC_BASE_URL in other environments.
+
+paths:
+  /health:
+    get:
+      tags: [Operations]
+      summary: Process liveness
+      description: >-
+        Always queries nothing; a 200 does not prove the database is reachable. There is no
+        readiness state and no 503.
+      responses:
+        '200':
+          description: Service is running.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/links:
+    post:
+      tags: [Links]
+      summary: Create a short link
+      description: >-
+        Unknown body fields are ignored. Duplicate destinations are not deduplicated.
+        expiresAt is normalized to UTC with three fractional digits and must be strictly in
+        the future. Malformed or oversized JSON returns 400 VALIDATION_ERROR, never 413.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+            examples:
+              generated:
+                summary: Generated code, no expiry
+                value:
+                  url: https://example.com/very/long
+              custom:
+                summary: Custom alias with expiry
+                value:
+                  url: https://example.com/path
+                  alias: optional-custom-alias
+                  expiresAt: '2026-12-31T00:00:00Z'
+      responses:
+        '201':
+          description: Link created.
+          headers:
+            Location:
+              description: The short URL.
+              schema:
+                type: string
+                format: uri
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLinkResponse'
+        '400':
+          $ref: '#/components/responses/ValidationOrReserved'
+        '409':
+          description: The alias is already used by an existing code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: ALIAS_TAKEN
+                  message: Alias is already taken
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/links/{code}/stats:
+    get:
+      tags: [Links]
+      summary: Read link statistics
+      description: >-
+        Read-only. Successful responses carry Cache-Control: no-store because click counts
+        change; expired links still return 200 with isExpired true. A 404 error response
+        currently omits that header (a known implementation gap, not a contract change).
+      parameters:
+        - $ref: '#/components/parameters/Code'
+      responses:
+        '200':
+          description: Current link metadata and aggregate click data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /{code}:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [Redirects]
+      summary: Redirect to the stored destination
+      description: >-
+        Counts a click only on a successful GET. The Location value is exactly the stored
+        destination, never a request-supplied value. Expired codes are not written.
+      responses:
+        '302':
+          description: Found.
+          headers:
+            Location:
+              description: The exact stored destination URL.
+              schema:
+                type: string
+                format: uri
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '410':
+          $ref: '#/components/responses/LinkExpired'
+    head:
+      tags: [Redirects]
+      summary: Redirect headers without counting a click
+      description: Returns the same status and Location as GET without incrementing clickCount or lastClickedAt.
+      responses:
+        '302':
+          description: Found; no body and no click increment.
+          headers:
+            Location:
+              description: The exact stored destination URL.
+              schema:
+                type: string
+                format: uri
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '410':
+          $ref: '#/components/responses/LinkExpired'
+
+components:
+  parameters:
+    Code:
+      name: code
+      in: path
+      required: true
+      description: Generated code or custom alias.
+      schema:
+        type: string
+
+  responses:
+    ValidationOrReserved:
+      description: >-
+        VALIDATION_ERROR for a malformed, over-long, or unsafe request (with field details);
+        RESERVED_ALIAS for alias api or health compared case-insensitively.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation:
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: Request validation failed
+                  details:
+                    - path: url
+                      message: url must be a valid http or https URL
+            bodyParser:
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: Request body could not be parsed
+            reserved:
+              value:
+                error:
+                  code: RESERVED_ALIAS
+                  message: Alias is reserved
+    NotFound:
+      description: Unknown code or an unmatched route.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
+    LinkExpired:
+      description: The code exists but expiresAt is at or before the current time. No click is recorded.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: LINK_EXPIRED
+              message: Link has expired
+    InternalError:
+      description: Unexpected failure. The message is generic and no details are returned.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: Internal server error
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+
+    CreateLinkRequest:
+      type: object
+      required: [url]
+      description: Unknown properties are ignored and never stored.
+      properties:
+        url:
+          type: string
+          format: uri
+          maxLength: 2048
+          description: 'Absolute http: or https: URL after trim; no embedded credentials.'
+        alias:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{3,32}$'
+          description: Custom code, matched case-sensitively; api and health are reserved case-insensitively.
+        expiresAt:
+          type: string
+          format: date-time
+          description: ISO 8601 instant with an explicit offset, strictly in the future.
+
+    CreateLinkResponse:
+      type: object
+      required: [code, shortUrl, originalUrl, createdAt, expiresAt, isCustom]
+      properties:
+        code:
+          type: string
+          description: Seven-character generated Base62 code or the supplied alias.
+        shortUrl:
+          type: string
+          format: uri
+          description: Built only from PUBLIC_BASE_URL.
+        originalUrl:
+          type: string
+          format: uri
+          description: The stored destination, echoed exactly as trimmed at creation.
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: [string, 'null']
+          format: date-time
+          description: UTC instant with exactly three fractional digits, or null when absent.
+        isCustom:
+          type: boolean
+
+    StatsResponse:
+      allOf:
+        - $ref: '#/components/schemas/CreateLinkResponse'
+        - type: object
+          required: [isExpired, clickCount, lastClickedAt]
+          properties:
+            isExpired:
+              type: boolean
+              description: Computed lazily from expiresAt and the current time.
+            clickCount:
+              type: integer
+              minimum: 0
+            lastClickedAt:
+              type: [string, 'null']
+              format: date-time
+
+    ErrorDetail:
+      type: object
+      required: [path, message]
+      properties:
+        path:
+          type: string
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - VALIDATION_ERROR
+                - RESERVED_ALIAS
+                - NOT_FOUND
+                - ALIAS_TAKEN
+                - LINK_EXPIRED
+                - INTERNAL_ERROR
+            message:
+              type: string
+              description: Generic message; never leaks a stack trace or internal path.
+            details:
+              type: array
+              description: Present only for some 400 validation failures.
+              items:
+                $ref: '#/components/schemas/ErrorDetail'

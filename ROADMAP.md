@@ -89,13 +89,14 @@ Suggested order:
 8. API documentation and README.
 9. Final verification and review.
 
-**Status:** In progress — steps 1 (scaffold, configuration validation, `GET /health`), 2 (database
+**Status:** Complete — steps 1 (scaffold, configuration validation, `GET /health`), 2 (database
 connection, pragmas, schema, typed helpers, errors, middleware), 3 (create-link validation,
 generator, repository, service, and `POST /api/links`), 4 (redirect and click tracking), 5 (custom
-aliases), 6 (expiration), and 7 (statistics) are complete and verified: all four `AGENTS.md` §8.2
-checks pass with 204 tests. Steps 8 (API documentation and README) and 9 (final verification and
-review) remain pending; the §8 workflow itself was run after each step and after the final diff
-review.
+aliases), 6 (expiration), 7 (statistics), and 8 (API documentation and README) are complete and
+verified. Step 9 (final verification and review) is complete: all four `AGENTS.md` §8.2 checks pass
+after `rm -rf node_modules && npm ci` with 15 test files and 217 tests. Every API example was
+exercised against a real server; the `AGENTS.md` §8 workflow ran after each implementation step,
+after the final diff review, and again after the clean install.
 
 **Exit criteria:** Core behavior is implemented, automated checks are run, and limitations are
 documented.

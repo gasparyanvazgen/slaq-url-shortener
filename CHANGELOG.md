@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### 2026-11-19 — §8 final quality and documentation verified
+
+- Verified every request/response example in `docs/api-specification.md` by starting the compiled
+  server from `dist/` in a temporary directory with its own SQLite file and calling it with `curl`:
+  health, create (generated, custom alias, expiry, query/fragment destination), `GET`/`HEAD`
+  redirect, statistics (fresh, clicked, expired, unknown code), expiry `410`, reserved alias,
+  duplicate alias, malformed JSON, invalid URL, unmatched routes, `DELETE`, `Host`-header safety,
+  and response headers. The expired-link case was produced with a near-future `expiresAt` and a
+  short wait because creation correctly rejects a past instant.
+- Fixed two docs-only mismatches: `expiresAt` normalization (the response has three fractional
+  digits) and the validation error envelope (`Request validation failed` with the rule in
+  `details`). Documented the observed `404` statistics `Cache-Control` gap without changing the
+  approved contract or production code.
+- Replaced the framework-only `README.md` with service setup and usage: install, environment
+  variables and the fact that `.env` is not auto-loaded, run/dev commands, curl examples,
+  verification commands, a D1–D22 design summary, known limitations, and future work.
+- Added `docs/openapi.yaml`, a hand-written OpenAPI 3.1 description of the same contract. No
+  dependency or generator was added; the file parses cleanly with PyYAML.
+- Added `tests/acceptance-gaps.test.ts` (13 tests) covering acceptance criteria that had no
+  executable assertion: AC-01.5, AC-03.2, AC-03.3, AC-04.2, AC-04.5, AC-04.6, AC-07.2, AC-08.2,
+  AC-08.4, AC-09.1, AC-09.2, and AC-09.3. Production code was not changed.
+- Verification: `rm -rf node_modules && npm ci` then `npm run typecheck && npm run lint && npm test
+  && npm run build` — all four pass; 15 test files, 217 tests, 1.32 s. `npm ci` reported that this
+  environment blocked the `better-sqlite3` and `esbuild` install scripts under its allowScripts
+  policy; the driver still loaded and the full suite passed.
+- Synchronized `TASKS.md` §8, `ROADMAP.md` Phase 5, `PROJECT_STATE.md`, and this changelog.
+
 ### 2026-11-19 — §§4–7 redirect, aliases, expiration, and statistics implemented and verified
 
 Each section was implemented with tests first and its own full gate run; §4 was added first because

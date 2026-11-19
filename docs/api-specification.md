@@ -37,6 +37,11 @@ never built from the request `Host` header.
 | `alias` | no | 3–32 characters, `[A-Za-z0-9_-]`, case-sensitive, not `api` or `health` (compared case-insensitively), not already used. |
 | `expiresAt` | no | ISO 8601 with offset; normalized to UTC `Z`; must be strictly in the future. |
 
+`expiresAt` is normalized by `new Date(value).toISOString()`, so the response always has exactly
+three fractional digits: the example input `2026-12-31T00:00:00Z` returns
+`2026-12-31T00:00:00.000Z`. The same rule applies to a supplied offset or a different fractional
+precision.
+
 Field handling (approved D19): unknown body fields are ignored and never stored — only `url`,
 `alias`, and `expiresAt` are read. A destination that already exists is **not** deduplicated, so
 creating the same `url` twice returns two different codes. A malformed JSON body or a payload above
@@ -106,15 +111,18 @@ Success response — `200 OK`, `Cache-Control: no-store` (approved D17):
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "url must be a valid http or https URL",
+    "message": "Request validation failed",
     "details": [
-      { "path": "url", "message": "Invalid URL" }
+      { "path": "url", "message": "url must be a valid http or https URL" }
     ]
   }
 }
 ```
 
-`details` is optional and appears only for `400` validation failures.
+Schema validation errors use the generic message `Request validation failed` with the field rule in
+`details`. Body-parser failures (malformed or oversized JSON) instead return
+`"message": "Request body could not be parsed"` with no `details`. `details` is optional and appears
+only for `400` validation failures.
 
 | HTTP | `error.code` | When |
 |---|---|---|
@@ -129,7 +137,9 @@ Success response — `200 OK`, `Cache-Control: no-store` (approved D17):
 
 - `Content-Type: application/json; charset=utf-8` on JSON responses.
 - `Location` on `201` (short URL) and `302` (destination).
-- `Cache-Control: no-store` on statistics responses, because click counts change.
+- `Cache-Control: no-store` on successful statistics responses, because click counts change.
+  A `404` statistics response currently omits this header; that is a known implementation gap
+  tracked in `PROJECT_STATE.md`, not an approved contract change.
 - No `Cache-Control` override on the redirect beyond Express defaults.
 
 ## Decision status
