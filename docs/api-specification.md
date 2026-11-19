@@ -6,7 +6,8 @@
 > body-parser mapping by D19 (2026-11-19 — `ADR-019`); the routes and error envelope by D3
 > (`ADR-003`); the `302` redirect by D4 (`ADR-004`); lazy expiry and `410` by D7 (`ADR-007`); the
 > alias rules by D6 (`ADR-006`); the `links` schema by D2 (`ADR-002`); and `HEAD` redirect behavior
-> by D20 (`ADR-020`). Nothing here is provisional.
+> by D20 (`ADR-020`). Nothing here is provisional except the documentation routes below, which use
+> the user-approved `swagger-ui-dist` dependency under **Proposed** D23 (`ADR-023`).
 
 Base URL: the validated `PUBLIC_BASE_URL` (for example `https://slaq.example`). Short URLs are
 never built from the request `Host` header.
@@ -143,6 +144,26 @@ only for `400` validation failures.
 - `Cache-Control: no-store` on every statistics response, including `404`, because click counts
   change.
 - No `Cache-Control` override on the redirect beyond Express defaults.
+
+## API documentation routes
+
+| Method | Path | Success | Purpose |
+|---|---|---|---|
+| `GET` | `/api/docs` | `200` (`text/html`) | Small page that initializes `SwaggerUIBundle` with `url: '/api/openapi.yaml'`. |
+| `GET` | `/api/docs/assets/*` | `200` | Static files from the installed `swagger-ui-dist` package. |
+| `GET` | `/api/openapi.yaml` | `200` (`application/yaml`) | The hand-maintained `docs/openapi.yaml`. |
+
+- Unknown asset paths fall through to the standard `404 NOT_FOUND` envelope; no new error code is
+  introduced.
+- The spec path is resolved relative to the serving module, not `process.cwd()`, so the compiled
+  server can serve it from any working directory. Deployments ship `docs/` alongside `dist/`.
+- The spec's `servers` entry is `/`: "Try it out" calls the origin that served the page, matching
+  `PUBLIC_BASE_URL` when that is the public origin. Browsers follow the `302` from `GET /{code}`, so
+  trying that route displays the destination page rather than the raw redirect.
+- These routes are registered under `/api` before `/:code`. There is no top-level `/docs`, and the D6
+  reserved aliases are unchanged.
+- **Status:** the user approved the single new `swagger-ui-dist` dependency; [`ADR-023`](decisions/ADR-023.md)
+  is **Proposed** and must stay so until the user approves it.
 
 ## Decision status
 

@@ -5,6 +5,7 @@ import type { DatabaseHandle } from './db/connection.js';
 import type { Clock } from './lib/clock.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
+import { createDocsRouter } from './modules/docs/docs.routes.js';
 import { createLinksController } from './modules/links/links.controller.js';
 import { createLinkRepository } from './modules/links/links.repository.js';
 import { createLinksRouter, createRedirectRouter } from './modules/links/links.routes.js';
@@ -52,6 +53,8 @@ export function createApp(deps: AppDependencies): Express {
     res.status(200).json(HEALTH_BODY);
   });
   app.use('/api', createLinksRouter(controller));
+  // Documentation routes are static too: they precede the catch-all redirect (D3, D23).
+  app.use('/api', createDocsRouter());
   app.use(createRedirectRouter(controller));
 
   app.use(notFoundHandler);

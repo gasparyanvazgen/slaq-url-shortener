@@ -2,15 +2,18 @@
 
 > Single source of truth for technical decisions. One entry per decision; no duplicates.
 > An ADR under `docs/decisions/ADR-NNN.md` is created only when the user approves the
-> corresponding `D-NNN`, and reuses the same number.
+> corresponding `D-NNN`, and reuses the same number. D23 is the one user-directed exception: the
+> user asked for a **Proposed** ADR before approval; it is a draft and is not an approved decision.
 
-- **Register updated:** 2026-11-19 (D22 approved — `PORT` default; C-1 … C-3 applied; D20 and D21
-  approved)
-- **Decisions:** D1–D22
+- **Register updated:** 2026-11-19 (D23 recorded as **Proposed** — local Swagger UI; D22 approved —
+  `PORT` default; C-1 … C-3 applied; D20 and D21 approved)
+- **Decisions:** D1–D23
 - **Approved by the user:** **D8–D18** on 2026-11-18; **D1–D7** and **D19** on 2026-11-19; **D20**
   and **D21** on 2026-11-19; **D22** on 2026-11-19 — every decision is recorded as `ADR-001` …
   `ADR-022`
-- **Pending User Approval:** none — **D1–D22 are all Approved**
+- **Pending User Approval:** **D23** — fully specified and implemented under the user's explicit
+  one-dependency approval, but the ADR is **Proposed** until the user approves it. **D1–D22 are all
+  Approved.**
 - **Decision owner:** User (`AGENTS.md` §3)
 
 ## Status vocabulary
@@ -23,13 +26,13 @@
 | **Rejected** | Explicitly declined by the user. Kept for traceability. |
 | **Superseded** | Replaced by a later decision; the replacement is named. |
 
-All twenty-two decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18;
-D1–D7, D19, D20, D21, and D22 on 2026-11-19. D1–D7 were approved as recommended with two recorded
+All twenty-two original decisions (D1–D22) are **Approved** by the user, each with an ADR:
+D8–D18 on 2026-11-18; D1–D7, D19, D20, D21, and D22 on 2026-11-19. D1–D7 were approved as recommended with two recorded
 clarifications — the `createApp({ db, clock, config })` deps object (D1) and **five generation
 attempts in total** (D5). D20 and D21 were approved on 2026-11-19 after the Prompt 03 architecture
 review, together with corrections C-1 … C-3. D22 settled the last unsourced startup value — the
-`PORT` default and its parsing rule. No entry is **Pending User Approval**, **Rejected**, or
-**Superseded**.
+`PORT` default and its parsing rule. D23 is the only later entry and is **Proposed**, awaiting
+approval; no entry is **Rejected** or **Superseded**.
 
 ## Status summary
 
@@ -57,6 +60,7 @@ review, together with corrections C-1 … C-3. D22 settled the last unsourced st
 | D20 | Redirect write path: guarded increment, no explicit transaction, `HEAD` does not count | **Approved** — `ADR-020` |
 | D21 | `SQLITE_BUSY` maps to `500 INTERNAL_ERROR`, no retry | **Approved** — `ADR-021` |
 | D22 | `PORT` default (`3000` in every environment) and ASCII-digit parsing in 1–65535 | **Approved** — `ADR-022` |
+| D23 | Serve Swagger UI locally with `swagger-ui-dist` under `/api` | **Proposed** — `ADR-023` |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
 D10–D18 are the toolchain and contract findings verified in `docs/ai-workflow/research-findings.md`.
@@ -523,6 +527,34 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
 
 ---
 
+## D23 — Serve Swagger UI from the API
+
+- **Status:** **Proposed** — [`ADR-023.md`](ADR-023.md). The user approved only the
+  `swagger-ui-dist` dependency for this task; the ADR itself is not approved.
+- **Decision:** Add `swagger-ui-dist@^5.35.1` as the single new runtime dependency and register
+  `GET /api/docs`, `GET /api/docs/assets/*` (`express.static`), and `GET /api/openapi.yaml` before
+  `GET /:code`. Resolve the spec path from the module URL, not `process.cwd()`; use a relative
+  OpenAPI `servers` URL and document browser redirect-following for `GET /{code}`.
+- **Justification:** `docs/openapi.yaml` already satisfies FR-12 as a file; a locally served viewer
+  makes it usable without a third-party CDN. All non-redirect routes stay under `/api` (D3), so no
+  reserved alias or code namespace changes (D6). `5.35.1` is the registry `latest`, has no
+  restrictive `engines` field, and contains dependency-free browser assets suitable for Node 24.
+- **Alternatives / trade-offs:** `swagger-ui-express` would add a second runtime package and hide
+  route/asset control; a CDN page breaks offline; pre-rendered HTML loses "Try it out"; a top-level
+  `/docs` would compete with short codes and widen the reserved-alias set. The transitive
+  `@scarf/scarf` install-time analytics package is blocked by this environment's install-script
+  policy and is not part of the runtime path.
+- **Verification:** new integration tests for the HTML page, the spec, the `404` asset fallthrough,
+  and unchanged `/health`, redirect, and alias behavior; plus a `dist/server.js` smoke check from a
+  different working directory (evidence in `docs/ai-workflow/PROJECT_STATE.md`).
+- **Affected documents:** `README.md`, `docs/api-specification.md`, `docs/openapi.yaml`,
+  `CHANGELOG.md`, `docs/ai-workflow/TASKS.md`, `docs/ai-workflow/PROJECT_STATE.md`.
+- **Depends on / constrains:** D3 and D6 (route order and reserved aliases), D14 (caret range plus
+  lockfile), D13 (Node 24 runtime), FR-12 (API documentation). It changes no database, error code,
+  or link contract.
+
+---
+
 ## Cross-decision sequencing constraints
 
 | Constraint | Why |
@@ -536,6 +568,7 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
 | D20 → redirect implementation | The write path and the `HEAD` rule determine the repository and route shape. |
 | D21 → error middleware | The busy-error mapping is part of the single error writer. |
 | D22 → D17 development default | The resolved `PORT` is what `http://localhost:${PORT}` interpolates. |
+| D23 → D3, D6, D14 | New documentation routes must stay under `/api`, precede `/:code`, avoid reserved aliases, and use a caret range plus lockfile. |
 | D4 and D18 together | Only a validated `http(s)` target may ever reach the `Location` header. |
 
 ## Consistency check against the earlier nine-item checklist
@@ -570,6 +603,10 @@ configuration (D10), ESLint 10 flat config (D11), `better-sqlite3` with typed he
 Node.js 24 LTS (D13), caret ranges with a committed lockfile (D14), canonical UTC timestamps
 (D15), native ESM (D16), the API/`PUBLIC_BASE_URL` contract with `200` + `isExpired`, exposed
 `isCustom` and production fail-fast (D17), and the scheme/2048/credential rules (D18).
+
+D23 is **not** in the approval record: the user approved only the `swagger-ui-dist` dependency and
+requested a draft ADR, which is recorded as **Proposed** in `ADR-023.md` and must remain so until the
+user explicitly approves it.
 
 D2's `CHECK` constraint set is resolved in that decision itself: only `click_count >= 0` and
 `is_custom IN (0,1)` are adopted, and the extra length/URL/expiry checks are declined

@@ -276,12 +276,41 @@ this file as work progresses. Decision IDs refer to
       files, the moved workflow files, and one test comment now use the new paths; Markdown link
       destinations were recomputed relative to each file's new directory.
 - [x] Keep the root layout. — `README.md`, `CHANGELOG.md`, `AGENTS.md`, config files, `src/`, and
-      `tests/` remain at the root. No file was deleted; no `LICENSE` file exists in this repository.
+      `tests/` remain at the root. No file was deleted; no `LICENSE` file existed at that time (the
+      user added one later in `8ae119c`).
 - [x] Verify links and the gate. — dependency-free Markdown link check: **0 broken links** across
       all tracked Markdown files; `npm run typecheck && npm run lint && npm test && npm run build`:
       all four pass with 15 test files and 238 tests. Evidence is in
       `docs/ai-workflow/PROJECT_STATE.md`.
 - [x] No behavior change. — no source logic, dependency, database, or decision was touched.
+
+### 11. Served Swagger UI (complete)
+- [x] Check the registry and add one approved dependency. — `swagger-ui-dist` 5.35.1 is `latest`,
+      has no restrictive `engines` field, and ships dependency-free browser assets; declared as
+      `^5.35.1` per D14 with the v3 lockfile pinned to 5.35.1 and installed on Node 24.22.1. No other
+      dependency was added.
+- [x] Write D23 / `ADR-023` and add it to the decision register. — dependency justification,
+      alternatives (`swagger-ui-express`, CDN, pre-rendered HTML, top-level `/docs`), route placement
+      under `/api`, and consequences are recorded; the status is **Proposed** until the user approves
+      it. The dependency approval did not approve the ADR.
+- [x] Write tests first. — `tests/docs.test.ts` failed before implementation with 4 failures
+      (missing `/api/docs`, asset, spec, and relative `servers` URL) while `/health`, `/:code`, the
+      aliases, and the 404 envelope already passed.
+- [x] Implement the routes. — `src/modules/docs/docs.routes.ts` serves the Swagger UI HTML,
+      `express.static` over `swagger-ui-dist`, and the spec as `application/yaml`; `src/app.ts`
+      mounts them under `/api` before `/:code`. No top-level `/docs` and no D6 alias change.
+- [x] Resolve the spec from the module location. — `fileURLToPath(import.meta.url)` with a fixed
+      relative depth to `docs/openapi.yaml`; the compiled server was started from
+      `/tmp/opencode/slaq-dist-check` and `curl` confirmed all three routes, an identical spec, and
+      the `404 NOT_FOUND` fallthrough.
+- [x] Make "Try it out" work. — the OpenAPI `servers` entry is the relative URL `/`, and
+      `GET /{code}` notes that browsers follow the `302`.
+- [x] Update documentation. — `README.md`, `docs/api-specification.md`, `docs/openapi.yaml`,
+      `CHANGELOG.md`, `docs/decisions/ADR-023.md`, `docs/decisions/DECISION-REGISTER.md`, this file,
+      and `docs/ai-workflow/PROJECT_STATE.md`.
+- [x] Check links and run the gate. — dependency-free Markdown link check: 69 files, 118 internal
+      links, **0 broken links**; `npm run typecheck && npm run lint && npm test && npm run build`
+      passes with 16 test files and 244 tests. Evidence is in `docs/ai-workflow/PROJECT_STATE.md`.
 
 ## Deferred unless time remains
 

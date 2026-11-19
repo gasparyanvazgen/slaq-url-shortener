@@ -39,7 +39,7 @@ It is a single-process service with a small JSON API. Links can use a generated 
 - **Consistent errors:** every error uses one JSON envelope with a stable error code.
 - **Fail-fast configuration:** an invalid `PORT` or `PUBLIC_BASE_URL` stops the server before it listens or opens the database.
 - **Automated tests:** Vitest with an in-memory SQLite database and an injected clock.
-- **API documentation:** a written specification and an OpenAPI 3.1 description.
+- **API documentation:** a written specification, an OpenAPI 3.1 description, and a locally served interactive Swagger UI.
 
 ## Tech Stack
 
@@ -53,6 +53,7 @@ It is a single-process service with a small JSON API. Links can use a generated 
 | Testing | Vitest 5, Supertest |
 | Linting | ESLint 10 (flat config, `typescript-eslint`) |
 | Dev runner | `tsx` |
+| API viewer | Swagger UI 5 (`swagger-ui-dist`, served locally) |
 
 Versions are the ranges declared in `package.json`; the committed `package-lock.json` pins exact versions.
 
@@ -77,6 +78,8 @@ slaq-url-shortener/
 │   ├── middleware/
 │   │   ├── error-handler.ts   # Single place that writes error responses
 │   │   └── not-found.ts       # 404 handler for unmatched routes
+│   ├── modules/docs/
+│   │   └── docs.routes.ts       # Swagger UI page, local assets, OpenAPI spec
 │   └── modules/links/
 │       ├── links.routes.ts      # Route definitions
 │       ├── links.controller.ts  # HTTP boundary: validate, call service, shape response
@@ -176,6 +179,9 @@ The examples assume `PUBLIC_BASE_URL=http://localhost:3000`.
 |---|---|---|---|
 | `POST` | `/api/links` | Create a short link | `201` |
 | `GET` | `/api/links/:code/stats` | Get statistics | `200` |
+| `GET` | `/api/docs` | Interactive Swagger UI | `200` |
+| `GET` | `/api/docs/assets/*` | Swagger UI static assets | `200` |
+| `GET` | `/api/openapi.yaml` | OpenAPI 3.1 description | `200` |
 | `GET` / `HEAD` | `/:code` | Redirect to the original URL | `302` |
 | `GET` | `/health` | Liveness check (does not touch the database) | `200` |
 
@@ -245,7 +251,11 @@ Every error uses the same envelope. Validation errors also include `details`.
 
 There is no endpoint to delete or edit links.
 
-The full contract is in [`docs/api-specification.md`](docs/api-specification.md), and a machine-readable description is in [`docs/openapi.yaml`](docs/openapi.yaml). You can load the OpenAPI file into any OpenAPI viewer.
+The full contract is in [`docs/api-specification.md`](docs/api-specification.md), and a machine-readable description is in [`docs/openapi.yaml`](docs/openapi.yaml).
+
+### Interactive API documentation
+
+Open [http://localhost:3000/api/docs](http://localhost:3000/api/docs) while the server is running. The page serves Swagger UI locally from `swagger-ui-dist` and loads `/api/openapi.yaml`; no CDN is used. Its `servers` entry is relative to the origin serving the page, so "Try it out" uses the same host and port (and matches `PUBLIC_BASE_URL` when that is the public origin). Note that browsers follow the `302` from `GET /{code}`, so trying that endpoint shows the destination page instead of the raw redirect.
 
 ### Known limitations
 

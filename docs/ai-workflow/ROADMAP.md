@@ -96,7 +96,10 @@ aliases), 6 (expiration), 7 (statistics), and 8 (API documentation and README) a
 verified. Step 9 (final verification and review) is complete: all four `AGENTS.md` §8.2 checks pass
 after `rm -rf node_modules && npm ci` with 15 test files and 217 tests. Every API example was
 exercised against a real server; the `AGENTS.md` §8 workflow ran after each implementation step,
-after the final diff review, and again after the clean install.
+after the final diff review, and again after the clean install. The later repository tidy-up (§10)
+was committed as `fe9bd1d`; §11 adds locally served Swagger UI under `/api` with the user-approved
+`swagger-ui-dist` dependency and D23 / `ADR-023` recorded as **Proposed**, and is verified with
+16 test files and 244 tests.
 
 **Exit criteria:** Core behavior is implemented, automated checks are run, and limitations are
 documented.

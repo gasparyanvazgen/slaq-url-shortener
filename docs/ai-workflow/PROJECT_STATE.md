@@ -1,30 +1,31 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–10 complete; §§1–9 committed through
-> `8a03267` on `master`; §10 repository tidy-up verified but not yet committed).
+> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–11 complete; §§1–10 committed through
+> `8ae119c` on `dev`; §11 Swagger UI work verified but not yet committed).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§10
-  are complete and verified; the only remaining step is committing the §10 tidy-up and choosing
-  whether to push.
-- **Implementation started:** Yes — §1 is committed as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`,
-  §§4–7 as `5148145`, §8 as `f5d5a2e`, and §9 as `8a03267`. §10 moves the AI-workflow files into
-  `docs/ai-workflow/` with `git mv` and updates references; no behavior, table, index, dependency,
-  or decision changed in §10.
+- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§11
+  are complete and verified; the only remaining step is committing §11 and choosing whether to push.
+- **Implementation started:** Yes — §1 as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`, §§4–7 as
+  `5148145`, §8 as `f5d5a2e`, §9 as `8a03267`; the user then committed the §10 tidy-up as `fe9bd1d`,
+  a README revision as `4ab7c27`, and the MIT LICENSE as `8ae119c`. §11 adds locally served Swagger
+  UI with the single user-approved `swagger-ui-dist` dependency; no table, index, error code, or
+  link contract changed.
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
 - **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
   **D22** (2026-11-19), recorded as `docs/decisions/ADR-001.md` … `ADR-022.md`
-- **Pending decisions:** none — **D1–D22 are all Approved**; C-1 … C-3 are applied
+- **Pending decisions:** **D23** — the user approved only the `swagger-ui-dist` dependency and asked
+  for `ADR-023` to stay **Proposed** until they approve it; C-1 … C-3 are applied
 - **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
   criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
-  proposal
-- **Last verified test run:** 2026-11-19 (after §10) — `npm run typecheck && npm run lint && npm test
-  && npm run build`: all four pass; 15 test files, 238 tests, 1.04 s. The earlier clean-install run
+  proposal. FR-12 is now also served interactively at `/api/docs`.
+- **Last verified test run:** 2026-11-19 (after §11) — `npm run typecheck && npm run lint && npm test
+  && npm run build`: all four pass; 16 test files, 244 tests, 1.31 s. The earlier clean-install run
   (`rm -rf node_modules && npm ci`) passed all four with 217 tests in 1.32 s; `npm ci` blocked the
   `better-sqlite3`/`esbuild` install scripts under this environment's allowScripts policy, but the
   driver loaded and the suite passed.
@@ -33,39 +34,40 @@
 
 ## Repository and Git status (re-verified 2026-11-19 from actual git output)
 
-- Branch: **`master`** (checked out), tracking `origin/master` and **in sync with it** — `git status -sb`
-  shows `## master...origin/master` with no ahead/behind count. `HEAD` = `origin/master` =
-  **`8a03267`** (`fix: validate destination controls and expiry dates, cache stats errors`); the
-  user committed and pushed §9 after the previous session.
+- Branch: **`dev`** (checked out), tracking `origin/dev` and **3 commits ahead** — `git status -sb`
+  shows `## dev...origin/dev [ahead 3]`. `HEAD` = **`8ae119c`** (`docs: add MIT license`);
+  `origin/dev` = `8a03267`. The three local commits are `fe9bd1d` (§10 tidy-up), `4ab7c27` (README
+  revision), and `8ae119c` (LICENSE); nothing was pushed.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`** (fetch and push);
   remote-tracking branches are `origin/master` and `origin/dev`.
-- `git ls-files` reports **113 tracked files**. `docs/decisions/` holds `ADR-001.md` … `ADR-022.md`,
-  one record per approved decision, all 22 tracked.
-- Working tree: **not clean** — 35 paths were moved with `git mv` into `docs/ai-workflow/`, and the
-  reference updates modify `AGENTS.md`, `README.md`, `CHANGELOG.md`, `docs/` files, one test comment,
-  and the moved status files. `git diff --check` reports no whitespace errors. `dist/`,
-  `node_modules/`, and `*.db` files are ignored. §§1–9 are committed through `8a03267`.
-- The lockfile is version 3 and pins the exact approved versions; no dependency was added or changed
-  in §§4–10. A clean `npm ci` succeeded on 2026-11-19. The §10 tidy-up is ready for the user's
-  commit; no commit or push was made in this session.
+- `git ls-files` reports **114 tracked files** (plus the three untracked §11 additions: `ADR-023.md`,
+  `src/modules/docs/docs.routes.ts`, `tests/docs.test.ts`). `docs/decisions/` holds `ADR-001.md` …
+  `ADR-022.md`, one per approved decision, plus the Proposed `ADR-023.md`.
+- Working tree: **not clean** — `package.json`, `package-lock.json`, `src/app.ts`, `README.md`,
+  `CHANGELOG.md`, `docs/api-specification.md`, `docs/openapi.yaml`, and
+  `docs/decisions/DECISION-REGISTER.md` are modified, and three files are untracked. `git diff --check`
+  reports no whitespace errors. `dist/`, `node_modules/`, and `*.db` files are ignored.
+- The lockfile is version 3 and pins exact versions; `swagger-ui-dist@^5.35.1` resolved to 5.35.1 and
+  is the only dependency added in §11. A clean `npm ci` succeeded on 2026-11-19. The §11 work is
+  ready for the user's commit; no commit or push was made in this session.
 - `.gitignore` ignores `.env` and `.env.*` and exempts `!.env.example`, so a future example file
   stays trackable (evidence below).
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
   deleted on 2026-11-18 at the user's request; `freebuff-base` held only an orphan commit with an
   empty tree.
-- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-022.md`,
-  one record per approved decision; **all 22 decisions are approved**.
+- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, `ADR-001.md` … `ADR-022.md`,
+  one record per approved decision, and the Proposed `ADR-023.md`; **D1–D22 are approved, D23 is not**.
 - Evidence for the statements above:
 
   ```bash
-  git status -sb                              # -> ## master...origin/master + §10 paths
-  git rev-parse HEAD                          # -> 8a0326741d564c4fff40258550d4068eb50c876f
-  git rev-parse origin/master                 # -> 8a0326741d564c4fff40258550d4068eb50c876f
-  git rev-list --count origin/master..HEAD    # -> 0
-  git ls-files | wc -l                        # -> 113
-  git status --porcelain                       # -> 35 renames staged, reference edits unstaged
+  git status -sb                              # -> ## dev...origin/dev [ahead 3] + §11 paths
+  git rev-parse HEAD                          # -> 8ae119c761d1e3f169ae623911e0750fe6e9b7f0
+  git rev-parse origin/dev                    # -> 8a0326741d564c4fff40258550d4068eb50c876f
+  git rev-list --count origin/dev..HEAD       # -> 3
+  git ls-files | wc -l                        # -> 114
+  git status --porcelain                       # -> 8 modified + 3 untracked §11 paths
   git diff --check                            # -> clean (exit 0)
-  ls docs/decisions/ADR-*.md | wc -l          # -> 22
+  ls docs/decisions/ADR-*.md | wc -l          # -> 23
   git check-ignore -v .env.local              # -> .gitignore:9:.env.*
   git check-ignore -v .env.example            # -> no output, exit 1 (exempt at .gitignore:10)
   ```
@@ -113,6 +115,7 @@ on 2026-11-19 and closes the last unsourced value in a confirmed requirement (th
 | D20 | Redirect: guarded increment, no explicit transaction; `HEAD` does not count a click | `ADR-020` |
 | D21 | `SQLITE_BUSY` after `busy_timeout` → `500 INTERNAL_ERROR`, no retry | `ADR-021` |
 | D22 | `PORT` default `3000` in every environment; digits-only 1–65535, leading zeros insignificant | `ADR-022` |
+| D23 | Locally served Swagger UI via `swagger-ui-dist` under `/api` | **Proposed** — `ADR-023` |
 
 Sub-options resolved with the approval: expired-link statistics return `200` with
 `isExpired: true`; `isCustom` is exposed; invalid or missing `PUBLIC_BASE_URL` fails fast in
@@ -128,8 +131,9 @@ recommended on 2026-11-19 with two clarifications recorded in their ADRs: the de
 set is limited to `click_count >= 0` and `is_custom IN (0,1)`. D20 and D21 were approved on
 2026-11-19 from the Prompt 03 review, with corrections C-1 … C-3 applied. D22 (`PORT` default
 `3000` in every environment, ASCII-digit parsing in 1–65535 with insignificant leading zeros) closed
-the last proposal in FR-11 the same day. No decision is pending, rejected, or superseded; changing
-one requires a new decision and a new ADR.
+the last proposal in FR-11 the same day. **D23 is Proposed, not approved**: the user approved only
+the `swagger-ui-dist` dependency and asked for `ADR-023` to remain a draft. No decision is rejected
+or superseded; changing one requires a new decision and a new ADR.
 
 ## Completed work
 
@@ -219,21 +223,69 @@ one requires a new decision and a new ADR.
 
 ## Known blockers
 
-1. **Commit is pending user action** — the §10 moves and reference updates are staged/unstaged but
-   not committed. The exact `git add … && git commit` command is in the session report; the user must
-   run it. This is a handoff step, not a technical failure.
-2. **Push is a user decision** — `master` is in sync with `origin/master`; nothing was pushed in this
+1. **Commit is pending user action** — the §11 Swagger UI work is modified/untracked but not
+   committed. The exact `git add … && git commit` command is in the session report; the user must run
+   it. This is a handoff step, not a technical failure.
+2. **Push is a user decision** — `dev` is 3 commits ahead of `origin/dev`; nothing was pushed in this
    session.
+3. **D23 is not approved** — `ADR-023` stays **Proposed** until the user approves it. Only the
+   `swagger-ui-dist` dependency was explicitly approved for this task.
 
 No review finding remains open: all three were approved by the user and fixed in §9.
 
-No technical blocker is open for §§4–10: the §4 dependency was resolved by the user (implement §4
+No technical blocker is open for §§4–11: the §4 dependency was resolved by the user (implement §4
 first), the stale AC-02.3 alias line was resolved by the user (case-insensitive reserved names), the
 expiry/stats split was resolved by the user (minimal stats in §6), the three review findings were
-approved and fixed in §9, the §10 tidy-up has 0 broken links and passes the `AGENTS.md` §8.2 gate,
-all 22 decisions are approved, and `better-sqlite3` loads on this machine.
+approved and fixed in §9, the §10 tidy-up has 0 broken links, and §11 passes the `AGENTS.md` §8.2
+gate plus a compiled-server smoke test from another working directory. D1–D22 are approved and
+`better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+### §11 locally served Swagger UI (2026-11-19)
+
+```bash
+node /tmp/opencode/check-links.mjs
+# -> Markdown files scanned: 69
+# -> Internal links checked: 118
+# -> Broken links: 0
+
+npm view swagger-ui-dist version dist-tags engines --json
+# -> "version": "5.35.1", dist-tags.latest = "5.35.1", no engines field
+node -v                                         # -> v24.22.1
+
+npx vitest run tests/docs.test.ts               # before implementation
+# -> Test Files 1 failed (1); Tests 4 failed | 2 passed (6)
+# -> failures: /api/docs 404, asset 404, /api/openapi.yaml 404, relative servers URL absent
+
+npx vitest run tests/docs.test.ts               # after implementation
+# -> Test Files 1 passed (1); Tests 6 passed (6)
+
+npm run build
+cd /tmp/opencode/slaq-dist-check
+PORT=3101 NODE_ENV=development PUBLIC_BASE_URL=http://localhost:3101 \
+  node /home/vazgen/Desktop/slaq-url-shortener/dist/server.js &
+# cwd: /tmp/opencode/slaq-dist-check
+# GET /api/docs -> 200 text/html; charset=utf-8
+# GET /api/openapi.yaml -> 200 application/yaml
+# GET /api/docs/assets/swagger-ui.css -> 200 text/css; charset=utf-8
+# GET /api/docs/assets/missing.js -> 404 application/json; charset=utf-8
+# SwaggerUIBundle occurrences: 1
+# served spec identical to docs/openapi.yaml: yes
+# asset bytes: 187956
+# 404 body: {"error":{"code":"NOT_FOUND","message":"Route not found"}}
+
+npm run typecheck && npm run lint && npm test && npm run build
+# -> typecheck:  tsc -p tsconfig.json                 (exit 0)
+# -> lint:       eslint .                              (exit 0)
+# -> test:       vitest run — 16 test files passed, 244 tests passed, 1.31 s
+# -> build:      tsc -p tsconfig.build.json            (exit 0)
+```
+
+The compiled server resolved `docs/openapi.yaml` from its module location while running outside the
+repository, so no `process.cwd()` dependency remains. `@scarf/scarf` was the only install-script
+warning from adding `swagger-ui-dist`; it is install-time analytics and is not part of the runtime
+path.
 
 ### §10 repository tidy-up: link check and gate (2026-11-19)
 
@@ -491,7 +543,7 @@ performed. The §1 scaffold session at the top of this section supersedes that s
 
 ## Next recommended action
 
-Run the prepared `git add … && git commit …` command to land the §10 tidy-up and its status updates
-(do not push until the user chooses; `master` currently matches `origin/master`). Link checking
-reports 0 broken links and the full gate passes. The design gate is closed — do not reopen an
-approved decision without a new ADR.
+Run the prepared `git add … && git commit …` command to land §11, the dependency/lockfile update,
+ADR-023, and the status updates (do not push until the user chooses; `dev` is 3 commits ahead of
+`origin/dev`). Link checking reports 0 broken links and the full gate passes. D23 remains **Proposed**
+until the user approves it; do not reopen an approved decision without a new ADR.

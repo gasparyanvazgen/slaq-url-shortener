@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### 2026-11-19 — Locally served Swagger UI
+
+- Added the single user-approved runtime dependency `swagger-ui-dist@^5.35.1` (D14 caret range plus
+  committed lockfile). No other dependency was added.
+- Registered three static routes under `/api` before `/:code`: `GET /api/docs` (small HTML page that
+  initializes `SwaggerUIBundle` with `url: '/api/openapi.yaml'`), `GET /api/docs/assets/*`
+  (`express.static` over the package assets), and `GET /api/openapi.yaml` (`application/yaml`).
+  There is no top-level `/docs` and no change to the D6 reserved aliases.
+- The spec path is resolved from the serving module's URL, not `process.cwd()`. The compiled server
+  was started from a different working directory and all three routes were checked with `curl`; the
+  served spec was byte-identical to `docs/openapi.yaml`.
+- The OpenAPI `servers` entry is now the relative URL `/`, so "Try it out" calls the origin serving
+  the page; `GET /{code}` documents that browsers follow the `302`.
+- Six new integration tests in `tests/docs.test.ts` cover the HTML page, a real static asset, the
+  `404 NOT_FOUND` fallthrough, the spec response, the relative server URL, and unchanged
+  `/health`/redirect/alias behavior. They failed before the implementation and pass after it.
+- Recorded D23 / `ADR-023` as **Proposed** in the decision register; the dependency approval does not
+  approve the ADR. Updated `README.md`, `docs/api-specification.md`, and the status files.
+- Verified: a dependency-free Markdown link check reports **0 broken links** across 69 Markdown
+  files, and `npm run typecheck && npm run lint && npm test && npm run build` passes with 16 test
+  files and 244 tests.
+
 ### 2026-11-19 — Repository tidy-up (no behavior change)
 
 - Moved the AI-workflow sources into `docs/ai-workflow/` with `git mv`, preserving history:
@@ -12,8 +34,8 @@
   `AGENTS.md`, `README.md`, this changelog, all `docs/` files, the moved workflow files, and one test
   comment. Relative links were recomputed from each file's new directory.
 - Kept at the root: `README.md`, `CHANGELOG.md`, `AGENTS.md`, all config files, `src/`, and `tests/`.
-  No file was deleted, no dependency or decision changed, and no behavior changed. There is no
-  `LICENSE` file in this repository.
+  No file was deleted, no dependency or decision changed, and no behavior changed. No `LICENSE` file
+  existed during the tidy-up; the user added one later in `8ae119c`.
 - Verified: a dependency-free Markdown link check reported **0 broken links** across all tracked
   Markdown files; `npm run typecheck && npm run lint && npm test && npm run build` passed with
   15 test files and 238 tests.

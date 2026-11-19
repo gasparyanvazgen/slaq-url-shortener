@@ -9,8 +9,10 @@ info:
     never from the request Host header. Codes and aliases are matched case-sensitively.
 
 servers:
-  - url: http://localhost:3000
-    description: Development default. Replace with the validated PUBLIC_BASE_URL in other environments.
+  - url: /
+    description: >-
+      Relative to the origin serving the docs, so "Try it out" calls the same host and port as the
+      viewer. When PUBLIC_BASE_URL is that origin, this is the same base used to build short URLs.
 
 paths:
   /health:
@@ -108,7 +110,9 @@ paths:
       summary: Redirect to the stored destination
       description: >-
         Counts a click only on a successful GET. The Location value is exactly the stored
-        destination, never a request-supplied value. Expired codes are not written.
+        destination, never a request-supplied value. Expired codes are not written. Note that
+        browsers follow redirects, so "Try it out" displays the destination page rather than the
+        raw 302; use a client that does not follow redirects to inspect the response.
       responses:
         '302':
           description: Found.
