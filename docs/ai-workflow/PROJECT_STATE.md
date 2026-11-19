@@ -1,15 +1,16 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–12 complete; v0.2.0 release
-> recorded from `v0.1.0..HEAD`; `dev` and `master` at `dac6bf2` before the version-bump commit).
+> **Last rewritten:** 2026-11-19 (`docs/ai-workflow/TASKS.md` §§1–13 complete; v0.2.0 tagged and
+> pushed at `9e363ea`; README screenshot added afterwards).
 
 ## Current status
 
 - **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
-- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§12
-  are complete and verified; the remaining release actions are the commit, pushes, and tag.
+- **Current phase:** Phase 5 — implementation and operations are complete. `docs/ai-workflow/TASKS.md` §1–§13
+  are complete and verified; v0.2.0 was committed, pushed to `dev` and `master`, and tagged. Currently
+  on `dev` with one uncommitted, docs-only README screenshot change.
 - **Implementation started:** Yes — §1 as `acb51ec`, §2 as `93dd0f8`, §3 as `26dc26e`, §§4–7 as
   `5148145`, §8 as `f5d5a2e`, §9 as `8a03267`; the user then committed the §10 tidy-up as `fe9bd1d`,
   a README revision as `4ab7c27`, and the MIT LICENSE as `8ae119c`. §11 was committed as `fc22d69`
@@ -245,6 +246,19 @@ gate plus a compiled-server smoke test from another working directory. D1–D22 
 `better-sqlite3` loads on this machine.
 
 ## Latest verification evidence
+
+### README screenshot (2026-11-19)
+
+`swagger-screenshot.png` moved from the repository root to `docs/images/` and is embedded in the
+"Interactive API documentation" section of `README.md`; the project tree lists the new directory.
+The image bytes were not changed, and no source, test, dependency, or decision changed.
+
+```bash
+node /tmp/opencode/check-links.mjs
+# -> Markdown files scanned: 69
+# -> Internal links checked: 119
+# -> Broken links: 0
+```
 
 ### §11 locally served Swagger UI (2026-11-19)
 

@@ -323,6 +323,12 @@ this file as work progresses. Decision IDs refer to
       `clickCount: 1`. Evidence is in `docs/ai-workflow/PROJECT_STATE.md`.
 - [ ] Publish the GitHub Release from the 0.2.0 CHANGELOG section — done by the user in the web UI.
 
+### 13. README screenshot (complete)
+- [x] Moved `swagger-screenshot.png` from the repository root to `docs/images/` (image bytes unchanged)
+      and embedded it in the "Interactive API documentation" section of `README.md`.
+- [x] Updated the README project tree; the new relative image link resolves in the Markdown link
+      check (69 files, 119 internal links, **0 broken links**).
+
 ## Deferred unless time remains
 
 - [ ] Rate limiting.

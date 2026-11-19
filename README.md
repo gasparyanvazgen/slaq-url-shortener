@@ -93,6 +93,8 @@ slaq-url-shortener/
 │   ├── coding-standards.md
 │   ├── testing-strategy.md
 │   ├── architecture-proposal.md
+│   ├── images/                # Screenshots used in this README
+│   │   └── swagger-screenshot.png
 │   ├── decisions/             # Decision register and one ADR per decision (ADR-001…)
 │   └── ai-workflow/           # Project state, tasks, agent role cards, prompts, workflows
 ├── AGENTS.md                  # Instructions for AI coding assistants
@@ -252,6 +254,8 @@ The full contract is in [`docs/api-specification.md`](docs/api-specification.md)
 ### Interactive API documentation
 
 Open [http://localhost:3000/api/docs](http://localhost:3000/api/docs) while the server is running. The page serves Swagger UI locally from `swagger-ui-dist` and loads `/api/openapi.yaml`; no CDN is used. Its `servers` entry is relative to the origin serving the page, so "Try it out" uses the same host and port (and matches `PUBLIC_BASE_URL` when that is the public origin). Note that browsers follow the `302` from `GET /{code}`, so trying that endpoint shows the destination page instead of the raw redirect.
+
+![Swagger UI served at /api/docs](docs/images/swagger-screenshot.png)
 
 ### Known limitations
 
