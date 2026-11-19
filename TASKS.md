@@ -19,7 +19,7 @@ this file as work progresses. Decision IDs refer to
 - [x] Audit and synchronize project documentation with the findings. — Evidence: `CHANGELOG.md`
       entry of 2026-11-18.
 
-### 0.2 Decisions (D1–D21 all approved)
+### 0.2 Decisions (D1–D22 all approved)
 
 - [x] Review `docs/architecture-proposal.md` and the register. — Reviewed before the D1–D7
       walkthrough on 2026-11-19.
@@ -59,6 +59,10 @@ this file as work progresses. Decision IDs refer to
       transaction; `HEAD` returns the redirect without counting a click. Evidence: `ADR-020.md`.
 - [x] **D21 approved 2026-11-19** — `SQLITE_BUSY` after `busy_timeout` maps to `500 INTERNAL_ERROR`
       with no retry. Evidence: `ADR-021.md`.
+- [x] **D22 approved 2026-11-19** — `PORT` resolves to `3000` in every environment when unset or
+      empty; a set value is ASCII digits only with a numeric value in 1–65535, leading zeros
+      insignificant (`03000` → `3000`, `0000` rejected), and never parsed with a coercing
+      `parseInt`. Evidence: `ADR-022.md`; closes the last proposal in FR-11.
 - [x] Record the approved decisions as ADRs — `docs/decisions/ADR-008.md` … `ADR-019.md`.
 - [x] Record the D1–D7 approval as `ADR-001` … `ADR-007`. — Evidence:
       `docs/decisions/ADR-001.md` … `ADR-007.md`, 2026-11-19.
@@ -105,7 +109,9 @@ this file as work progresses. Decision IDs refer to
 - [ ] Add scripts `typecheck`, `lint`, `test`, `build`, `dev`, `start`.
 - [ ] Commit the lockfile.
 - [ ] Create the Express app factory and server entry point.
-- [ ] Add startup configuration with `PUBLIC_BASE_URL` validation.
+- [ ] Add startup configuration with `PUBLIC_BASE_URL` validation and `PORT` resolution —
+      default `3000` in every environment, digits-only 1–65535, leading zeros insignificant,
+      `0000` rejected (D22).
 - [ ] Add `GET /health`.
 - [ ] Verify typecheck, lint, and the health test.
 

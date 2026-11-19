@@ -27,6 +27,10 @@ Items marked with a D-ID cite their decision: **D17 and D18** were approved on 2
 - Validate at startup: trim, length ≤ 2048, absolute, `http:`/`https:` only, no credentials, no
   path, no query, no fragment; normalize with `new URL(value).origin`.
 - Production: fail fast when unset or invalid. Development: default to `http://localhost:${PORT}`.
+- `PORT` is a startup value, not request input: unset or empty resolves to `3000` in every
+  environment, and a set value must be ASCII digits only with a numeric value in 1–65535. Reject
+  `0` and never parse with a prefix-coercing `parseInt`, so `3000abc` fails instead of silently
+  binding `3000`. Leading zeros are allowed as insignificant (`03000` → `3000`). (D22)
 - Do not log the full `PUBLIC_BASE_URL` if it could contain credentials — it must not, by
   validation, but the rule keeps the check honest.
 
@@ -44,7 +48,8 @@ Items marked with a D-ID cite their decision: **D17 and D18** were approved on 2
 - Map unexpected failures to a generic `500 INTERNAL_ERROR` and log the detail server-side only.
 - Do not log full destination URLs by default; log the code and status instead. If a URL must be
   logged, treat it as sensitive.
-- Never log `PUBLIC_BASE_URL` credentials, tokens, or environment dumps.
+- Never log `PUBLIC_BASE_URL` credentials, tokens, or environment dumps; a rejected `PORT` names
+  the variable and the rule, not the raw value. (NFR-07, D22)
 
 ## Responses and caching
 

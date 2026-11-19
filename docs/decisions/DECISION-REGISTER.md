@@ -4,11 +4,13 @@
 > An ADR under `docs/decisions/ADR-NNN.md` is created only when the user approves the
 > corresponding `D-NNN`, and reuses the same number.
 
-- **Register updated:** 2026-11-19 (C-1 … C-3 applied; D20 and D21 approved)
-- **Decisions:** D1–D21
+- **Register updated:** 2026-11-19 (D22 approved — `PORT` default; C-1 … C-3 applied; D20 and D21
+  approved)
+- **Decisions:** D1–D22
 - **Approved by the user:** **D8–D18** on 2026-11-18; **D1–D7** and **D19** on 2026-11-19; **D20**
-  and **D21** on 2026-11-19 — every decision is recorded as `ADR-001` … `ADR-021`
-- **Pending User Approval:** none — **D1–D21 are all Approved**
+  and **D21** on 2026-11-19; **D22** on 2026-11-19 — every decision is recorded as `ADR-001` …
+  `ADR-022`
+- **Pending User Approval:** none — **D1–D22 are all Approved**
 - **Decision owner:** User (`AGENTS.md` §3)
 
 ## Status vocabulary
@@ -21,11 +23,12 @@
 | **Rejected** | Explicitly declined by the user. Kept for traceability. |
 | **Superseded** | Replaced by a later decision; the replacement is named. |
 
-All twenty-one decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18;
-D1–D7, D19, D20, and D21 on 2026-11-19. D1–D7 were approved as recommended with two recorded
+All twenty-two decisions are **Approved** by the user, each with an ADR: D8–D18 on 2026-11-18;
+D1–D7, D19, D20, D21, and D22 on 2026-11-19. D1–D7 were approved as recommended with two recorded
 clarifications — the `createApp({ db, clock, config })` deps object (D1) and **five generation
 attempts in total** (D5). D20 and D21 were approved on 2026-11-19 after the Prompt 03 architecture
-review, together with corrections C-1 … C-3. No entry is **Pending User Approval**, **Rejected**, or
+review, together with corrections C-1 … C-3. D22 settled the last unsourced startup value — the
+`PORT` default and its parsing rule. No entry is **Pending User Approval**, **Rejected**, or
 **Superseded**.
 
 ## Status summary
@@ -53,6 +56,7 @@ review, together with corrections C-1 … C-3. No entry is **Pending User Approv
 | D19 | Requirement-gap resolutions (unknown fields, duplicate destinations, `/health`, body-parser errors) | **Approved** — `ADR-019` |
 | D20 | Redirect write path: guarded increment, no explicit transaction, `HEAD` does not count | **Approved** — `ADR-020` |
 | D21 | `SQLITE_BUSY` maps to `500 INTERNAL_ERROR`, no retry | **Approved** — `ADR-021` |
+| D22 | `PORT` default (`3000` in every environment) and ASCII-digit parsing in 1–65535 | **Approved** — `ADR-022` |
 
 D1–D9 come from the nine-item approval checklist in `docs/architecture-proposal.md`.
 D10–D18 are the toolchain and contract findings verified in `docs/research-findings.md`.
@@ -481,6 +485,42 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
   `docs/requirements.md` (NFR-06), `TASKS.md` §2, `docs/testing-strategy.md`.
 - **Depends on / constrains:** D2 (connection setup), D3 (error envelope), D12 (driver).
 
+## D22 — `PORT` default and startup parsing
+
+- **Status:** **Approved** 2026-11-19 — [`ADR-022.md`](ADR-022.md). Closes the last unsourced value
+  in `docs/requirements.md` FR-11.
+- **Decision:** `PORT` is read once at startup, trimmed, and resolved before any listener exists.
+  Unset or empty after trimming → **`3000` in every environment** (no `NODE_ENV` branch). When set,
+  the trimmed value must contain **only ASCII digits `0`–`9`** and its numeric value must be in
+  **1–65535 inclusive**; it is never parsed with a prefix-coercing `parseInt`. **Leading zeros are
+  allowed** — `PORT=03000` resolves to port `3000` — while `PORT=0000` is rejected because its
+  numeric value is `0`. An invalid value aborts startup before `listen` in every environment, with
+  a log line naming `PORT` and the failed rule and no raw value echoed. `PORT` is used only for
+  `listen` and for D17's development `PUBLIC_BASE_URL` default; no `HOST` variable is added.
+- **Justification:** D17's environment split exists because a wrong origin silently mints broken
+  short URLs; a wrong port is immediately unreachable and corrupts nothing, so a second
+  `NODE_ENV` branch buys no safety. A single rule keeps `config.ts`, its tests, and the reviewer's
+  "install, run, test" path short, and the digit-only rule turns configuration typos into visible
+  startup failures instead of a silently different port.
+- **Alternatives / trade-offs:** development default with production required (symmetry with D17,
+  but a second failure mode for a self-announcing problem); `PORT` required everywhere (explicit,
+  but a fresh clone cannot start without `.env`); accepting `0` (convenient, but no test binds a
+  port and it breaks the development `PUBLIC_BASE_URL` default); `parseInt` with a range check
+  (shorter, but accepts `3000abc` and `3000.9` as `3000`); rejecting leading zeros (stricter, but
+  needless when the numeric value is unambiguous).
+- **Verification:** documentation review and reasoning only — no `package.json`, `src/`, or test
+  exists, so nothing ran. The planned configuration unit tests cover the default, the trim,
+  `03000` → `3000`, `00001` → `1`, the range boundaries `1` and `65535`, and the rejections `0`,
+  `0000`, `65536`, `-1`, `+3000`, `3000.5`, `1e3`, `abc`, and `3000abc`, plus a startup test
+  asserting no listener is created for each rejection.
+- **Affected documents (synchronized 2026-11-19):** `docs/requirements.md` (FR-11 and
+  AC-11.6 … AC-11.10, gaps section), `docs/security-guidelines.md` (startup configuration),
+  `docs/coding-standards.md` (configuration), `docs/testing-strategy.md` (configuration cases),
+  `docs/architecture-proposal.md` (§7, §9), `TASKS.md` §1, `PROJECT_STATE.md`, `ROADMAP.md`,
+  `README.md`, `CHANGELOG.md`.
+- **Depends on / constrains:** D17 (the development `PUBLIC_BASE_URL` default interpolates the
+  resolved port), D13 (runtime), D8/NFR-08 (no test binds a port, so `0` has no use).
+
 ---
 
 ## Cross-decision sequencing constraints
@@ -495,6 +535,7 @@ own; with one process and one synchronous `better-sqlite3` connection there is n
 | D7 is redirect-only | Stats must stay readable for expired rows; deletion is D9 and out of scope. |
 | D20 → redirect implementation | The write path and the `HEAD` rule determine the repository and route shape. |
 | D21 → error middleware | The busy-error mapping is part of the single error writer. |
+| D22 → D17 development default | The resolved `PORT` is what `http://localhost:${PORT}` interpolates. |
 | D4 and D18 together | Only a validated `http(s)` target may ever reach the `Location` header. |
 
 ## Consistency check against the earlier nine-item checklist
@@ -515,10 +556,13 @@ only pin versions and configuration.
 | 2026-11-19 | D19: the four requirement gaps; D9 reconfirmed | Approved by the user | `ADR-019.md`; reconfirmation in `ADR-009.md` |
 | 2026-11-19 | D1–D7 as recommended, with the `createApp({ db, clock, config })` deps object and five generation attempts in total | Approved by the user | `ADR-001.md` … `ADR-007.md` |
 | 2026-11-19 | D20, D21, and corrections C-1 … C-3 from the Prompt 03 architecture review | Approved by the user | `ADR-020.md`, `ADR-021.md`; corrections applied across the design documents |
+| 2026-11-19 | D22: the `PORT` default (`3000` in every environment) and its ASCII-digit parsing rule, with leading zeros allowed as insignificant | Approved by the user | `ADR-022.md` |
 
 On 2026-11-19 the Prompt 03 architecture review (`docs/architecture-review.md`) raised **D20**,
 **D21**, and corrections C-1 … C-3. The user approved both decisions and all three corrections the
 same day: each decision has an ADR, and the corrections are applied across the design documents.
+**D22** was approved later the same day, closing the `PORT` value that FR-11 had carried as an
+unapproved proposal, so no requirement now rests on an unsourced default.
 
 The approval covers each entry as written, including the recommendations in the final decision
 clarification report: `supertest` (D8), deletion out of scope (D9), the explicit TypeScript 6

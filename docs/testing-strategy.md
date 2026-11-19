@@ -3,15 +3,17 @@
 > **Status:** Approved. Every case follows an approved decision: the harness and toolchain cases by
 > D8–D18 (2026-11-18), the architecture, schema, route, redirect, generation, alias, and expiry
 > cases by D1–D7 (2026-11-19 — `ADR-001` … `ADR-007`), the unknown-field,
-> duplicate-destination, oversized-body, and health cases by D19 (`ADR-019`), and the `HEAD` and
-> busy-error cases by D20/D21 (`ADR-020`, `ADR-021`). No case is labeled as a proposal.
+> duplicate-destination, oversized-body, and health cases by D19 (`ADR-019`), the `HEAD` and
+> busy-error cases by D20/D21 (`ADR-020`, `ADR-021`), and the `PORT` cases by D22 (`ADR-022`). No
+> case is labeled as a proposal.
 
 ## Test layers
 
 1. **Unit tests** — code generator, validation rules, timestamp/expiry helpers, error mapping.
 2. **Repository tests** — schema creation, uniqueness, pragma values, atomic click increment.
 3. **API integration tests** — request/response behavior, headers, status codes, error shape.
-4. **Configuration tests** — `PUBLIC_BASE_URL` validation and production fail-fast.
+4. **Configuration tests** — `PUBLIC_BASE_URL` validation, production fail-fast, and `PORT`
+   resolution.
 
 ## Tooling
 
@@ -69,6 +71,14 @@
 - `PUBLIC_BASE_URL` missing in production throws at startup (fail fast).
 - Invalid scheme, embedded credentials, path/query/fragment, or over-long value is rejected.
 - A valid value is normalized to its origin (no trailing slash).
+- `PORT` unset, empty, and whitespace-only each resolve to `3000` under both `NODE_ENV` values.
+- `PORT=03000` resolves to `3000` and `PORT=00001` to `1`; `PORT=8080` binds `8080`; `1` and
+  `65535` are accepted; surrounding whitespace is trimmed (D22).
+- `PORT=0`, `PORT=0000`, `65536`, `-1`, `+3000`, `3000.5`, `1e3`, `abc`, and `3000abc` each abort
+  startup before any listener exists, under both `NODE_ENV` values, with `PORT` named in the log
+  line and the raw value absent (D22).
+- The development `PUBLIC_BASE_URL` default follows the resolved port: `http://localhost:3000` when
+  unset and `http://localhost:8080` when `PORT=8080` (D17, D22).
 - **Host-injection regression:** a request with `Host: evil.example` and
   `X-Forwarded-Host: evil.example` still returns a `shortUrl` built from `PUBLIC_BASE_URL`.
 - Error responses contain no stack trace, filesystem path, or SQL text.

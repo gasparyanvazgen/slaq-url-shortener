@@ -41,7 +41,7 @@ small backend URL shortener. Decision IDs refer to
 - [x] Capture proposed folder structure and SQLite table.
 - [x] Complete technical research: versions, compiler/lint configuration, driver typings, ESM,
       timestamps, base-URL security, API contracts, URL limits.
-- [x] Consolidate every open decision into one register (D1–D21).
+- [x] Consolidate every open decision into one register (D1–D22).
 - [x] Approve or amend architecture and behavior (D1–D7) — approved 2026-11-19 with the
       deps-object signature (D1) and five generation attempts in total (D5). Evidence:
       `docs/decisions/ADR-001.md` … `ADR-007.md`.
@@ -49,14 +49,14 @@ small backend URL shortener. Decision IDs refer to
 - [x] Confirm API routes, error contract, aliases, code generation, expiry, and click counting —
       approved: the contract (D17/D18), routes/envelope (D3), aliases (D6), codes (D5), and expiry
       (D7).
-- [x] Record approved decisions as ADRs — `docs/decisions/ADR-001.md` … `ADR-021.md`, one per
-      decision, 21 of 21.
+- [x] Record approved decisions as ADRs — `docs/decisions/ADR-001.md` … `ADR-022.md`, one per
+      decision, 22 of 22.
 - [x] Review the approved architecture for five-hour MVP fit (Prompt 03) — `docs/architecture-review.md`
       recommends the layers, module, factory, repository boundary, schema, routes, and dependencies
       unchanged; D20, D21, and corrections C-1 … C-3 were approved on 2026-11-19.
 
 **Exit criteria:** Architecture and key behavior decisions are explicitly approved.
-**Status:** Met — 21 of 21 decisions approved with ADRs; the design is final and implementation can
+**Status:** Met — 22 of 22 decisions approved with ADRs; the design is final and implementation can
 start.
 
 ## Phase 4 — Component Specifications & Performance

@@ -13,11 +13,11 @@ This package contains project context, agent role instructions, staged prompts, 
 - Architecture: approved — layer boundaries and the `createApp({ db, clock, config })` deps object,
   routes, schema, `302` redirect, code generation, aliases, and expiry (D1–D7), plus the toolchain
   and contract decisions (D8–D19).
-- Decisions: 21 recorded (D1–D21) in [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md);
-  **all approved** — D8–D18 on 2026-11-18, D1–D7, D19, D20, and D21 on 2026-11-19 — and recorded as
-  [`docs/decisions/ADR-001.md`](docs/decisions/ADR-001.md) … `ADR-021.md`. None is pending. The
-  architecture review in [`docs/architecture-review.md`](docs/architecture-review.md) is approved,
-  including corrections C-1 … C-3.
+- Decisions: 22 recorded (D1–D22) in [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md);
+  **all approved** — D8–D18 on 2026-11-18, D1–D7, D19, D20, D21, and D22 on 2026-11-19 — and
+  recorded as [`docs/decisions/ADR-001.md`](docs/decisions/ADR-001.md) … `ADR-022.md`. None is
+  pending. The architecture review in [`docs/architecture-review.md`](docs/architecture-review.md)
+  is approved, including corrections C-1 … C-3.
 - Requirements: [`docs/requirements.md`](docs/requirements.md) — FR-01 … FR-12 and NFR-01 … NFR-09,
   every requirement confirmed or explicitly out of scope.
 - Research evidence: [`docs/research-findings.md`](docs/research-findings.md) (versions verified
@@ -39,7 +39,7 @@ This package contains project context, agent role instructions, staged prompts, 
 5. Run the prompt in `prompts/00-start-session.md`.
 6. Review the architecture and the decision register: [`docs/architecture-review.md`](docs/architecture-review.md)
    (Prompt 03) and [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md).
-   D1–D21 are approved. Changing any approved decision requires a new decision and a new ADR before
+   D1–D22 are approved. Changing any approved decision requires a new decision and a new ADR before
    implementation.
 7. Work through `TASKS.md` one task at a time. Ask Freebuff to inspect the repository before changing anything.
 8. At the end of each session, use `prompts/10-session-handoff.md` and update `PROJECT_STATE.md` and `TASKS.md`.

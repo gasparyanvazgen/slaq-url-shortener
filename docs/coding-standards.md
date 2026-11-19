@@ -1,8 +1,8 @@
 # Coding Standards
 
-> Conventions marked with a D-ID cite their decision. **D10–D16** were approved on 2026-11-18 and
-> **D1–D7** on 2026-11-19, so every convention here rests on an approved decision. See
-> [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
+> Conventions marked with a D-ID cite their decision. **D10–D16** were approved on 2026-11-18,
+> **D1–D7** on 2026-11-19, and **D22** on 2026-11-19, so every convention here rests on an approved
+> decision. See [`decisions/DECISION-REGISTER.md`](decisions/DECISION-REGISTER.md).
 
 ## Language and toolchain
 
@@ -52,6 +52,9 @@
 
 - Read configuration once at startup and validate it there (`PORT`, `NODE_ENV`,
   `PUBLIC_BASE_URL`).
+- Resolve `PORT` by trimming, defaulting an unset or empty value to `3000` in every environment,
+  then requiring ASCII digits only with a numeric value in 1–65535. Never use a prefix-coercing
+  `parseInt`; leading zeros are allowed and insignificant, and `0`/`0000` are rejected. (D22)
 - Fail fast on invalid production configuration instead of falling back silently. (D17)
 - Never commit secrets; keep local values in `.env` (ignored) and document them in `.env.example`.
 

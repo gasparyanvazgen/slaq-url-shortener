@@ -9,7 +9,9 @@
 > recommended — with the `createApp({ db, clock, config })` deps object (D1) and five generation
 > attempts in total (D5) — after adopting the proposed defaults for **Q-2** … **Q-5** (**D19**,
 > [`decisions/ADR-019.md`](decisions/ADR-019.md)) and reconfirming that deletion stays out of the
-> MVP (D9).
+> MVP (D9). On the same day the user approved **D22**
+> ([`decisions/ADR-022.md`](decisions/ADR-022.md)), which replaced the last unsourced startup value
+> — the `PORT` default and its parsing rule — so FR-11 no longer contains a proposal.
 >
 > Sources: `PROJECT.md` (capabilities and non-goals), `docs/decisions/DECISION-REGISTER.md`
 > (status), `docs/api-specification.md` (contract), `docs/database-design.md`,
@@ -22,15 +24,16 @@
 | **Confirmed** | Backed by `PROJECT.md` or an approved decision. Testable as written. |
 | **Out of scope** | Explicitly excluded by an approved decision; recorded for traceability. |
 
-Approved decisions used here — all twenty-one: D1 (layers and the deps object), D2 (schema and the
+Approved decisions used here — all twenty-two: D1 (layers and the deps object), D2 (schema and the
 two `CHECK` constraints), D3 (routes and error envelope), D4 (`302`), D5 (7-character Base62 codes,
 five generation attempts in total), D6 (aliases), D7 (lazy expiry, `410`, retained rows), D8
 (`supertest`), D9 (no deletion; reconfirmed 2026-11-19), D10–D16 (TypeScript, ESLint, driver, Node,
 dependencies, timestamps, ESM), D17 (API contracts, `PUBLIC_BASE_URL`, Host-header safety), D18
 (destination URL scheme, length, credentials), and D19 (unknown fields ignored, no
 duplicate-destination deduplication, `/health` liveness only, body-parser failures mapped to
-`400 VALIDATION_ERROR`), D20 (redirect write path and the non-counting `HEAD`), and D21 (`SQLITE_BUSY`
-→ `500 INTERNAL_ERROR`, no retry).
+`400 VALIDATION_ERROR`), D20 (redirect write path and the non-counting `HEAD`), D21 (`SQLITE_BUSY`
+→ `500 INTERNAL_ERROR`, no retry), and D22 (`PORT` default of `3000` and its ASCII-digit parsing
+rule).
 
 ## MVP scope baseline
 
@@ -53,7 +56,7 @@ domains, and rate limiting or abuse detection.
 | 10. Document the REST API | FR-12 |
 
 FR-09 (deletion) records an approved exclusion; FR-10 (health) and FR-11 (startup configuration)
-are supporting behaviors the approved contract already implies (D17, D19).
+are supporting behaviors the approved contract already implies (D17, D19, D22).
 
 ## Requirement summary
 
@@ -69,7 +72,7 @@ are supporting behaviors the approved contract already implies (D17, D19).
 | FR-08 | Consistent error contract | **Confirmed** | D3, D17, D19 |
 | FR-09 | Delete a link | **Out of scope** | D9 approved |
 | FR-10 | Health check | **Confirmed** | D3, D19 |
-| FR-11 | Startup configuration and `PUBLIC_BASE_URL` | **Confirmed** | D17 approved |
+| FR-11 | Startup configuration and `PUBLIC_BASE_URL` | **Confirmed** | D17, D22 |
 | FR-12 | REST API documentation | **Confirmed** | `PROJECT.md` #10 |
 
 ---
@@ -693,7 +696,8 @@ None.
 ## FR-11 — Startup configuration and `PUBLIC_BASE_URL`
 
 **Status:** **Confirmed** (D17, 2026-11-18 —
-[`decisions/ADR-017.md`](decisions/ADR-017.md)).
+[`decisions/ADR-017.md`](decisions/ADR-017.md); `PORT` by D22, 2026-11-19 —
+[`decisions/ADR-022.md`](decisions/ADR-022.md)).
 
 **Inputs**
 
@@ -706,8 +710,16 @@ None.
 - In development, a missing `PUBLIC_BASE_URL` defaults to `http://localhost:${PORT}`.
 - In production, a missing or invalid `PUBLIC_BASE_URL` aborts startup before the listener opens.
 - `Host`, `X-Forwarded-Host`, and forwarded-protocol headers are never read for URL construction.
-- `PORT` defaults to `3000` (proposal; no decision records a default) and must be an integer in
-  1–65535.
+- `PORT` is trimmed and resolved once at startup (D22). Unset, or empty after trimming, resolves
+  to **`3000` in every environment** — the same value under `NODE_ENV=development` and
+  `NODE_ENV=production`.
+- A set `PORT` must contain **only ASCII digits `0`–`9`** and its numeric value must be in
+  **1–65535 inclusive** (D22). Leading zeros are insignificant and therefore allowed: `03000`
+  resolves to `3000` and `00001` to `1`. `0000` is rejected because its numeric value is `0`.
+- The value is never parsed with a prefix-coercing `parseInt`, so `3000abc`, `3000.5`, `+3000`,
+  `1e3`, and `-1` are all rejected rather than coerced.
+- The resolved port is used only for `listen` and for the development `PUBLIC_BASE_URL` default
+  above. No `HOST` or bind-address variable exists.
 
 **Validation rules**
 
@@ -717,12 +729,15 @@ None.
 | No embedded credentials. | D17 |
 | No path, query, or fragment; only an origin. | D17 |
 | Maximum 2048 characters after trimming. | D17 |
+| `PORT`, unset or empty after trimming, resolves to `3000` in every environment. | D22 |
+| `PORT`, when set, is ASCII digits only and its numeric value is within 1–65535; leading zeros are allowed and insignificant. | D22 |
 | Failure in production is fatal (non-zero exit), not a warning or fallback. | D17 |
 
 **Error cases and status codes**
 
 - No HTTP response: startup fails before listening, with a clear log line naming the variable and
-  the failed rule (never printing a credential-bearing value).
+  the failed rule. The message never prints a credential-bearing value, and for `PORT` it never
+  echoes the rejected raw value (D22, NFR-07).
 
 **Data changes**
 
@@ -734,13 +749,30 @@ None.
 2. AC-11.2 — `ftp://…`, `https://user:pass@host`, `https://host/path`, `https://host?q=1`,
    `https://host#f`, a relative value, and a 2049-character value are each rejected.
 3. AC-11.3 — `https://slaq.example/` normalizes to `https://slaq.example`.
-4. AC-11.4 — Development without the variable yields `http://localhost:${PORT}`.
+4. AC-11.4 — Development without the variable yields `http://localhost:${PORT}`, using the
+   resolved port.
 5. AC-11.5 — Forged `Host` headers cannot change any generated `shortUrl`.
+6. AC-11.6 — With `PORT` unset, empty, or whitespace-only, startup resolves the port to `3000` and
+   calls `listen` with `3000`; the result is identical under `NODE_ENV=development` and
+   `NODE_ENV=production` (D22).
+7. AC-11.7 — `PORT=8080` binds `8080`; `PORT=03000` resolves to `3000` and `PORT=00001` to `1`;
+   surrounding whitespace is trimmed; `PORT=1` and `PORT=65535` are accepted (D22).
+8. AC-11.8 — `PORT=0`, `PORT=0000`, `65536`, `-1`, `+3000`, `3000.5`, `1e3`, `abc`, and `3000abc`
+   each abort before `listen`, with a log line naming `PORT` and the failed rule and without echoing
+   the raw value (D22).
+9. AC-11.9 — An invalid `PORT` fails identically under `NODE_ENV=development` and
+   `NODE_ENV=production`, opens no port, and leaves `GET /health` unreachable (D22).
+10. AC-11.10 — The development `PUBLIC_BASE_URL` default is `http://localhost:3000` when `PORT` is
+    unset and `http://localhost:8080` when `PORT=8080` (D17, D22).
 
 **Tests needed**
 
 - Configuration unit tests for every accept/reject case and normalization.
-- Startup test: production without the variable rejects before binding a port.
+- Configuration unit tests for `PORT`: the `3000` default including the empty and whitespace-only
+  forms, trimming, `03000` → `3000`, `00001` → `1`, both range boundaries, and every rejection in
+  AC-11.8, with the resolved number asserted directly rather than through a listener.
+- Startup test: production without the variable rejects before binding a port; an invalid `PORT`
+  rejects before binding a port in both environments.
 - API regression: Host-injection through create and statistics.
 
 ---
@@ -898,12 +930,22 @@ MVP. Each answer is now a confirmed requirement, recorded as **D19**
 No requirements gap remains open and no requirement is provisional. With D1–D7 approved on 2026-11-19, every
 acceptance criterion below is backed by `PROJECT.md` or an approved decision; none is provisional.
 
+### `PORT` default resolved on 2026-11-19 (D22)
+
+FR-11 was the last confirmed requirement containing an unsourced value: it stated that `PORT`
+defaults to `3000` and must be an integer in 1–65535, and labeled that sentence "proposal; no
+decision records a default". The user approved **D22**
+([`decisions/ADR-022.md`](decisions/ADR-022.md)), which settles it as `3000` in every environment
+with an ASCII-digit, no-`parseInt` parsing rule in 1–65535; leading zeros are allowed as
+insignificant (`03000` → `3000`) and `0000` is rejected because its numeric value is `0`. The
+proposal label is gone and AC-11.6 … AC-11.10 cover the behavior.
+
 ## Confirmed scope summary
 
 - **Confirmed:** FR-01 … FR-08, FR-10, FR-11, and FR-12 in full — capabilities from `PROJECT.md`
   #1–#8 and #10, with the layers and deps object (D1), schema (D2), routes and envelope (D3),
   redirect status (D4), code generation (D5), aliases (D6), expiry (D7), and the contract details
-  from D15–D19.
+  from D15–D19, D20, D21, and D22.
 - **Out of scope:** FR-09 — deletion, excluded by D9 and reconfirmed 2026-11-19.
 - **Not in this document:** implementation. Approving these requirements approved no code; no test
   has been run.

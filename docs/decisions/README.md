@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 Decision status and technical detail live in one place:
-[`DECISION-REGISTER.md`](DECISION-REGISTER.md). It is the single source of truth for D1–D21 and
+[`DECISION-REGISTER.md`](DECISION-REGISTER.md). It is the single source of truth for D1–D22 and
 prevents duplicate decision records.
 
 ## Rules
@@ -19,15 +19,15 @@ prevents duplicate decision records.
 
 ## Current state (2026-11-19)
 
-- Register: D1–D21, **all Approved** — D8–D18 on 2026-11-18; D1–D7, D19, D20, and D21 on
+- Register: D1–D22, **all Approved** — D8–D18 on 2026-11-18; D1–D7, D19, D20, D21, and D22 on
   2026-11-19, with D9 reconfirmed on 2026-11-19. D20 and D21 came from the Prompt 03 architecture
   review ([`../architecture-review.md`](../architecture-review.md)) and were approved with corrections
-  C-1 … C-3.
-- ADRs written: `ADR-001.md` … `ADR-021.md`, one per approved decision with matching numbers.
+  C-1 … C-3; D22 settled the `PORT` default and parsing rule that FR-11 had carried as a proposal.
+- ADRs written: `ADR-001.md` … `ADR-022.md`, one per approved decision with matching numbers.
   D1–D7 were approved as recommended, with two clarifications recorded in the decisions
   themselves: `createApp({ db, clock, config })` (D1) and five generation attempts in total (D5).
 - The nine-item approval checklist in `docs/architecture-proposal.md` maps onto D1–D9 and is fully
-  checked, as is the Prompt 03 review checklist (D20, D21, C-1 … C-3).
+  checked, as is the Prompt 03 review checklist (D20, D21, C-1 … C-3) and the D22 startup item.
 - No decision is pending, rejected, or superseded. Three wording corrections (C-1 … C-3) were
   applied on 2026-11-19; they changed descriptions, not decisions, and each affected ADR carries a
   dated clarification. A later change to any approved decision needs a new decision and a new ADR;

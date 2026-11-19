@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### 2026-11-19 — D22 approved; `PORT` default recorded
+
+- The user approved **D22**: `PORT` is read once at startup, trimmed, and resolved to **`3000` in
+  every environment** when unset or empty. A set value must contain only ASCII digits and have a
+  numeric value in 1–65535; leading zeros are insignificant (`PORT=03000` → `3000`) and `0000` is
+  rejected because its value is `0`. The value is never parsed with a prefix-coercing `parseInt`,
+  and an invalid value aborts startup before `listen` in both environments.
+- Added `docs/decisions/ADR-022.md`; the register now records **22 of 22 decided, all Approved**,
+  with no pending entry.
+- `docs/requirements.md`: FR-11 no longer contains a proposal — the `PORT` rule is stated as
+  confirmed, AC-11.6 … AC-11.10 were added, and the gaps section records the resolution.
+- `docs/security-guidelines.md`, `docs/coding-standards.md`, and `docs/testing-strategy.md` carry the
+  parsing rule and its configuration test cases; `docs/architecture-proposal.md` §7 and §9 record
+  D22.
+- `PROJECT_STATE.md`, `ROADMAP.md`, `TASKS.md`, `README.md`, `docs/decisions/README.md`,
+  `prompts/00-start-session.md`, and `prompts/03-architecture.md` synchronized to 22 of 22.
+- No application code, dependencies, installs, tests, commits, or pushes were made.
+
 ### 2026-11-19 — C-1 … C-3 applied; D20 and D21 approved
 
 - The user approved the Prompt 03 review in full: **D20** (redirect write path — guarded increment

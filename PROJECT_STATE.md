@@ -1,11 +1,11 @@
 # Project State — Slaq
 
 > Update this file at the start and end of every substantial AI-assisted session.
-> **Last rewritten:** 2026-11-19 (D20/D21 approval, C-1 … C-3 applied, design final).
+> **Last rewritten:** 2026-11-19 (D22 approval, `PORT` default recorded, design final).
 
 ## Current status
 
-- **Overall:** Design approved and final — **21 of 21 decisions approved**; the Prompt 03
+- **Overall:** Design approved and final — **22 of 22 decisions approved**; the Prompt 03
   architecture review is approved in full and no architecture decision is pending
 - **Current phase:** Phase 5 entry — requirements, architecture, API contract, schema, testing
   strategy, and the Prompt 03 architecture review are final; the implementation scaffold is the next
@@ -14,35 +14,35 @@
   or `node_modules` exists
 - **Architecture status:** **Approved** — `docs/architecture-proposal.md` records the approved
   layers, routes, schema, redirect, codes, aliases, and expiry (D1–D7)
-- **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, and **D21**
-  (2026-11-19), recorded as `docs/decisions/ADR-001.md` … `ADR-021.md`
-- **Pending decisions:** none — **D1–D21 are all Approved**; C-1 … C-3 are applied
-- **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 72 acceptance
-  criteria, every one confirmed or explicitly out of scope (FR-09)
+- **Approved decisions:** **D8–D18** (2026-11-18); **D1–D7**, **D19**, **D20**, **D21**, and
+  **D22** (2026-11-19), recorded as `docs/decisions/ADR-001.md` … `ADR-022.md`
+- **Pending decisions:** none — **D1–D22 are all Approved**; C-1 … C-3 are applied
+- **Requirements:** `docs/requirements.md` — FR-01 … FR-12, NFR-01 … NFR-09, and 77 acceptance
+  criteria, every one confirmed or explicitly out of scope (FR-09); no requirement contains a
+  proposal
 - **Last verified test run:** None — no npm project or test script exists, so the `AGENTS.md` §8.2
   gate cannot run
 - **Current timebox:** approximately five hours for the MVP, not started
 
 ## Repository and Git status (verified 2026-11-19 on the user's machine)
 
-- Branch: **`dev`** (checked out), created from `master`; both track `origin/master`.
-- Commits: `HEAD` = `dev` = **`24a83b0`** (`docs: resolve requirement gaps as D19`), which contains
-  the Prompt 02 finalization, D19, and the D1–D7 approval work. Its parent is `43efa1a`
-  (`docs: record D8-D18 approvals and synchronize decision status`). `origin/master` =
-  **`43efa1a`**, and the local `master` branch is **`c804101`**, one commit behind `origin/master`.
-  `dev` is therefore **one commit ahead of `origin/master`** and two ahead of local `master`; the
-  Prompt 02 finalization commit has not been pushed.
+- Branch: **`dev`** (checked out), tracking `origin/master`.
+- Commits: `HEAD` = `dev` = **`56f1915`** (`docs: approve D20/D21 and apply Prompt 03 corrections`),
+  whose history is `56f1915` → `dcc4698` (`docs: add Prompt 03 architecture review with pending
+  proposals`) → `731b59c` (`docs: sync project state after requirements finalization`) → `24a83b0`
+  (`docs: resolve requirement gaps as D19`). `dev` is **four commits ahead of `origin/master`**, and
+  none of them has been pushed.
 - Remote: **`origin` = `git@github.com:gasparyanvazgen/slaq-url-shortener.git`**.
-- `git ls-files` reports **65 tracked files** plus the pending new files from this session.
-  `docs/decisions/` holds `ADR-001.md` … `ADR-021.md`, and all twenty-one records are tracked or
-  about to be committed.
-- Working tree: **clean** — the Prompt 02, D19, and D1–D7 work is committed in `24a83b0`; nothing is
-  modified, untracked, or staged.
+- `git ls-files` reports **68 tracked files**; the D22 session adds `docs/decisions/ADR-022.md`
+  as the one new path, so the tracked set becomes 69 once it is committed. `docs/decisions/` holds
+  `ADR-001.md` … `ADR-022.md`, one record per approved decision.
+- Working tree: **13 modified + 1 untracked** (`ADR-022.md`), nothing staged — this is the D22
+  documentation synchronization described below, not unrelated change.
 - The temporary Freebuff branches `freebuff/2628b5015cbd1c3ac4b90176` and `freebuff-base` were
   deleted on 2026-11-18 at the user's request; `freebuff-base` held only an orphan commit with an
   empty tree.
-- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-021.md`,
-  one record per approved decision; **all 21 decisions are approved**.
+- `docs/decisions/` contains `README.md`, `DECISION-REGISTER.md`, and `ADR-001.md` … `ADR-022.md`,
+  one record per approved decision; **all 22 decisions are approved**.
 
 ## Toolchain reality in this workspace
 
@@ -52,10 +52,11 @@
 - Nothing is installed: no `node_modules`, no lockfile. `better-sqlite3` prebuilt-binary loading
   and every npm script remain unproven.
 
-## Approved decisions — D1–D21
+## Approved decisions — D1–D22
 
 D20 and D21 were approved on 2026-11-19 from the Prompt 03 architecture review; the three
-corrections C-1 … C-3 from the same review are applied across the design documents.
+corrections C-1 … C-3 from the same review are applied across the design documents. D22 was approved
+on 2026-11-19 and closes the last unsourced value in a confirmed requirement (the `PORT` default).
 
 | ID | Decision | ADR |
 |---|---|---|
@@ -80,6 +81,7 @@ corrections C-1 … C-3 from the same review are applied across the design docum
 | D19 | Requirement-gap resolutions: unknown fields ignored, no duplicate-destination dedup, `/health` liveness only, body-parser failures → `400 VALIDATION_ERROR` | `ADR-019` |
 | D20 | Redirect: guarded increment, no explicit transaction; `HEAD` does not count a click | `ADR-020` |
 | D21 | `SQLITE_BUSY` after `busy_timeout` → `500 INTERNAL_ERROR`, no retry | `ADR-021` |
+| D22 | `PORT` default `3000` in every environment; digits-only 1–65535, leading zeros insignificant | `ADR-022` |
 
 Sub-options resolved with the approval: expired-link statistics return `200` with
 `isExpired: true`; `isCustom` is exposed; invalid or missing `PUBLIC_BASE_URL` fails fast in
@@ -88,13 +90,15 @@ deletion stays out of the MVP.
 
 ## Approval state
 
-Every decision D1–D21 is approved and has a matching ADR; see
+Every decision D1–D22 is approved and has a matching ADR; see
 [`docs/decisions/DECISION-REGISTER.md`](docs/decisions/DECISION-REGISTER.md). D1–D7 were approved as
 recommended on 2026-11-19 with two clarifications recorded in their ADRs: the deps object
 `createApp({ db, clock, config })` (D1) and **five generation attempts in total** (D5). D2's `CHECK`
 set is limited to `click_count >= 0` and `is_custom IN (0,1)`. D20 and D21 were approved on
-2026-11-19 from the Prompt 03 review, with corrections C-1 … C-3 applied. No decision is pending,
-rejected, or superseded; changing one requires a new decision and a new ADR.
+2026-11-19 from the Prompt 03 review, with corrections C-1 … C-3 applied. D22 (`PORT` default
+`3000` in every environment, ASCII-digit parsing in 1–65535 with insignificant leading zeros) closed
+the last proposal in FR-11 the same day. No decision is pending, rejected, or superseded; changing
+one requires a new decision and a new ADR.
 
 ## Completed work
 
@@ -125,8 +129,14 @@ rejected, or superseded; changing one requires a new decision and a new ADR.
       body-parser failures → `400 VALIDATION_ERROR`) and D9 reconfirmed. Folded into
       `docs/requirements.md` (FR-01, FR-07, FR-08, FR-10; AC-01.9, AC-01.10, AC-07.7, AC-08.6),
       `docs/api-specification.md`, and `docs/testing-strategy.md`.
-- [x] Confirm the drafted acceptance criteria — all 72 are confirmed after D19 and the D1–D7
-      approval.
+- [x] Confirm the drafted acceptance criteria — all 77 are confirmed after D19, the D1–D7
+      approval, and D22.
+- [x] **D22 approved by the user on 2026-11-19** — `PORT` defaults to `3000` in every environment
+      when unset or empty; a set value must be ASCII digits only with a numeric value in 1–65535,
+      leading zeros are insignificant (`03000` → `3000`, `0000` rejected), and it is never parsed
+      with a coercing `parseInt`. Recorded as `ADR-022.md`; FR-11 and AC-11.6 … AC-11.10,
+      `docs/security-guidelines.md`, `docs/coding-standards.md`, `docs/testing-strategy.md`, and
+      `docs/architecture-proposal.md` §7/§9 synchronized.
 - [ ] Implementation scaffolded.
 - [ ] Database and schema implemented.
 - [ ] Create-link, redirect, alias, expiration, and statistics behavior implemented.
@@ -209,6 +219,25 @@ git status --porcelain                    # -> docs only; no code, no dependency
 The review added no code and installed nothing. D20 and D21 were approved on 2026-11-19 and are
 recorded as `ADR-020` and `ADR-021`; C-1 … C-3 are applied across the design documents.
 
+Commands run on 2026-11-19 for the D22 documentation synchronization:
+
+```bash
+node -e '<repository Markdown link check>'   # -> markdown links checked: 118 broken: 0
+git diff --check                             # -> clean (exit 0)
+ls docs/decisions/ADR-*.md | wc -l           # -> 22
+grep -cE '^\| D[0-9]+ \|' docs/decisions/DECISION-REGISTER.md   # -> 22 summary rows
+grep -E '^\| D[0-9]+ \|' … | grep -vc 'Approved'               # -> 0 non-Approved rows
+grep -n 'Pending User Approval:' docs/decisions/DECISION-REGISTER.md
+# -> none — D1–D22 are all Approved
+grep -cE '^[[:space:]]*[0-9]+\. AC-' docs/requirements.md      # -> 77 acceptance criteria
+ls package.json src node_modules             # -> none exist
+git status --porcelain                       # -> 14 modified + ADR-022.md untracked, nothing staged
+```
+
+The link check scanned every `.md` file and found **0 broken links**, including the new
+`ADR-022` references. D22 added no code, dependency, install, or test execution; the
+`AGENTS.md` §8.2 gate still cannot run because there is no npm project.
+
 The Markdown-link check covers every `.md` file in the repository and reported **0 broken links**.
 
 Dependency versions were verified earlier against the registry (not installed):
@@ -222,7 +251,7 @@ No `npm install`, typecheck, lint, test, build, commit, or push was performed.
 ## Next recommended action
 
 Start implementation at `TASKS.md` §1: initialize the npm project with `"type": "module"`, pin
-the approved dependency set, configure TypeScript/ESLint/Vitest, and add `GET /health` through
-`createApp({ db, clock, config })`. The design gate is closed — do not reopen an approved decision
+the approved dependency set, configure TypeScript/ESLint/Vitest, resolve `PORT` per D22 alongside
+`PUBLIC_BASE_URL`, and add `GET /health` through `createApp({ db, clock, config })`. The design gate is closed — do not reopen an approved decision
 without a new ADR. Then work through `TASKS.md` §2–§8 and run the `AGENTS.md` §8.2 gate
 (`npm run typecheck && npm run lint && npm test && npm run build`).

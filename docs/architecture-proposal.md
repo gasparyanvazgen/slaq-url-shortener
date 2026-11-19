@@ -209,6 +209,9 @@ proposals.
   an injected clock, with `expiresAt <= now` as the expiry boundary. (D15)
 - **`PUBLIC_BASE_URL`** validated at startup; short URLs are never derived from the `Host`
   header. (D17)
+- **`PORT`** resolved once at startup: unset or empty → `3000` in every environment; otherwise
+  ASCII digits only with a numeric value in 1–65535, leading zeros insignificant (`03000` →
+  `3000`, `0000` rejected), and no prefix-coercing `parseInt`. (D22)
 - **Complete create/statistics bodies** and a fixed error-code table. (D17)
 - **Destination URL limits**: `http`/`https` only, 2048 characters maximum. (D18)
 
@@ -281,3 +284,10 @@ approved its two decisions and all three corrections on 2026-11-19:
       fixed port, no manual lifecycle.
 
 No stack, route, error-code, or schema change follows from any of these.
+
+### Startup configuration — approved 2026-11-19
+
+- [x] **D22** — `PORT` default and parsing: `3000` in every environment when unset or empty;
+      otherwise ASCII digits only with a numeric value in 1–65535, leading zeros insignificant and
+      `0` rejected ([`ADR-022`](decisions/ADR-022.md)). Closes the last value FR-11 carried as a
+      proposal; no requirement is provisional.
